@@ -1,0 +1,27 @@
+import { PropertyRoutes } from "./property.route";
+import { post, get, put,deleted,patch } from "../index";
+
+const PropertyServices = {
+  createProperty: async (obj) => {
+    let result = post(PropertyRoutes.createProperty, obj);
+    return result;
+  },
+  getProperty: async (search,id,page,limit,companyId) => {
+    let result = get(PropertyRoutes.getProperty + `?search=${search}&id=${id}&page=${page}&limit=${limit}`);
+    return result;
+  },
+  getPropertyById: async (id) => {
+    let result = get(PropertyRoutes.getPropertyById + `/${id}`);
+    return result;
+  },
+  deleteProperty: async (id ) => {
+    let result = deleted(PropertyRoutes.deleteProperty + `/${id}`);
+    return result;
+  },
+  updateProperty: async (obj ) => {
+    let result = patch(PropertyRoutes.updateProperty ,obj);
+    return result;
+  },
+};
+
+export default PropertyServices;
