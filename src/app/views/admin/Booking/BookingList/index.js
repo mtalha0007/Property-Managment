@@ -20,7 +20,7 @@ import {
   Grid,
   Tooltip,
   Stack,
-  InputLabel
+  InputLabel,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RestoreIcon from "@mui/icons-material/Restore";
@@ -38,6 +38,7 @@ import AuthServices from "../../../../api/AuthServices/auth.index";
 import moment from "moment";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { Chip } from "@mui/material";
+import { ErrorToaster, SuccessToaster } from "../../../../components/Toaster";
 
 const tableHead = [
   "SR No",
@@ -84,10 +85,11 @@ const BookingList = () => {
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState([]);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const sleep = () => new Promise((r) => setTimeout(r, 1000));
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit, reset } = useForm();
 
   const getBookingList = async (
     searchParam = "",
@@ -95,7 +97,6 @@ const BookingList = () => {
     pageParam = 1,
     limitParam = 10,
     statusParam = "pending"
-
   ) => {
     setLoading(true);
     try {
@@ -106,7 +107,7 @@ const BookingList = () => {
         limitParam,
         statusParam
       );
-      setData(data?.properties);
+      setData(data?.bookings);
       setCount(data.count);
     } catch (error) {
       ErrorHandler(error);
@@ -117,7 +118,7 @@ const BookingList = () => {
   };
 
   useEffect(() => {
-    getBookingList(search, page + 1, limit ,"pending");
+    getBookingList(search, page + 1, limit, "pending");
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
@@ -128,7 +129,7 @@ const BookingList = () => {
       );
 
       setOpenDialog(false);
-      getBookingList(search, page + 1, limit,"pending");
+      getBookingList(search, page + 1, limit, "pending");
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -138,7 +139,7 @@ const BookingList = () => {
   };
 
   const handleSearch = () => {
-    getBookingList(search, 1, limit,"pending");
+    getBookingList(search, 1, limit, "pending");
   };
 
   const handlePageChange = (event, newPage) => {
@@ -148,15 +149,30 @@ const BookingList = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getBookingList("", 1, limit,"pending");
+    getBookingList("", 1, limit, "pending");
   };
 
   const filteredData = data.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
-  const onSubmit = (data) => {
-    console.log("New status:", data.status);
-   
+  const onSubmit = async (data) => {
+    const obj = {
+      status: data?.status,
+      agent_id: selectedBooking?.agent_id,
+      property_id: selectedBooking?.property_id,
+      id: selectedBooking?._id,
+    };
+    try {
+      const response = await AuthServices.updateBooking(obj);
+      SuccessToaster(response?.message);
+      setOpenStatusDialog(false);
+      getBookingList(search, page + 1, limit, "pending");
+      reset();
+    } catch (error) {
+      ErrorToaster(error);
+      console.log(error);
+    } finally {
+    }
   };
   return (
     <Box sx={{ padding: 2 }}>
@@ -315,7 +331,7 @@ const BookingList = () => {
                     {row?.time}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.property_id}
+                    {row?.property?.name}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.doc ? (
@@ -336,11 +352,18 @@ const BookingList = () => {
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     <Chip
-                    onClick={()=>setOpenStatusDialog(true)}
+                      onClick={() => {
+                        setOpenStatusDialog(true);
+                        setSelectedBooking(row);
+                      }}
                       label={row?.status || "Unknown"}
-                     
                       size="small"
-                      sx={{ textTransform: "capitalize",color:"white" ,background:"#de9525e0",cursor:"pointer" }}
+                      sx={{
+                        textTransform: "capitalize",
+                        color: "white",
+                        background: "#de9525e0",
+                        cursor: "pointer",
+                      }}
                     />
                   </TableCell>
 
@@ -368,7 +391,7 @@ const BookingList = () => {
           )}
         </Table>
       </TableContainer>
-      
+
       <Box
         sx={{
           mt: 2,
@@ -427,7 +450,6 @@ const BookingList = () => {
         </Box>
       </Box>
 
-
       <SimpleDialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -473,37 +495,35 @@ const BookingList = () => {
         </Box>
       </SimpleDialog>
 
-
       <SimpleDialog
         open={openStatusDialog}
         onClose={() => setOpenStatusDialog(false)}
         border={`4px solid ${Colors.primary}`}
         title="Are You Sure you Change Status?"
       >
-         <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
-          {/* Status Dropdown */}
-          <FormControl fullWidth>
-            <InputLabel>Status</InputLabel>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} label="Status">
-                  <MenuItem value="approved">Approved</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                  
-                </Select>
-              )}
-            />
-          </FormControl>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={2}>
+            {/* Status Dropdown */}
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} label="Status">
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormControl>
 
-          {/* Submit Button */}
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Confirm
-          </Button>
-        </Stack>
-      </form>
+            {/* Submit Button */}
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Confirm
+            </Button>
+          </Stack>
+        </form>
       </SimpleDialog>
     </Box>
   );

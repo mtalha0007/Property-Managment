@@ -45,6 +45,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SimpleDialog from "../../../components/Dialog";
 import { useForm, Controller } from "react-hook-form";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import RoomIcon from "@mui/icons-material/Room";
 
 // import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
@@ -53,6 +54,8 @@ import Loader from "../../../components/Loader";
 import FileServices from "../../../api/FileServices/file.index";
 import { useAuth } from "../../../context";
 import AuthServices from "../../../api/AuthServices/auth.index";
+import { AddressForm } from "../../../components/AdressMap";
+import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
 function PropertyDetail() {
   const param = useParams();
@@ -68,8 +71,19 @@ function PropertyDetail() {
   const [document, setDocument] = useState(null);
   const [docLoading, setDocLoading] = useState(false);
   const { webUser } = useAuth();
+  const [openMapModal, setOpenMapModal] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const containerStyle = {
+    width: "100%",
+    height: "400px",
+  };
+
+  const center = {
+    lat: propertyData?.latitude || 25.276987,
+    lng: propertyData?.longitude || 55.296249,
+  };
   const timeSlots = [
     "1-2",
     "2-3",
@@ -204,6 +218,19 @@ function PropertyDetail() {
   useEffect(() => {
     getProperties("", "", 1, 4);
   }, [navigate]);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: "AIzaSyCsT-b8-J4wnqKYUBFROMPQr_IEYdjNiSg", // Replace this
+  });
+
+  if (!isLoaded)
+    return (
+      <div style={{ display: "flex",justifyContent:"center", alignItems:"center" ,height:"100vh"}}>
+        {" "}
+        <Loader width="40px" height="40px" color={Colors.primary} />
+      </div>
+    );
+
   return (
     <>
       <Header />
@@ -359,10 +386,39 @@ function PropertyDetail() {
                     >
                       AED {propertyData?.price}
                     </Typography>
-                    <Typography variant="h6" sx={{ color: "#34495e", mb: 2 }}>
-                      {propertyData?.address}
-                    </Typography>
-
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Typography variant="h6" sx={{ color: "#34495e", mb: 2 }}>
+                        {propertyData?.address}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: "#34495e",
+                          mb: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                        }}
+                        onClick={() => setOpenMapModal(true)}
+                      >
+                        <RoomIcon color="primary" />View Map Location
+                      </Typography>
+                    </Box>
+                    <SimpleDialog
+                      open={openMapModal}
+                      onClose={() => setOpenMapModal(false)}
+                      title={"Property Location"}
+                    >
+                      <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={center}
+                        zoom={15}
+                      >
+                        <MarkerF position={center} />
+                      </GoogleMap>
+                    </SimpleDialog>
                     {/* Property Specs */}
                     <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                       <Box

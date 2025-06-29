@@ -23,6 +23,10 @@ const AuthServices = {
     let result = get(AuthRoutes.getBookingById + `/${id}` );
     return result;
   },
+  updateBooking: async (obj) => {
+    let result = patch(AuthRoutes.updateBooking ,obj );
+    return result;
+  },
   deleteBooking: async (id) => {
     let result = deleted(AuthRoutes.deleteBooking + `/${id}` );
     return result;

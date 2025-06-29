@@ -105,7 +105,7 @@ const BookingList = () => {
         limitParam,
         statusParam
       );
-      setData(data?.properties);
+      setData(data?.bookings);
       setCount(data.count);
     } catch (error) {
       ErrorHandler(error);
@@ -314,7 +314,7 @@ const BookingList = () => {
                     {row?.time}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.property_id}
+                    {row?.property?.name}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.doc ? (

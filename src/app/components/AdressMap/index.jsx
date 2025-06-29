@@ -288,49 +288,7 @@ function AddressForm({
                 defaultData={defaultData}
               />
           </Grid>
-          {/* <Grid item sx={{ marginTop: "-7px" }} xs={12} sm={6}>
-            <Grid item xs={12} sm={12}>
-              <InputLabel>Location</InputLabel>
-              <TextField
-                size={"small"}
-                disabled={true}
-                value={getValues("address") || ""}
-                sx={{ width: "100%" }}
-                placeholder="location"
-                error={!!errors.address}
-                {...register("address", {
-                  required: "location is required",
-                })}
-                helperText={errors.address?.message}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={12}>
-                  <InputLabel>Latitude</InputLabel>
-                  <TextField
-                    size={"small"}
-                    disabled={true}
-                    value={getValues("lat") || ""}
-                    sx={{ width: "100%" }}
-                    placeholder="Latitude"
-                    {...register("latitude")}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                  <InputLabel>Longitude</InputLabel>
-                  <TextField
-                    size={"small"}
-                    disabled={true}
-                    value={getValues("lng") || ""}
-                    sx={{ width: "100%" }}
-                    placeholder="Longitude"
-                    {...register("longitude")}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid> */}
+        
           <Grid item xs={12} sm={12} sx={{ mt: 1 }}>
             <Box sx={{ display: "flex" }}>
               <Button
