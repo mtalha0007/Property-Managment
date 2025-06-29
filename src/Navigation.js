@@ -39,6 +39,16 @@ const AdminNavigation = [
     icon: Svgs.employees,
     path:"/investor/list",    
   },
+  {
+    name: "Booking",
+    icon: Svgs.jobRequest ,
+    path:"/booking/list",    
+  },
+  {
+    name: "Booking Approved",
+    icon: Svgs.jobRequest ,
+    path:"/approved/list",    
+  },
   // {
   //   name: "Job Request",
   //   icon: Svgs.jobRequest,

@@ -7,7 +7,6 @@ import AdminRoutes from "./app/routes/admin";
 import PublicRoutes from "./app/routes/public";
 import "@fontsource/noto-sans";
 import Login from "./app/views/admin/Login/index";
-import Register from "./app/views/web/Register"
 import useAuth from "./app/hooks/useAuth";
 import { ToasterContainer } from "./app/components/Toaster";
 import "./App.css"
@@ -60,7 +59,8 @@ const theme = createTheme({
 
 function App() {
   const { user ,webUser } = useAuth();
-  console.log(user)
+  console.log(user ,"admin")
+  console.log(webUser ,"webUser")
   return (
     <Fragment>
       <ThemeProvider theme={theme}>

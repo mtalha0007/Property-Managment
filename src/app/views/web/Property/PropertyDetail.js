@@ -17,6 +17,9 @@ import {
   TableRow,
   Avatar,
   Link,
+  InputLabel,
+  TextField,
+  Stack,
 } from "@mui/material";
 import {
   LocationOn,
@@ -37,64 +40,111 @@ import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import Header from "../Header";
 import PropertyServices from "../../../api/PropertyServices/property.index";
-import { ErrorToaster } from "../../../components/Toaster";
-import { useParams } from "react-router-dom";
+import { ErrorToaster, SuccessToaster } from "../../../components/Toaster";
+import { useNavigate, useParams } from "react-router-dom";
+import SimpleDialog from "../../../components/Dialog";
+import { useForm, Controller } from "react-hook-form";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-// Sample images data - replace with your actual images
-// const propertyImages = [
-//   {
-//     original:
-//       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80",
-//     thumbnail:
-//       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-//     description: "Elegant Dining Area",
-//   },
-//   {
-//     original:
-//       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80",
-//     thumbnail:
-//       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-//     description: "Elegant Dining Area",
-//   },
-//   {
-//     original:
-//       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2058&q=80",
-//     thumbnail:
-//       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-//     description: "Luxurious Bedroom",
-//   },
-//   {
-//     original:
-//       "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80",
-//     thumbnail:
-//       "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-//     description: "Modern Living Room",
-//   },
-//   {
-//     original:
-//       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2053&q=80",
-//     thumbnail:
-//       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-//     description: "Spacious Kitchen",
-//   },
-//   {
-//     original:
-//       "https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-//     thumbnail:
-//       "https://images.unsplash.com/photo-1600607687644-c7171b42498b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-//     description: "Master Bathroom",
-//   },
-// ];
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
+import Colors from "../../../assets/styles";
+import Loader from "../../../components/Loader";
+import FileServices from "../../../api/FileServices/file.index";
+import { useAuth } from "../../../context";
+import AuthServices from "../../../api/AuthServices/auth.index";
 
 function PropertyDetail() {
   const param = useParams();
+  const navigate = useNavigate();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [propertyData, setPropertyData] = useState([]);
+  const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
   const [propertyImages, setPropertyImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [openBookDialog, setOpenBookDialog] = useState(false);
+  const [document, setDocument] = useState(null);
+  const [docLoading, setDocLoading] = useState(false);
+  const { webUser } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const timeSlots = [
+    "1-2",
+    "2-3",
+    "3-4",
+    "4-5",
+    "5-6",
+    "6-7",
+    "7-8",
+    "8-9",
+    "9-10",
+    "10-11",
+    "11-12",
+    "12-1",
+  ];
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const selectedTime = watch("timeSlot");
+
+  const handleUploadDoc = async (e) => {
+    setDocLoading(true);
+    const formData = new FormData();
+    const selectedFiles = Array.from(e.target.files);
+
+    selectedFiles.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    try {
+      const response = await FileServices.uploadDocument(formData);
+      console.log(response);
+      setDocument(response?.url);
+
+      SuccessToaster(response?.message);
+    } catch (error) {
+      ErrorToaster(error);
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    setBookingLoading(true);
+    const obj = {
+      name: webUser?.name,
+      email: webUser?.email,
+      agent_id: webUser?._id,
+      property_id: propertyData?._id,
+      doc: document,
+      date: data?.date,
+      time: data?.timeSlot,
+      notes: data?.notes,
+    };
+    console.log(obj);
+    try {
+      const response = await AuthServices.createBooking(obj);
+
+      SuccessToaster(response?.message);
+      setOpenBookDialog(false);
+      reset();
+      setValue("timeSlot", "");
+      setDocument(null);
+    } catch (error) {
+      ErrorToaster(error);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   const handleImageClick = (index) => {
     setCurrentImageIndex(index);
@@ -105,7 +155,7 @@ function PropertyDetail() {
     setLightboxOpen(false);
   };
 
-  const getProperties = async () => {
+  const getPropertiesByID = async () => {
     setLoading(true);
     try {
       const { data } = await PropertyServices.getPropertyById(param?.id);
@@ -120,16 +170,47 @@ function PropertyDetail() {
     }
   };
   useEffect(() => {
-    getProperties();
-  }, []);
+    getPropertiesByID();
+  }, [navigate]);
 
+  const getProperties = async (
+    searchParam = "",
+    idParam = "",
+    pageParam = 1,
+    limitParam = 10
+  ) => {
+    setLoading(true);
+    try {
+      const { data } = await PropertyServices.getProperty(
+        searchParam,
+        idParam,
+        pageParam,
+        limitParam
+      );
+
+      // Exclude the property with currentPropertyId
+      const filteredProperties = data?.properties?.filter(
+        (property) => property._id !== param?.id
+      );
+
+      setProperties(filteredProperties);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getProperties("", "", 1, 4);
+  }, [navigate]);
   return (
     <>
       <Header />
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "1400px", mx: "auto" }}>
         <Grid container spacing={2}>
           {/* Main Image Section */}
-          <Grid item xs={12} md={propertyImages?.length > 1 ? 8 :12}>
+          <Grid item xs={12} md={propertyImages?.length > 1 ? 8 : 12}>
             <Box
               sx={{
                 position: "relative",
@@ -260,7 +341,7 @@ function PropertyDetail() {
         <Box sx={{ mt: 4 }}>
           <Grid container spacing={4}>
             {/* Main Content */}
-            <Grid item xs={12} lg={ 8}>
+            <Grid item xs={12} lg={8}>
               {/* Price and Basic Info */}
               <Box sx={{ mb: 3 }}>
                 <Box
@@ -279,7 +360,7 @@ function PropertyDetail() {
                       AED {propertyData?.price}
                     </Typography>
                     <Typography variant="h6" sx={{ color: "#34495e", mb: 2 }}>
-                    {propertyData?.address}
+                      {propertyData?.address}
                     </Typography>
 
                     {/* Property Specs */}
@@ -288,24 +369,28 @@ function PropertyDetail() {
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <Bed sx={{ color: "#7f8c8d" }} />
-                        <Typography variant="body1">{propertyData?.beds} Beds</Typography>
+                        <Typography variant="body1">
+                          {propertyData?.beds} Beds
+                        </Typography>
                       </Box>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <Bathtub sx={{ color: "#7f8c8d" }} />
-                        <Typography variant="body1">{propertyData?.baths} Baths</Typography>
+                        <Typography variant="body1">
+                          {propertyData?.baths} Baths
+                        </Typography>
                       </Box>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <SquareFoot sx={{ color: "#7f8c8d" }} />
-                        <Typography variant="body1">{propertyData?.area} sqft</Typography>
+                        <Typography variant="body1">
+                          {propertyData?.area} sqft
+                        </Typography>
                       </Box>
                     </Box>
                   </Box>
-
-              
                 </Box>
               </Box>
 
@@ -313,8 +398,7 @@ function PropertyDetail() {
               <Card sx={{ mb: 3 }}>
                 <CardContent>
                   <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-                  {propertyData?.features?.join(" | ")}
-
+                    {propertyData?.features?.join(" | ")}
                   </Typography>
                   <Typography variant="body1" sx={{ lineHeight: 1.7, mb: 3 }}>
                     {propertyData?.description}
@@ -326,8 +410,6 @@ function PropertyDetail() {
                   <Typography variant="body1" sx={{ mb: 1 }}>
                     • Location: {propertyData?.location}
                   </Typography>
-
-                 
                 </CardContent>
               </Card>
 
@@ -345,10 +427,41 @@ function PropertyDetail() {
                           <TableCell
                             sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
                           >
+                            Name
+                          </TableCell>
+                          <TableCell sx={{ border: "none", py: 1.5 }}>
+                            {propertyData?.name}
+                          </TableCell>
+                          {/* <TableCell
+                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
+                          >
+                            TruCheck™ on
+                          </TableCell>
+                          <TableCell sx={{ border: "none", py: 1.5 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              16 April 2025
+                              <IconButton size="small">
+                                <CheckCircle
+                                  sx={{ fontSize: 16, color: "#27ae60" }}
+                                />
+                              </IconButton>
+                            </Box>
+                          </TableCell> */}
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
+                          >
                             Type
                           </TableCell>
                           <TableCell sx={{ border: "none", py: 1.5 }}>
-                          {propertyData?.type}
+                            {propertyData?.type}
                           </TableCell>
                           {/* <TableCell
                             sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
@@ -414,8 +527,14 @@ function PropertyDetail() {
                           >
                             Payment Terms
                           </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 ,textTransform:"capitalize"}}>
-                           {propertyData?.payment_terms}
+                          <TableCell
+                            sx={{
+                              border: "none",
+                              py: 1.5,
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {propertyData?.payment_terms}
                           </TableCell>
                           <TableCell
                             sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
@@ -430,8 +549,14 @@ function PropertyDetail() {
                           >
                             Category
                           </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 ,textTransform:"capitalize"}}>
-                           {propertyData?.category}
+                          <TableCell
+                            sx={{
+                              border: "none",
+                              py: 1.5,
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {propertyData?.category}
                           </TableCell>
                           <TableCell
                             sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
@@ -528,7 +653,7 @@ function PropertyDetail() {
             {/* Sidebar */}
             <Grid item xs={12} lg={4}>
               {/* Agent Card */}
-              <Card sx={{ mb: 3 }}>
+              {/* <Card sx={{ mb: 3 }}>
                 <CardContent>
                   <Box
                     sx={{
@@ -621,45 +746,60 @@ function PropertyDetail() {
                     </Link>
                   </Box>
                 </CardContent>
-              </Card>
+              </Card> */}
 
               {/* Community Card */}
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                    <img
-                      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-                      alt="Fairway Villas 3"
-                      style={{
-                        width: 80,
-                        height: 60,
-                        objectFit: "cover",
-                        borderRadius: 8,
-                      }}
-                    />
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", mb: 1 }}
-                      >
-                        Fairway Villas 3
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: "#6c757d" }}>
-                        See the community attractions and lifestyle
-                      </Typography>
+              <Typography sx={{ fontSize: "20px", fontWeight: "bold", mb: 1 }}>
+                Related Properties
+              </Typography>
+              {properties.map((property, index) => (
+                <Card
+                  key={index}
+                  onClick={() => navigate(`/property-detail/${property._id}`)}
+                  sx={{ mb: 3, cursor: "pointer" }}
+                >
+                  <CardContent>
+                    <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                      <img
+                        src={property?.images?.[0]}
+                        alt={property?.name}
+                        style={{
+                          width: 80,
+                          height: 60,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                        }}
+                      />
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: "bold", mb: 1 }}
+                        >
+                          {property?.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#6c757d", mb: 1 }}
+                        >
+                          {property?.description}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "green" }}>
+                          Price: AED {property?.price?.toLocaleString()}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ))}
 
               {/* Promotional Card */}
               <Card sx={{ mb: 3 }}>
                 <CardContent>
                   <Typography variant="body2" sx={{ color: "#6c757d", mb: 1 }}>
-                    Starting from AED 655k
+                    Starting from AED {propertyData?.price}
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
-                    Experience luxury waterfront living at Azizi Venice
+                    {propertyData?.description?.substring(0, 100)}...
                   </Typography>
                   <Box
                     sx={{
@@ -670,12 +810,12 @@ function PropertyDetail() {
                     }}
                   >
                     <img
-                      src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&q=80"
+                      src={propertyData?.images?.[0]}
                       alt="Venice Logo"
                       style={{ width: 40, height: 30, objectFit: "contain" }}
                     />
                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      VENICE
+                      {propertyData?.name}
                     </Typography>
                   </Box>
                   <Button
@@ -683,14 +823,15 @@ function PropertyDetail() {
                     fullWidth
                     sx={{
                       backgroundColor: "#16a085",
+                      color: Colors.white,
                       "&:hover": { backgroundColor: "#138d75" },
                     }}
+                    onClick={() => setOpenBookDialog(true)}
                   >
-                    Register Now
+                    Book Now
                   </Button>
                 </CardContent>
               </Card>
-
             </Grid>
           </Grid>
         </Box>
@@ -756,6 +897,145 @@ function PropertyDetail() {
           </Box>
         )}
       </Box>
+
+      {/* Dialog for booking */}
+
+      <SimpleDialog
+        open={openBookDialog}
+        onClose={() => {
+          setOpenBookDialog(false);
+          reset();
+          setValue("timeSlot", "");
+          setDocument(null);
+        }}
+        border={`4px solid ${Colors.primary}`}
+        title={`Book This ${propertyData?.type}`}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
+            {/* Date Picker */}
+
+            <Grid item xs={12} md={12}>
+              <InputLabel>Select Date</InputLabel>
+
+              <TextField
+                type="date"
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                error={!!errors.date}
+                helperText={errors.date?.message}
+                {...register("date", { required: "Date is required" })}
+              />
+            </Grid>
+
+            {/* Time Slot Chips */}
+            <Grid item xs={12} md={12}>
+              <InputLabel>Select Time Slot</InputLabel>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                {timeSlots.map((slot) => (
+                  <Chip
+                    key={slot}
+                    label={slot}
+                    clickable
+                    color={selectedTime === slot ? "primary" : "default"}
+                    onClick={() =>
+                      setValue("timeSlot", slot, { shouldValidate: true })
+                    }
+                  />
+                ))}
+              </Box>
+              {errors.timeSlot && (
+                <Typography color="error" variant="caption">
+                  {errors.timeSlot.message}
+                </Typography>
+              )}
+              {/* Hidden time slot input */}
+              <input
+                type="hidden"
+                {...register("timeSlot", { required: "Time slot is required" })}
+              />
+            </Grid>
+
+            {/* Document Upload */}
+            <Grid item xs={12} md={12}>
+              <InputLabel>Upload Document</InputLabel>
+              <Box
+                component="label"
+                sx={{
+                  border: "2px dashed #ccc",
+                  borderRadius: 2,
+                  padding: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  bgcolor: "#f9f9f9",
+                  gap: 1,
+                  flexDirection: "column",
+                  textAlign: "center",
+                }}
+              >
+                {docLoading ? (
+                  <Loader width="30px" height="30px" color={Colors.primary} />
+                ) : (
+                  <>
+                    <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+                    <Typography variant="caption">
+                      {document ? `Document Uploaded` : "Upload RERA Document"}
+                    </Typography>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  hidden
+                  {...register("document", {
+                    required: "Document is required",
+                  })}
+                  onChange={handleUploadDoc}
+                />
+              </Box>
+              {errors.document && (
+                <Typography color="error" variant="caption">
+                  {errors.document.message}
+                </Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} md={12}>
+              <InputLabel>Additional Notes </InputLabel>
+
+              <TextField
+                type="text"
+                fullWidth
+                placeholder="Type Additional Notes here"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                {...register("notes")}
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ color: Colors.white }}
+                fullWidth
+              >
+                {bookingLoading ? (
+                  <Loader width="20px" height="20px" color={Colors.primary} />
+                ) : (
+                  "Book Now"
+                )}
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </SimpleDialog>
     </>
   );
 }

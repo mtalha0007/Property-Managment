@@ -10,10 +10,17 @@ export const  AuthRoutes = {
     agentList:"/auth/agent/list",
     agentDelete: "/auth/agent/delete",
     stats:"/stats",
+    
     getInvestors:"/auth/investors",
     createInvestor:"/auth/signup",
     deleteInvestor:"/auth/investors/delete",
     getInvestorById:"auth/investors/detail",
     updateInvestor:"/auth/investors/update",
+
+
+    createBooking:"/bookings/booking/create",
+    getBooking:"/bookings/getbookings",
+    getBookingById:"/bookings/getbooking",
+    deleteBooking:"/bookings/deletebooking",
   };
     

@@ -11,6 +11,22 @@ const AuthServices = {
     let result = post(AuthRoutes.agentSignup ,obj );
     return result;
   },
+  createBooking: async (obj) => {
+    let result = post(AuthRoutes.createBooking ,obj );
+    return result;
+  },
+  getBooking: async (search , page ,limit ,status) => {
+    let result = get(AuthRoutes.getBooking + `?search=${search}&page=${page}&limit=${limit}&status=${status}`  );
+    return result;
+  },
+  getBookingById: async (id) => {
+    let result = get(AuthRoutes.getBookingById + `/${id}` );
+    return result;
+  },
+  deleteBooking: async (id) => {
+    let result = deleted(AuthRoutes.deleteBooking + `/${id}` );
+    return result;
+  },
   agentList: async (search , page ,limit) => {
     let result = get(AuthRoutes.agentList + `?search=${search}&page=${page}&limit=${limit}` );
     return result;
