@@ -561,7 +561,7 @@ const BookingList = () => {
             <FormControl component="fieldset">
               <FormLabel component="legend">
                 <Typography fontWeight={500} color="text.primary">
-                  Are you interested?
+                  Is the client interested?
                 </Typography>
               </FormLabel>
 
@@ -588,7 +588,7 @@ const BookingList = () => {
           {/* Rating */}
           <Box>
             <Typography fontWeight={500} color="text.primary" gutterBottom>
-              Rate Your Experience
+              Rate His Experience
             </Typography>
             <Rating
               name="rating"

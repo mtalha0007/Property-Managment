@@ -250,8 +250,8 @@ export default function MyBooking() {
                             mt: { md: 0, sm: 0, xs: 1 },
                           }}
                         >
-                          {booking.status == "approved" &&
-                            !booking?.feedback && (
+                          {/* {booking.status == "approved" &&
+                            !booking?.feedback && ( */}
                               <Chip
                                 label={"Give FeedBack"}
                                 sx={{
@@ -265,7 +265,7 @@ export default function MyBooking() {
                                   setSelectedBooking(booking);
                                 }}
                               />
-                            )}
+                            {/* )} */}
                           <Chip
                             label={booking.status.toUpperCase()}
                             color={getStatusColor(booking.status)}
@@ -454,7 +454,7 @@ export default function MyBooking() {
               <FormControl>
                 <FormLabel>
                   <Typography fontWeight={500} color="text.primary">
-                    Are you interested?
+                    Is the client interested?
                   </Typography>
                 </FormLabel>
                 <RadioGroup
@@ -491,7 +491,7 @@ export default function MyBooking() {
             {/* Rating */}
             <Box>
               <Typography fontWeight={500} color="text.primary" gutterBottom>
-                Rate Your Experience
+                Rate His Experience
               </Typography>
               <Rating
                 name="rating"

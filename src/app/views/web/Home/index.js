@@ -323,7 +323,7 @@ const Home = () => {
                       boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     },
                   }}
-                  onClick={() => handlePropertyClick(property.name)}
+                  onClick={() => navigate(`/property-detail/${property._id}`)}
                 >
                   <CardMedia
                     component="img"
