@@ -15,8 +15,12 @@ const AuthServices = {
     let result = post(AuthRoutes.createBooking ,obj );
     return result;
   },
-  getBooking: async (search , page ,limit ,status) => {
-    let result = get(AuthRoutes.getBooking + `?search=${search}&page=${page}&limit=${limit}&status=${status}`  );
+  createFeedBack: async (obj) => {
+    let result = patch(AuthRoutes.createFeedBack ,obj );
+    return result;
+  },
+  getBooking: async (search , page ,limit ,status,agentId) => {
+    let result = get(AuthRoutes.getBooking + `?search=${search}&page=${page}&limit=${limit}&status=${status}&agent_id=${agentId}`  );
     return result;
   },
   getBookingById: async (id) => {
@@ -81,6 +85,10 @@ const AuthServices = {
   },
   stats: async () => {
     let result = get(AuthRoutes.stats  );
+    return result;
+  },
+  investorStats: async (obj) => {
+    let result = get(AuthRoutes.investorStats ,obj);
     return result;
   },
 

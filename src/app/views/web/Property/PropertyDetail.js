@@ -216,7 +216,7 @@ function PropertyDetail() {
   };
 
   useEffect(() => {
-    getProperties("", "", 1, 4);
+    getProperties("", "", 1, 5);
   }, [navigate]);
 
   const { isLoaded } = useJsApiLoader({
@@ -379,10 +379,33 @@ function PropertyDetail() {
                     mb: 2,
                   }}
                 >
-                  <Box>
+                  <Box sx={{width:'100%'}}>
+                    <Box sx={{display:"flex",justifyContent:"space-between"}}>
                     <Typography
-                      variant="h3"
-                      sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1 }}
+                      variant="h4"
+                      sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1 ,fontSize:{md:"35px",sm:"30px",xs:"20px"}}}
+                    >
+                       {propertyData?.name}
+                    </Typography>
+                      <Button
+                      variant="contained"
+                      
+                      sx={{
+                        backgroundColor: "#16a085",
+                        color: Colors.white,
+                        borderRadius:5,
+                        fontSize:"13px",
+                        "&:hover": { backgroundColor: "#138d75" },
+                      }}
+                      onClick={() => setOpenBookDialog(true)}
+                    >
+                      Book Now
+                    </Button>
+                    </Box>
+                    
+                    <Typography
+                      variant="h5"
+                      sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1,fontSize:{md:"30px",sm:"25px",xs:"16px"} }}
                     >
                       AED {propertyData?.price}
                     </Typography>
@@ -849,7 +872,7 @@ function PropertyDetail() {
               ))}
 
               {/* Promotional Card */}
-              <Card sx={{ mb: 3 }}>
+              {/* <Card sx={{ mb: 3 }}>
                 <CardContent>
                   <Typography variant="body2" sx={{ color: "#6c757d", mb: 1 }}>
                     Starting from AED {propertyData?.price}
@@ -887,7 +910,7 @@ function PropertyDetail() {
                     Book Now
                   </Button>
                 </CardContent>
-              </Card>
+              </Card> */}
             </Grid>
           </Grid>
         </Box>

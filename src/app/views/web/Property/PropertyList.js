@@ -169,6 +169,7 @@ const ProfessionalPropertyListing = () => {
           "&:hover": {
             boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
           },
+          cursor:"pointer"
         }}
         onClick={()=>{
             navigate(`/property-detail/${property._id}`)

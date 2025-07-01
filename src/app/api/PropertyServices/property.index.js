@@ -22,6 +22,10 @@ const PropertyServices = {
     let result = patch(PropertyRoutes.updateProperty ,obj);
     return result;
   },
+  getInvestrorProperty: async (search,page,limit,id) => {
+    let result = get(PropertyRoutes.getInvestrorProperty + `?search=${search}&page=${page}&limit=${limit}&id=${id}`);
+    return result;
+  }
 };
 
 export default PropertyServices;

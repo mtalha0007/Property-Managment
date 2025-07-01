@@ -15,6 +15,7 @@ import PropertyList from "./app/views/web/Property/PropertyList";
 import PropertyDetail from "./app/views/web/Property/PropertyDetail";
 import AgentLogin from "./app/views/web/Login";
 import AgentSignup from "./app/views/web/Signup";
+import MyBooking from "./app/views/web/Property/MyBooking";
 
 
 const theme = createTheme({
@@ -77,6 +78,7 @@ function App() {
               <>
             <Route path="/property-list" element={<PropertyList />} />
             <Route path="/property-detail/:id" element={<PropertyDetail />} />
+            <Route path="/my-booking" element={<MyBooking />} />
               </>
             )}
 
@@ -91,7 +93,7 @@ function App() {
             </>
            ):(
             <>
-            <Route element={webUser ? <DashboardLayout /> : <Navigate to={"/"} />}>
+            <Route element={user ? <DashboardLayout /> : <Navigate to={"/"} />}>
               {PublicRoutes.map((item, i) => (
                 <Route key={i} path={item.path} element={item.component} />
               ))}

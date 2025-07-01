@@ -33,6 +33,7 @@ import {
   Email,
   LocationOn,
 } from "@mui/icons-material";
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import Logout from "@mui/icons-material/Logout";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { Images } from "../../../assets/images";
@@ -68,6 +69,7 @@ export default function Header() {
 
   const logout = () => {
     webUserLogOut();
+    navigate("/")
     window.location.reload();
   };
 
@@ -274,6 +276,12 @@ export default function Header() {
 
                   <Divider />
 
+                  <MenuItem onClick={()=>navigate("/my-booking")}>
+                    <ListItemIcon>
+                      <ImportContactsIcon fontSize="small" />
+                    </ListItemIcon>
+                    My Bookings
+                  </MenuItem>
                   <MenuItem onClick={logout}>
                     <ListItemIcon>
                       <Logout fontSize="small" />

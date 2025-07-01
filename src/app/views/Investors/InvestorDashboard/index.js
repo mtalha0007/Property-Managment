@@ -19,12 +19,11 @@ import {
   Legend,
 } from "recharts"
 import AuthServices from "../../../api/AuthServices/auth.index"
+import { ErrorToaster } from "../../../components/Toaster"
+import { useAuth } from "../../../context"
 
 
 
-const ErrorHandler = (error) => {
-  console.error("Error:", error)
-}
 
 const Colors = {
   primary: "#2563eb", 
@@ -62,14 +61,18 @@ const Colors = {
 function Dashboard() {
   const [data, setData] = useState({})
   const [loading, setLoading] = useState(true)
+  const{user} = useAuth()
 
   const getStatsData = async () => {
+    const obj = {
+      id:user?._id,
+    }
     try {
       setLoading(true)
-      const response = await AuthServices.stats()
+      const response = await AuthServices.investorStats(obj)
       setData(response)
     } catch (error) {
-      ErrorHandler(error)
+      ErrorToaster(error)
       console.log(error)
     } finally {
       setLoading(false)
@@ -77,20 +80,12 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    console.log("sdasdasd")
+    
     getStatsData()  
   }, [])
 
   const cardData = [
-    {
-      title: "Total Agents",
-      value: data?.totalAgents || 0,
-      icon: <People sx={{ fontSize: 40, color: Colors.primary }} />,
-      trend: data?.employees?.growth >= 0 ? <TrendingUp /> : <TrendingDown />,
-      trendPercent: data?.employees?.growth || 0,
-      
-      
-    },
+  
     {
       title: "Total Properties",
       value: data?.totalProperties || 0,
@@ -100,18 +95,10 @@ function Dashboard() {
       
       
     },
+  
     {
-      title: "Total Bookings",
-      value: data?.totalBookings || 0,
-      icon: <Event sx={{ fontSize: 40, color: Colors.warning }} />,
-      trend: data?.companies?.growth >= 0 ? <TrendingUp /> : <TrendingDown />,
-      trendPercent: data?.companies?.growth || 0,
-     
-      
-    },
-    {
-      title: "Approved Bookings",
-      value: data?.totalApprovedBookings || 0,
+      title: "Total Visit",
+      value: data?.totalVisitCount || 0,
       icon: <CheckCircle sx={{ fontSize: 40, color: Colors.secondary }} />,
       trend: data?.jobsPending?.growth >= 0 ? <TrendingUp /> : <TrendingDown />,
       trendPercent: data?.jobsPending?.growth || 0,
@@ -166,7 +153,7 @@ function Dashboard() {
           const isPositive = item.trendPercent >= 0
 
           return (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={4} key={index}>
               <Card
                 sx={{
                   height: "100%",
@@ -202,8 +189,8 @@ function Dashboard() {
       </Grid>
 
       {/* Charts Section */}
-      <Grid container spacing={3} sx={{ my: 0.8 }}>
-        {/* Bar Chart */}
+      {/* <Grid container spacing={3} sx={{ my: 0.8 }}>
+        
         <Grid item xs={12} md={6}>
           <Paper
             sx={{
@@ -232,7 +219,7 @@ function Dashboard() {
           </Paper>
         </Grid>
 
-        {/* Pie Chart */}
+      
         <Grid item xs={12} md={6}>
           <Paper
             sx={{
@@ -270,8 +257,8 @@ function Dashboard() {
             </ResponsiveContainer>
           </Paper>
         </Grid>
-      </Grid>
-{/*  */}
+      </Grid> */}
+
 
     
     </Box>

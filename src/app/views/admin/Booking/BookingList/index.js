@@ -93,10 +93,10 @@ const BookingList = () => {
 
   const getBookingList = async (
     searchParam = "",
-
     pageParam = 1,
     limitParam = 10,
-    statusParam = "pending"
+    statusParam = "pending",
+    Agent =""
   ) => {
     setLoading(true);
     try {
@@ -105,7 +105,8 @@ const BookingList = () => {
         searchParam,
         pageParam,
         limitParam,
-        statusParam
+        statusParam,
+        ""
       );
       setData(data?.bookings);
       setCount(data.count);
@@ -118,7 +119,7 @@ const BookingList = () => {
   };
 
   useEffect(() => {
-    getBookingList(search, page + 1, limit, "pending");
+    getBookingList(search, page + 1, limit, "pending","");
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
@@ -129,7 +130,7 @@ const BookingList = () => {
       );
 
       setOpenDialog(false);
-      getBookingList(search, page + 1, limit, "pending");
+      getBookingList(search, page + 1, limit, "pending","");
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -139,7 +140,7 @@ const BookingList = () => {
   };
 
   const handleSearch = () => {
-    getBookingList(search, 1, limit, "pending");
+    getBookingList(search, 1, limit, "pending","");
   };
 
   const handlePageChange = (event, newPage) => {
@@ -149,7 +150,7 @@ const BookingList = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getBookingList("", 1, limit, "pending");
+    getBookingList("", 1, limit, "pending","");
   };
 
   const filteredData = data.filter((item) =>
@@ -166,7 +167,7 @@ const BookingList = () => {
       const response = await AuthServices.updateBooking(obj);
       SuccessToaster(response?.message);
       setOpenStatusDialog(false);
-      getBookingList(search, page + 1, limit, "pending");
+      getBookingList(search, page + 1, limit, "pending","");
       reset();
     } catch (error) {
       ErrorToaster(error);

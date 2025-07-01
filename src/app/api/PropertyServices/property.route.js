@@ -4,6 +4,7 @@ export const  PropertyRoutes = {
     getProperty: "/properties/getproperties",
     deleteProperty:"/properties/deleteproperty",
     updateProperty:"/properties/updateproperty",
-    getPropertyById:"/properties/getproperty"
+    getPropertyById:"/properties/getproperty",
+    getInvestrorProperty:"/auth/investors/property",
   };
     

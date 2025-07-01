@@ -54,12 +54,13 @@ export default function CreateInvestor() {
     formState: { errors },
   } = useForm();
 
+  console.log(selectedProperties ,'selectedProperties')
   const createProperty = async (data) => {
     const obj = {
       name: data?.name,
       email: data?.email,
       password: data?.password,
-      properties: selectedProperties,
+      properties: selectedProperties?.map((property) => property._id),
     };
     setIsSubmitting(true);
     try {

@@ -214,7 +214,7 @@ const theme = useTheme();
         </Grid>
 
         {/* Booked Dates */}
-        {propertyData?.bookedDates?.length > 0 && (
+        {/* {propertyData?.bookedDates?.length > 0 && (
           <Grid item xs={12}>
             <Card elevation={1} sx={{ borderRadius: 2 }}>
               <CardContent>
@@ -230,7 +230,7 @@ const theme = useTheme();
               </CardContent>
             </Card>
           </Grid>
-        )}
+        )} */}
       </Grid>
     </Box>
   

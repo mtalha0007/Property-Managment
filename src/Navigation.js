@@ -127,35 +127,17 @@ const PublicNavigation = [
   {
     name: "Home",
     icon: Svgs.dashboard,
-    path:"/home"
+    path:"/investor/dashboard"
    
   },
   {
-    name: "Job List",
-    icon: Svgs.jobRequest,
-    path:"/jobrequest"
+    name: "Properties",
+    icon: Svgs.property,
+    path:"/investor/properties"
    
   },
 
-  {
-    name: "Applied Jobs",
-    icon: Svgs.jobRequest,
-    path:"/applied-jobs"
-   
-  },
- 
-  {
-    name: "Assigned Job ",
-    icon: Svgs.jobRequest,
-    path:"/assigned-jobs"
-   
-  },
-  {
-    name: "Job Report",
-    icon: Svgs.jobRequest,
-    path:"/myjob/report"
-   
-  },
+  
  
 ];
 

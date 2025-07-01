@@ -20,7 +20,15 @@ import {
   Grid,
   Tooltip,
   Stack,
-  InputLabel
+  InputLabel,
+  Divider,
+  FormHelperText,
+  FormControlLabel,
+  Checkbox,
+  Rating,
+  FormLabel,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RestoreIcon from "@mui/icons-material/Restore";
@@ -47,7 +55,7 @@ const tableHead = [
   "Booking Time",
   "Property Name",
   "Document",
-//   "Status",
+  //   "Status",
   "Action",
 ];
 
@@ -84,17 +92,26 @@ const BookingList = () => {
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
+  const [openDetailDialog, setOpenDetailDialog] = useState(false);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const sleep = () => new Promise((r) => setTimeout(r, 1000));
   const { control, handleSubmit } = useForm();
-
+  const {
+    register: register2,
+    setValue: setValue2,
+    trigger,
+    watch,
+    formState: { errors },
+  } = useForm();
+  const ratingValue = watch("rating");
   const getBookingList = async (
     searchParam = "",
 
     pageParam = 1,
     limitParam = 10,
-    statusParam = "approved"
+    statusParam = "approved",
+    Agent = ""
   ) => {
     setLoading(true);
     try {
@@ -103,10 +120,13 @@ const BookingList = () => {
         searchParam,
         pageParam,
         limitParam,
-        statusParam
+        statusParam,
+        ""
       );
       setData(data?.bookings);
       setCount(data.count);
+
+      trigger();
     } catch (error) {
       ErrorHandler(error);
       console.log(error);
@@ -116,7 +136,7 @@ const BookingList = () => {
   };
 
   useEffect(() => {
-    getBookingList(search, page + 1, limit ,"approved");
+    getBookingList(search, page + 1, limit, "approved", "");
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
@@ -127,7 +147,7 @@ const BookingList = () => {
       );
 
       setOpenDialog(false);
-      getBookingList(search, page + 1, limit ,"approved");
+      getBookingList(search, page + 1, limit, "approved", "");
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -137,7 +157,7 @@ const BookingList = () => {
   };
 
   const handleSearch = () => {
-    getBookingList(search, 1, limit,"approved");
+    getBookingList(search, 1, limit, "approved", "");
   };
 
   const handlePageChange = (event, newPage) => {
@@ -147,7 +167,7 @@ const BookingList = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getBookingList("", 1, limit,"approved");
+    getBookingList("", 1, limit, "approved", "");
   };
 
   const filteredData = data.filter((item) =>
@@ -155,7 +175,6 @@ const BookingList = () => {
   );
   const onSubmit = (data) => {
     console.log("New status:", data.status);
-   
   };
   return (
     <Box sx={{ padding: 2 }}>
@@ -170,7 +189,7 @@ const BookingList = () => {
         <Typography
           sx={{ fontSize: "26px", color: Colors.primary, fontWeight: "600" }}
         >
-        Approved Bookings
+          Approved Bookings
         </Typography>
         {/* <Button
           onClick={() => navigate("/properties/create")}
@@ -348,15 +367,41 @@ const BookingList = () => {
                       sx={{
                         display: "flex",
                         justifyContent: "center",
-                        gap: "5px",
+                        gap: "12px", // spacing between icons
+                        alignItems: "center",
                       }}
                     >
+                      {row?.feedback && (
+                        <>
+                          <Box
+                            onClick={(e) => {
+                              e.stopPropagation();
+
+                              setSelectedPropertyId(row._id);
+                              setOpenDetailDialog(true);
+                              setValue2("interested", row?.feedback.interested);
+                              setValue2("rating", row?.feedback.rating ?? 0);
+                              setValue2(
+                                "comment",
+                                row?.feedback.comment ?? ""
+                              );
+                            }}
+                            sx={{ cursor: "pointer" }}
+                            dangerouslySetInnerHTML={{
+                              __html: Svgs["details"],
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {/* Delete Icon */}
                       <Box
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenDialog(true);
                           setSelectedPropertyId(row._id);
                         }}
+                        sx={{ cursor: "pointer" }}
                         dangerouslySetInnerHTML={{ __html: Svgs["delete"] }}
                       />
                     </Typography>
@@ -367,7 +412,7 @@ const BookingList = () => {
           )}
         </Table>
       </TableContainer>
-      
+
       <Box
         sx={{
           mt: 2,
@@ -426,7 +471,6 @@ const BookingList = () => {
         </Box>
       </Box>
 
-
       <SimpleDialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -472,37 +516,110 @@ const BookingList = () => {
         </Box>
       </SimpleDialog>
 
-
       <SimpleDialog
         open={openStatusDialog}
         onClose={() => setOpenStatusDialog(false)}
         border={`4px solid ${Colors.primary}`}
         title="Are You Sure you Change Status?"
       >
-         <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
-          {/* Status Dropdown */}
-          <FormControl fullWidth>
-            <InputLabel>Status</InputLabel>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} label="Status">
-                  <MenuItem value="approved">Approved</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                  
-                </Select>
-              )}
-            />
-          </FormControl>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={2}>
+            {/* Status Dropdown */}
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} label="Status">
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormControl>
 
-          {/* Submit Button */}
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Confirm
-          </Button>
-        </Stack>
-      </form>
+            {/* Submit Button */}
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Confirm
+            </Button>
+          </Stack>
+        </form>
+      </SimpleDialog>
+
+      <SimpleDialog
+        open={openDetailDialog}
+        onClose={() => {
+          setOpenDetailDialog(false);
+        }}
+        border={`4px solid ${Colors.primary}`}
+        title="Agent FeedBack"
+      >
+        <Box display="flex" flexDirection="column" gap={3} p={3}>
+          {/* Interested Checkbox */}
+          <Box>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">
+                <Typography fontWeight={500} color="text.primary">
+                  Are you interested?
+                </Typography>
+              </FormLabel>
+
+              <RadioGroup
+                row
+                value={watch("interested") ? "true" : "false"} // boolean to string
+              >
+                <FormControlLabel
+                  value="true"
+                  control={<Radio disabled />}
+                  label="Interested"
+                />
+                <FormControlLabel
+                  value="false"
+                  control={<Radio disabled />}
+                  label="Not Interested"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Box>
+
+          <Divider />
+
+          {/* Rating */}
+          <Box>
+            <Typography fontWeight={500} color="text.primary" gutterBottom>
+              Rate Your Experience
+            </Typography>
+            <Rating
+              name="rating"
+              value={ratingValue || 0}
+              readOnly
+              sx={{ color: Colors.primary }}
+            />
+            <Box mt={0.5}>
+              {errors.rating && (
+                <FormHelperText error>Please select a rating</FormHelperText>
+              )}
+            </Box>
+          </Box>
+
+          <Divider />
+
+          {/* Comments */}
+          <Box>
+            <TextField
+              label="Additional Comments"
+              multiline
+              rows={4}
+              fullWidth
+              variant="outlined"
+              disabled
+              {...register2("comment")}
+             
+            />
+           
+          </Box>
+        </Box>
       </SimpleDialog>
     </Box>
   );

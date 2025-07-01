@@ -56,9 +56,11 @@ import {
   
     const updateInvestor = async (data) => {
       const obj = {
+        id: param?.id,
         name: data?.name,
         email: data?.email,
-        properties: selectedProperties,
+        properties: selectedProperties?.map((property) => property._id),
+
       };
       setIsSubmitting(true);
       try {
@@ -143,7 +145,7 @@ import {
           <Typography
             sx={{ fontSize: "22px", color: Colors.primary, fontWeight: "600" }}
           >
-            Add New
+          Edit
           </Typography>
         </Box>
   

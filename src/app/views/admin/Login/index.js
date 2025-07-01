@@ -55,9 +55,9 @@ function App() {
       if(data?.data?.user?.role == "admin"){
         navigate("/dashboard");
         setName("/dashboard");
-      }else if(data?.data?.user?.role == "employee"){
-        navigate("/home");
-        setName("/home");
+      }else if(data?.data?.user?.role == "investor"){
+        navigate("/investor/dashboard");
+        setName("/investor/dashboard");
       }
     } catch (error) {
       ErrorHandler(error);

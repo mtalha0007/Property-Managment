@@ -23,23 +23,24 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RestoreIcon from "@mui/icons-material/Restore";
 import { styled } from "@mui/system";
 
-import Colors from "../../../../assets/styles";
-import { Svgs } from "../../../../assets/images";
+import Colors from "../../../assets/styles";
+import { Svgs } from "../../../assets/images";
 import { useNavigate } from "react-router-dom";
-import PropertyServices from "../../../../api/PropertyServices/property.index";
-import { ErrorHandler } from "../../../../utils/ErrorHandler";
-import SimpleDialog from "../../../../components/Dialog/index";
-import Loader from "../../../../components/Loader";
-import AuthServices from "../../../../api/AuthServices/auth.index";
+import PropertyServices from "../../../api/PropertyServices/property.index";
+import { ErrorHandler } from "../../../utils/ErrorHandler";
+import SimpleDialog from "../../../components/Dialog/index";
+import Loader from "../../../components/Loader";
+import { useAuth } from "../../../context";
 
 const tableHead = [
   "SR No",
-  
-  "Investor Name",
-  "Email",
-  
-  "Properties",
-  "Action",
+  "Ref No",
+  "Property Name",
+  "Type",
+  "Area",
+  "Purpose",
+  "Price",
+//   "Action",
 ];
 
 const CustomSelect = styled(Select)({
@@ -62,7 +63,7 @@ const CustomSelect = styled(Select)({
   },
 });
 
-const InvestorList = () => {
+const PropertyList = () => {
   const [data, setData] = useState([]);
   const [id, setId] = useState("");
   const [search, setSearch] = useState("");
@@ -74,26 +75,30 @@ const InvestorList = () => {
   const navigate = useNavigate();
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const {user} =useAuth()
+  console.log(user ,"useruser")
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const sleep = () => new Promise((r) => setTimeout(r, 1000));
 
-  const getInvestors = async (
+  const getProperties = async (
     searchParam = "",
+    
     pageParam = 1,
     limitParam = 10,
-    
+    id = ""
   ) => {
     setLoading(true);
     try {
       await sleep();
-      const { data } = await AuthServices.getInvestors(
+      const { data } = await PropertyServices.getInvestrorProperty(
         searchParam,
+        
         pageParam,
         limitParam,
-        
+        user?._id
       );
-      setData(data?.investors);
+      setData(data?.properties);
       setCount(data.count);
     } catch (error) {
       ErrorHandler(error);
@@ -104,18 +109,18 @@ const InvestorList = () => {
   };
 
   useEffect(() => {
-    getInvestors(search, page + 1, limit);
+    getProperties(search, page + 1, limit, user?._id);
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
     setDeleteLoading(true);
     try {
-      const { responseCode } = await AuthServices.deleteInvestor(
+      const { responseCode } = await PropertyServices.deleteProperty(
         selectedPropertyId
       );
 
       setOpenDialog(false);
-      getInvestors(search ,page + 1, limit);
+      getProperties(search, page + 1, limit,user?._id);
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -125,7 +130,7 @@ const InvestorList = () => {
   };
 
   const handleSearch = () => {
-    getInvestors(search, 1, limit);
+    getProperties(search, 1, limit ,user?._id);
   };
 
   const handlePageChange = (event, newPage) => {
@@ -135,7 +140,7 @@ const InvestorList = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getInvestors("", 1, limit);
+    getProperties("", 1, limit,user?._id);
   };
 
   const filteredData = data.filter((item) =>
@@ -155,16 +160,9 @@ const InvestorList = () => {
         <Typography
           sx={{ fontSize: "26px", color: Colors.primary, fontWeight: "600" }}
         >
-          Investors
+          Properties
         </Typography>
-        <Button
-          onClick={() => navigate("/investor/create")}
-          variant="contained"
-          color="primary"
-          sx={{ mx: 1, color: "white" }}
-        >
-          Add New
-        </Button>
+       
       </Box>
       <Grid
         container
@@ -282,23 +280,32 @@ const InvestorList = () => {
             filteredData.map((row, index) => (
               <TableBody key={row._id}>
                 <TableRow
-                 
+                  onClick={() =>
+                    navigate(`/properties/details/${row?._id}`, { state: row })
+                  }
                 >
                   <TableCell sx={{ textAlign: "center" }}>
                     {index + 1}
                   </TableCell>
-                
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {row?.refno}
+                  </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.name}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.email}
-                  </TableCell>
-                 
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {row?.properties?.map((item)=>item?.name).join(", ")}
+                    {row?.type}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
+                    {row?.area + " sqft"}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {row?.purpose}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {row?.price}
+                  </TableCell>
+                  {/* <TableCell sx={{ textAlign: "center" }}>
                     <Typography
                       sx={{
                         display: "flex",
@@ -309,7 +316,7 @@ const InvestorList = () => {
                       <Box
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/investor/update/${row?._id}`, {
+                          navigate(`/properties/update/${row?._id}`, {
                             state: row,
                           });
                         }}
@@ -324,7 +331,7 @@ const InvestorList = () => {
                         dangerouslySetInnerHTML={{ __html: Svgs["delete"] }}
                       />
                     </Typography>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               </TableBody>
             ))
@@ -436,4 +443,4 @@ const InvestorList = () => {
   );
 };
 
-export default InvestorList;
+export default PropertyList;
