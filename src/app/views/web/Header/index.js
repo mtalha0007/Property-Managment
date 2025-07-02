@@ -227,120 +227,136 @@ export default function Header() {
             </Box>
 
             {webUser?.token ? (
-              <>
-                <Box
-                  sx={{
-                    alignItems: "center",
-                    gap: 1,
-                    cursor: "pointer",
-                  }}
-                  onClick={handleAvatarClick}
-                >
-                  <Avatar
-                    src={webUser?.image || Images.default}
-                    alt={webUser?.name || "User"}
-                    sx={{ width: 32, height: 32 }}
-                  />
-                </Box>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={openMenu}
-                  onClose={handleMenuClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  PaperProps={{
-                    elevation: 3,
-                    sx: {
-                      mt: 1,
-                      minWidth: 180,
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      boxShadow: "0px 2px 10px rgba(0,0,0,0.1)",
-                    },
-                  }}
-                >
-                  <MenuItem disabled>
-                    <ListItemIcon>
-                      <AccountCircle fontSize="small" />
-                    </ListItemIcon>
-                    <Typography variant="body2" color="textSecondary">
-                      {webUser?.name || "User"}
-                    </Typography>
-                  </MenuItem>
+  <>
+    <Box
+      sx={{
+        alignItems: "center",
+        gap: 1,
+        cursor: "pointer",
+        display: "flex",  // Ensure the avatar and button are aligned horizontally
+      }}
+      onClick={handleAvatarClick}
+    >
+      <Button
+        variant="text"
+        sx={{
+          color: "#4a5568",
+          textTransform: "none",
+          fontSize: "0.875rem",
+          backgroundColor: Colors.primary,
+          px: 2,
+          borderRadius: 1,
+          color: Colors.white,
+          ":hover": {
+            backgroundColor: Colors.primary,
+            opacity: 0.9,
+          },
+        }}
+        onClick={() => navigate("/my-booking")}
+      >
+        My Bookings
+      </Button>
+      
+      <Avatar
+        src={webUser?.image || Images.default}
+        alt={webUser?.name || "User"}
+        sx={{ width: 35, height: 35 ,border:"2px solid #b1b6b7", cursor: "pointer",objectFit:"cover"}}
+      />
+    
+    </Box>
+    <Menu
+      anchorEl={anchorEl}
+      open={openMenu}
+      onClose={handleMenuClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      PaperProps={{
+        elevation: 3,
+        sx: {
+          mt: 1,
+          minWidth: 180,
+          borderRadius: 2,
+          overflow: "hidden",
+          boxShadow: "0px 2px 10px rgba(0,0,0,0.1)",
+        },
+      }}
+    >
+      <MenuItem disabled>
+        <ListItemIcon>
+          <AccountCircle fontSize="small" />
+        </ListItemIcon>
+        <Typography variant="body2" color="textSecondary">
+          {webUser?.name || "User"}
+        </Typography>
+      </MenuItem>
 
-                  <Divider />
+      <Divider />
 
-                  <MenuItem onClick={()=>navigate("/my-booking")}>
-                    <ListItemIcon>
-                      <ImportContactsIcon fontSize="small" />
-                    </ListItemIcon>
-                    My Bookings
-                  </MenuItem>
-                  <MenuItem onClick={logout}>
-                    <ListItemIcon>
-                      <Logout fontSize="small" />
-                    </ListItemIcon>
-                    Logout
-                  </MenuItem>
-                </Menu>
-              </>
-            ) : (
-              <Box
-                sx={{
-                  alignItems: "center",
-                  gap: 1,
-                }}
-                onClick={() => setOpen(true)}
-              >
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Button
-                    variant="text"
-                    sx={{
-                      color: "#4a5568",
-                      textTransform: "none",
-                      fontSize: "0.875rem",
-                      backgroundColor: Colors.primary,
-                      px: 2,
-                      borderRadius: 1,
-                      color: Colors.white,
-                      ":hover": {
-                        backgroundColor: Colors.primary,
-                        opacity: 0.9,
+      <MenuItem onClick={logout}>
+        <ListItemIcon>
+          <Logout fontSize="small" />
+        </ListItemIcon>
+        Logout
+      </MenuItem>
+    </Menu>
+  </>
+) : (
+  <Box
+    sx={{
+      alignItems: "center",
+      gap: 1,
+    }}
+    onClick={() => setOpen(true)}
+  >
+    <Box sx={{ display: "flex", gap: 2 }}>
+      <Button
+        variant="text"
+        sx={{
+          color: "#4a5568",
+          textTransform: "none",
+          fontSize: "0.875rem",
+          backgroundColor: Colors.primary,
+          px: 2,
+          borderRadius: 1,
+          color: Colors.white,
+          ":hover": {
+            backgroundColor: Colors.primary,
+            opacity: 0.9,
+          },
+        }}
+        onClick={() => navigate("/agent/signup")}
+      >
+        Sign Up
+      </Button>
+      <Button
+        variant="text"
+        sx={{
+          color: "#4a5568",
+          textTransform: "none",
+          fontSize: "0.875rem",
+          backgroundColor: Colors.primary,
+          px: 2,
+          borderRadius: 1,
+          color: Colors.white,
+          ":hover": {
+            backgroundColor: Colors.primary,
+            opacity: 0.9,
+          },
+        }}
+        onClick={() => navigate("/agent/login")}
+      >
+        Sign In
+      </Button>
+    </Box>
+  </Box>
+)}
 
-                      },
-                    }}
-                    onClick={() => navigate("/agent/signup")}
-                  >
-                    Sign Up
-                  </Button>
-                  <Button
-                    variant="text"
-                    sx={{
-                      color: "#4a5568",
-                      textTransform: "none",
-                      fontSize: "0.875rem",
-                      backgroundColor: Colors.primary,
-                      px: 2,
-                      borderRadius: 1,
-                      color: Colors.white,
-                      ":hover": {
-                        backgroundColor: Colors.primary,
-                        opacity: 0.9,
-                      },
-                    }}
-                    onClick={() => navigate("/agent/login")}
-                  >
-                    Sign In
-                  </Button>
-                </Box>
-              </Box>
-            )}
           </Toolbar>
         </Container>
       </AppBar>
