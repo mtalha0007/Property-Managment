@@ -6,8 +6,8 @@ const PropertyServices = {
     let result = post(PropertyRoutes.createProperty, obj);
     return result;
   },
-  getProperty: async (search,id,page,limit,companyId) => {
-    let result = get(PropertyRoutes.getProperty + `?search=${search}&id=${id}&page=${page}&limit=${limit}`);
+  getProperty: async (search,id,page,limit,minPrice,maxPrice) => {
+    let result = get(PropertyRoutes.getProperty + `?search=${search}&id=${id}&page=${page}&limit=${limit}&start_price=${minPrice}&end_price=${maxPrice}`);
     return result;
   },
   getPropertyById: async (id) => {

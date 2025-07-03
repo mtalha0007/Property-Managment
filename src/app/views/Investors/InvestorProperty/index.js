@@ -80,6 +80,13 @@ const PropertyList = () => {
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const sleep = () => new Promise((r) => setTimeout(r, 1000));
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
 
   const getProperties = async (
     searchParam = "",
@@ -303,7 +310,7 @@ const PropertyList = () => {
                     {row?.purpose}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.price}
+                    {formatPrice(row?.price)}
                   </TableCell>
                   {/* <TableCell sx={{ textAlign: "center" }}>
                     <Typography

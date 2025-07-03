@@ -12,7 +12,7 @@ function SimpleDialog({ open, onClose, title, children,selectedUser,border  }) {
       <IconButton color="primary" onClick={() => onClose()} sx={{ position: 'absolute', right: 13, top: 13 }}>
         <Close />
       </IconButton>
-      <DialogTitle sx={{ textAlign: "center", fontSize: '22px', fontWeight: 700 }}>{title}</DialogTitle>
+      <DialogTitle sx={{ textAlign: "center", fontSize: '22px', fontWeight: 700 ,textTransform:"capitalize"}}>{title}</DialogTitle>
       {children}
 
     </Dialog>

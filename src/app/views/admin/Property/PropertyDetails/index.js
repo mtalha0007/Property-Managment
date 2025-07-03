@@ -66,6 +66,14 @@ const theme = useTheme();
   useEffect(() => {
     getProperties();
   }, []);
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
     <>
       <Box
@@ -144,7 +152,7 @@ const theme = useTheme();
             </Grid>
             <Grid item>
               <Typography variant="h4" color="success.main" fontWeight={700}>
-                AED {  propertyData?.price}
+                AED { formatPrice(propertyData?.price)}
               </Typography>
               <Typography variant="body2" color="text.secondary" textAlign="right">
                 {propertyData?.payment_terms}

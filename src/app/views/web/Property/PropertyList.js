@@ -49,7 +49,10 @@ import {
 import PropertyServices from "../../../api/PropertyServices/property.index";
 import Header from "../Header";
 import { Images } from "../../../assets/images";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import Colors from "../../../assets/styles";
+import { useLocation } from "react-router-dom";
+
 const ProfessionalPropertyListing = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -63,21 +66,40 @@ const ProfessionalPropertyListing = () => {
   const [count, setCount] = useState(0);
   const intervalRef = useRef({});
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [maxMin, setMaxMin] = useState(null);
   const navigate = useNavigate();
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+  };
+
+  const query = useQuery();
+  console.log(query, "query");
+  const location = query.get("location");
+  const type = query.get("type");
+  const priceMin = query.get("priceMin");
+  const priceMax = query.get("priceMax");
+
+  console.log(type, "type");
 
   const debounceRef = useRef(null);
 
   const handleSearchChange = useCallback((value) => {
-    setFilters((prev) => ({ ...prev, location: value }));
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
+   
       setSearch(value);
-    }, 1000);
+  
   }, []);
+
+  useEffect(() => {
+  
+    setSearch( location ? location : "");
+    setFilters((prev) => ({
+      ...prev,
+      priceRange: [
+        priceMin !== null && !isNaN(priceMin) ? priceMin : prev.priceRange[0],
+        priceMax !== null && !isNaN(priceMax) ? priceMax : prev.priceRange[1],
+      ],
+    }));
+  }, [priceMin, priceMax,location]);
 
   const handleMouseEnter = (property) => {
     const total = property.images.length;
@@ -95,6 +117,13 @@ const ProfessionalPropertyListing = () => {
       });
     }, 2000);
   };
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
 
   const handleMouseLeave = (propertyId) => {
     clearInterval(intervalRef.current[propertyId]);
@@ -106,16 +135,6 @@ const ProfessionalPropertyListing = () => {
     };
   }, []);
 
-  const [filters, setFilters] = useState({
-    location: "",
-    propertyType: "",
-    priceRange: [0, 10000000],
-    bedrooms: "",
-    bathrooms: "",
-    area: [0, 10000],
-    sortBy: "price-low",
-  });
-
   const getProperties = async (
     searchParam = "",
     idParam = "",
@@ -126,11 +145,15 @@ const ProfessionalPropertyListing = () => {
     setLoading(true);
     try {
       const { data } = await PropertyServices.getProperty(
-        searchParam,
+        searchParam ? searchParam :location ? location :"",
         idParam,
         pageParam,
-        limitParam
+        limitParam,
+        filters?.priceRange[0] ? filters?.priceRange[0] :  priceMin ?priceMin :0,
+        filters?.priceRange[1] ? filters?.priceRange[1] :  priceMax ? priceMax :"",
+      
       );
+      setMaxMin(data);
       setProperties((prev) =>
         append ? [...prev, ...data?.properties] : data?.properties
       );
@@ -142,15 +165,47 @@ const ProfessionalPropertyListing = () => {
     }
   };
 
+  const [filters, setFilters] = useState({
+    location: "",
+    propertyType: "",
+    priceRange: [0, 5000000],
+    bedrooms: "",
+    bathrooms: "",
+    area: [0, 10000],
+    sortBy: "price-low",
+  });
+  console.log(filters);
+
   useEffect(() => {
-    setPage(0);
-    getProperties(search, id, 1, limit, false);
-  }, [search, id]);
+    const debounceTimeout = setTimeout(() => {
+      setPage(0);
+      getProperties(
+        search,
+        id,
+        1,
+        limit,
+        false,
+        filters?.priceRange[0],
+        filters?.priceRange[1]
+      );
+    }, 1000); 
+  
+    return () => clearTimeout(debounceTimeout); 
+  }, [search, id, filters?.priceRange[0], filters?.priceRange[1]]);
+  
 
   const handleShowMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    getProperties(search, id, nextPage + 1, limit, true);
+    getProperties(
+      search,
+      id,
+      nextPage + 1,
+      limit,
+      true,
+      filters?.priceRange[0],
+      filters?.priceRange[1]
+    );
   };
 
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
@@ -169,10 +224,10 @@ const ProfessionalPropertyListing = () => {
           "&:hover": {
             boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
           },
-          cursor:"pointer"
+          cursor: "pointer",
         }}
-        onClick={()=>{
-            navigate(`/property-detail/${property._id}`)
+        onClick={() => {
+          navigate(`/property-detail/${property._id}`);
         }}
       >
         <Grid container>
@@ -385,7 +440,7 @@ const ProfessionalPropertyListing = () => {
                       variant="body1"
                       sx={{ fontWeight: 600, color: "#2d3748" }}
                     >
-                      AED {property.price}
+                      AED {formatPrice(property.price)}
                     </Typography>
                   </Box>
                   <Box>
@@ -432,7 +487,7 @@ const ProfessionalPropertyListing = () => {
         <Box
           sx={{
             // minHeight: "100vh",
-            backgroundImage: `url(${Images.banner})`,
+            backgroundImage: `url(${Images.banner3})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -497,7 +552,7 @@ const ProfessionalPropertyListing = () => {
                   <TextField
                     fullWidth
                     placeholder="Search by Name"
-                    value={filters.location}
+                    value={search}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     // onChange={(e) =>
                     //   setFilters({ ...filters, location: e.target.value })
@@ -539,7 +594,7 @@ const ProfessionalPropertyListing = () => {
 
                 {/* Advanced Filters */}
                 <Grid item xs={12} md={4}>
-                  <Accordion
+                  {/* <Accordion
                     elevation={0}
                     sx={{
                       border: "1px solid #e2e8f0",
@@ -552,29 +607,27 @@ const ProfessionalPropertyListing = () => {
                     <AccordionSummary expandIcon={<ExpandMore />}>
                       <Typography variant="body2">Advanced Filters</Typography>
                     </AccordionSummary>
-                    <AccordionDetails>
-                      <Box sx={{ mb: 3 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{ mb: 2, fontWeight: 600 }}
-                        >
-                          Price Range (AED)
-                        </Typography>
-                        <Slider
-                          value={filters.priceRange}
-                          onChange={(e, newValue) =>
-                            setFilters({ ...filters, priceRange: newValue })
-                          }
-                          valueLabelDisplay="auto"
-                          min={0}
-                          max={10000000}
-                          step={100000}
-                          valueLabelFormat={(value) =>
-                            `${(value / 1000000).toFixed(1)}M`
-                          }
-                        />
-                      </Box>
-                      <Box>
+                    <AccordionDetails> */}
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="body2" sx={{ mb: 2, fontWeight: 600 }}>
+                      Price Range (AED)
+                    </Typography>
+                    <Slider
+                      value={filters.priceRange}
+                      onChange={(e, newValue) =>
+                        setFilters({ ...filters, priceRange: newValue })
+                      }
+                      valueLabelDisplay="auto"
+                      min={maxMin?.min_price || 0}
+                      max={maxMin?.max_price || 10000000}
+                      step={100000}
+                      valueLabelFormat={(value) => `${value}AED`}
+                      sx={{
+                        color: Colors.primary,
+                      }}
+                    />
+                  </Box>
+                  {/* <Box>
                         <Typography
                           variant="body2"
                           sx={{ mb: 2, fontWeight: 600 }}
@@ -591,9 +644,9 @@ const ProfessionalPropertyListing = () => {
                           max={10000}
                           step={100}
                         />
-                      </Box>
-                    </AccordionDetails>
-                  </Accordion>
+                      </Box> */}
+                  {/* </AccordionDetails>
+                  </Accordion> */}
                 </Grid>
               </Grid>
             </Paper>
@@ -613,7 +666,7 @@ const ProfessionalPropertyListing = () => {
               {properties.length} Properties Found
             </Typography>
           </Box>
-
+          {console.log(properties)}
           {/* Properties Grid */}
           <Grid container spacing={3}>
             {properties.map((property) => (

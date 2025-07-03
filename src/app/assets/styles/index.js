@@ -6,7 +6,8 @@ const Colors = {
   // dashboardBgColor: "#ECF9F8",
   dashboardBgColor: "#fbfbfb",
 
-  primary: "#5ac4bd ",
+  primary: "#b1883f ",
+  // primary: "#5ac4bd ",
   yellow: "rgba(252, 190, 45, 1)",
   seaGreen: "rgba(0, 182, 155, 1)",
   red:"rgba(253, 84, 84, 1)",

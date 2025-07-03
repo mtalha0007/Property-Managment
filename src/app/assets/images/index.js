@@ -18,6 +18,7 @@ const Images = {
   picIcon: require("./picture_format.png"),
   banner: require("./banner.jpeg"),
   banner2: require("./banner2.jpg"),
+  banner3: require("./banner3.jpeg"),
   propertyCard: require("./propertycard.jpg"),
   card2: require("./card2.jpg"),
   card3: require("./card3.jpg"),
@@ -29,6 +30,14 @@ const Images = {
   section3: require("./Section3.webp"),
   section4: require("./Section4.webp"),
   agentLogin: require("./agentlogin.png"),
+
+  hero1: require("./hero1.webp"),
+  hero2: require("./hero2.webp"),
+  hero3: require("./hero3.webp"),
+  hero4: require("./hero4.webp"),
+  hero5: require("./hero5.webp"),
+
+  video: require("./video.mp4"),
 };
 
 const Svgs = {

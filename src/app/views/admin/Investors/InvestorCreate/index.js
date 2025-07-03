@@ -82,7 +82,7 @@ export default function CreateInvestor() {
         searchParam,
         "",
         pageParam,
-        limit
+        limit,"",""
       );
       const newProps = data?.properties || [];
       setPropertyData((prev) =>
@@ -96,7 +96,7 @@ export default function CreateInvestor() {
   };
 
   useEffect(() => {
-    getProperties(debouncedSearch, page);
+    getProperties(debouncedSearch, page ,"","");
   }, [debouncedSearch, page]);
 
   return (

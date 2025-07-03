@@ -24,6 +24,21 @@ import {
   CardMedia,
   CardContent,
   Avatar,
+  InputLabel,
+  Paper,
+  Menu,
+  MenuItem,
+  InputBase,
+  FormControl,
+  Select,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Slider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -37,9 +52,21 @@ import {
   Phone,
   Email,
   LocationOn,
+  Shield,
+  CheckCircle,
+  SquareFoot,
+  ExpandMore,
 } from "@mui/icons-material";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import SecurityIcon from "@mui/icons-material/Security";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import BedIcon from "@mui/icons-material/Bed";
+import BathtubIcon from "@mui/icons-material/Bathtub";
+import CropSquareIcon from "@mui/icons-material/CropSquare";
 
 import { Images } from "../../../assets/images";
+import Loader from "../../../components/Loader";
+
 import Colors from "../../../assets/styles";
 import { useForm } from "react-hook-form";
 import SimpleDialog from "../../../components/Dialog";
@@ -52,6 +79,7 @@ import FileServices from "../../../api/FileServices/file.index";
 import { useAuth } from "../../../context";
 import PropertyServices from "../../../api/PropertyServices/property.index";
 import Header from "../Header";
+import { Send } from "@mui/icons-material"
 
 const Home = () => {
   const theme = useTheme();
@@ -64,10 +92,63 @@ const Home = () => {
   const [images, setImages] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [openBookDialog, setOpenBookDialog] = useState(false);
   const [properties, setProperties] = useState([]);
   const navigate = useNavigate();
+  const [propertyData, setPropertyData] = useState([]);
+  const [maxMin, setMaxMin] = useState(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [openFilterModal, setOpenFilterModal] = useState(false);
+  const [filters, setFilters] = useState({
+    propertyType: "",
+    location: "",
+    bedrooms: "",
+    priceRange: [0, 10000000],
+  });
+const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  })
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleSubmit2 = (e) => {
+    e.preventDefault()
+    console.log("Form submitted:", formData)
+    // Handle form submission here
+  }
   const { WebUserLogin, webUser } = useAuth();
-  console.log(webUser);
+  const timeSlots = [
+    "1-2",
+    "2-3",
+    "3-4",
+    "4-5",
+    "5-6",
+    "6-7",
+    "7-8",
+    "8-9",
+    "9-10",
+    "10-11",
+    "11-12",
+    "12-1",
+  ];
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const selectedTime = watch("timeSlot");
 
   const handleMobileMenuToggle = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -78,8 +159,25 @@ const Home = () => {
   };
 
   const handleSearch = () => {
-    console.log("Searching for:", searchValue);
+    const params = new URLSearchParams();
+  
+    if (filters.location) {
+      params.append("location", filters.location);
+    }
+
+    if (filters.propertyType) {
+      params.append("type", filters.propertyType);
+    }
+  
+    if (filters.priceRange?.length === 2) {
+      params.append("priceMin", filters.priceRange[0]);
+      params.append("priceMax", filters.priceRange[1]);
+    }
+  
+  
+    navigate(`/property-list?${params.toString()}`);
   };
+  
 
   const mobileMenu = (
     <Drawer
@@ -128,18 +226,38 @@ const Home = () => {
         searchParam,
         idParam,
         pageParam,
-        limitParam
+        limitParam,
+        "",
+        ""
       );
       setProperties(data?.properties);
+      setMaxMin(data);
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
+  const features = [
+    {
+      icon: <DashboardIcon fontSize="large" color="primary" />,
+      title: "Smart Dashboard",
+      description: "Manage everything in one place with real-time updates.",
+    },
+    {
+      icon: <SecurityIcon fontSize="large" color="primary" />,
+      title: "Secure Platform",
+      description: "Your data is encrypted and protected at every step.",
+    },
+    {
+      icon: <SupportAgentIcon fontSize="large" color="primary" />,
+      title: "24/7 Support",
+      description: "Get round-the-clock assistance from our expert team.",
+    },
+  ];
 
   useEffect(() => {
-    getProperties("", "", 1, 4);
+    getProperties("", "", 1, 8, "", "");
   }, []);
 
   const handlePropertyClick = (propertyName) => {
@@ -153,13 +271,316 @@ const Home = () => {
     { icon: <LinkedIn />, name: "LinkedIn", url: "#" },
   ];
 
+  const onSubmit = async (data) => {
+    setBookingLoading(true);
+    const obj = {
+      name: webUser?.name,
+      email: webUser?.email,
+      agent_id: webUser?._id,
+      property_id: propertyData?._id,
+      // doc: document,
+      date: data?.date,
+      time: data?.timeSlot,
+      notes: data?.notes,
+    };
+    console.log(obj);
+    try {
+      const response = await AuthServices.createBooking(obj);
+
+      SuccessToaster(response?.message);
+      setOpenBookDialog(false);
+      reset();
+      setValue("timeSlot", "");
+      // setDocument(null);
+    } catch (error) {
+      ErrorToaster(error);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const developers = [
+    { name: "DAMAC", logo: Images.hero1 },
+    { name: "EMAAR", logo: Images.hero2 },
+    { name: "MERAAS", logo: Images.hero3 },
+    { name: "SOBHA", logo: Images.hero4 },
+    { name: "NAKHEEL", logo: Images.hero5 },
+  ];
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-    
       <Header />
 
       {/* Hero  */}
       <Box
+        sx={{
+          position: "relative",
+          minHeight: { xs: "70vh", md: "80vh" },
+          overflow: "hidden",
+        }}
+      >
+        {/* Background Video */}
+        <Box
+          component="video"
+          autoPlay
+          loop
+          muted
+          playsInline
+          src={Images.video}
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+          }}
+        />
+
+        {/* Overlay */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            zIndex: 1,
+          }}
+        />
+
+        {/* Foreground Content */}
+        <Container sx={{ position: "relative", zIndex: 2, height: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start", // 👈 left-align
+              textAlign: "left",
+              color: "white",
+              height: "100vh",
+              px: { xs: 2, md: 0 },
+              maxWidth: "700px",
+            }}
+          >
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 700,
+                mb: 2,
+                lineHeight: 1.1,
+                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+                fontSize: { md: "60px", sm: "50px", xs: "40px" },
+              }}
+            >
+              Your Gateway to Smarter Property Selling
+            </Typography>
+
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 400,
+                mb: 4,
+                opacity: 0.95,
+                textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
+              }}
+            >
+              Connect with the right opportunities, close faster, and scale with
+              confidence.
+            </Typography>
+
+            {/* Top Tabs (Buy, Rent, Off Plan) */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1.5,
+                mb: 2,
+              }}
+            >
+              {["Buy", "Rent"].map((label) => (
+                <Button
+                  key={label}
+                  variant="outlined"
+                  sx={{
+                    color: "white",
+                    borderColor: "white",
+                    borderRadius: "8px",
+                    px: 3,
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                    },
+                  }}
+                >
+                  {label}
+                </Button>
+              ))}
+            </Box>
+
+            {/* Search Bar with Fields */}
+            <Box
+              sx={{
+                backgroundColor: "white",
+                borderRadius: "12px",
+                p: 1,
+                display: { xs: "none", sm: "none", md: "flex" },
+                alignItems: "center",
+                flexWrap: "wrap",
+                width: "100%",
+                maxWidth: "700px",
+                gap: 1,
+              }}
+            >
+              {/* Location Input */}
+              <InputBase
+                fullWidth
+                value={filters.location}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, location: e.target.value }))
+                }
+                placeholder="Area, project or community"
+                startAdornment={<SearchIcon sx={{ color: "gray", mr: 1 }} />}
+                sx={{
+                  flex: 1,
+                  px: 1,
+                  fontSize: "0.95rem",
+                  color: "black",
+                }}
+              />
+
+              {/* Property Type */}
+              <FormControl sx={{ minWidth: 120 }}>
+                <Select
+                  value={filters.propertyType}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      propertyType: e.target.value,
+                    }))
+                  }
+                  displayEmpty
+                  size="small"
+                  sx={{
+                    height: "44px",
+                    display: "flex",
+                    alignItems: "center",
+                    fontSize: "0.875rem",
+                    padding: "0 8px",
+                    ".MuiSelect-select": {
+                      display: "flex",
+                      alignItems: "center",
+                      paddingTop: 0,
+                      paddingBottom: 0,
+                      justifyContent: "start",
+                    },
+                  }}
+                >
+                  <MenuItem value="">Select Type</MenuItem>
+                  <MenuItem value="apartment">Apartment</MenuItem>
+                  <MenuItem value="villa">Villa</MenuItem>
+                  <MenuItem value="townhouse">Townhouse</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Price Range */}
+              <Accordion
+                elevation={0}
+                sx={{
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 2,
+                  "& .MuiAccordionSummary-root": {
+                    minHeight: "4px !important",
+                  },
+                }}
+              >
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography variant="body2">Price Range</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="body2" sx={{ mb: 2, fontWeight: 600 }}>
+                      Price Range (AED)
+                    </Typography>
+                    <Slider
+                      value={filters.priceRange}
+                      onChange={(e, newValue) =>
+                        setFilters({ ...filters, priceRange: newValue })
+                      }
+                      valueLabelDisplay="auto"
+                      min={maxMin?.min_price || 0}
+                      max={maxMin?.max_price || 10000000}
+                      step={100000}
+                      valueLabelFormat={(value) => `${value}AED`}
+                      sx={{
+                        color: Colors.primary,
+                      }}
+                    />
+                  </Box>
+                 
+                </AccordionDetails>
+              </Accordion>
+
+              <Button
+                variant="contained"
+                onClick={handleSearch}
+                sx={{
+                  backgroundColor: Colors.primary,
+                  px: 3,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  "&:hover": {
+                    backgroundColor: Colors.primary,
+                    opacity: 0.8,
+                  },
+                }}
+              >
+                Search
+              </Button>
+            </Box>
+
+            
+            <Box
+              onClick={() => setOpenFilterModal(true)}
+              sx={{
+                backgroundColor: "white",
+                borderRadius: "12px",
+                p: 1,
+                display: { md: "none", sm: "flex" },
+                alignItems: "center",
+                flexWrap: "wrap",
+                width: "100%",
+                maxWidth: "700px",
+                gap: 1,
+              }}
+            >
+              <InputBase
+                fullWidth
+                value={filters.location}
+                placeholder="Area, project or community"
+                startAdornment={<SearchIcon sx={{ color: "gray", mr: 1 }} />}
+                sx={{
+                  flex: 1,
+                  px: 1,
+                  fontSize: "0.95rem",
+                  color: "black",
+                }}
+              />
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* <Box
         sx={{
           minHeight: { xs: "70vh", md: "80vh" },
           backgroundImage: `url(${Images.banner})`,
@@ -217,10 +638,12 @@ const Home = () => {
                 textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
               }}
             >
-              Helping 100 Helping over 100 million renters find the perfect place to call home — with ease, confidence, and convenience. renters find their perfect fit.
+              Helping 100 Helping over 100 million renters find the perfect
+              place to call home — with ease, confidence, and convenience.
+              renters find their perfect fit.
             </Typography>
 
-            {/* <Box
+            <Box
               sx={{
                 maxWidth: 600,
                 mx: "auto",
@@ -274,41 +697,128 @@ const Home = () => {
                   },
                 }}
               />
-            </Box> */}
+            </Box>
           </Box>
         </Container>
-      </Box>
+      </Box> */}
 
+      <Box sx={{ bgcolor: "#f4f8fb", py: 6 }}>
+        <Container>
+          <Grid
+            container
+            spacing={4}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Grid item xs={12} md={2}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: { xs: "1rem", md: "1.2rem" },
+                  color: "#1a1a1a",
+                  textAlign: { xs: "center", md: "left" },
+                  fontWeight: 500,
+                }}
+              >
+                Partners with <br />
+                Dubai’s leading <br />
+                developers
+              </Typography>
+            </Grid>
+
+            {developers.map((dev, idx) => (
+              <Grid
+                item
+                key={idx}
+                xs={4}
+                md={2}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  component="img"
+                  src={dev.logo}
+                  alt={dev.name}
+                  sx={{
+                    maxWidth: "100px",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
       {/*  Drawer */}
 
-      {/* Property Card */}
-      {webUser?.token && (
-        <>
-        <Box sx={{ py: { xs: 4, md: 6 }, backgroundColor: "#f8f9fa" }}>
+      <Box sx={{ py: { xs: 4, md: 6 }, backgroundColor: "#f8f9fa" }}>
         <Container sx={{ maxWidth: "1300px !important" }}>
-       
-          <Typography
-            variant="h3"
-            component="h2"
+          <Box
             sx={{
-              textAlign: "center",
-              mb: { xs: 3, md: 5 },
-              fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.75rem" },
-              fontWeight: 600,
-              color: "#2d3748",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
             }}
           >
-            Explore Rentals
-          </Typography>
+            <Typography
+              variant="h3"
+              component="h2"
+              sx={{
+                fontSize: { xs: "20px", sm: "2.25rem", md: "2.75rem" },
+                fontWeight: 600,
+                color: "#2d3748",
+              }}
+            >
+              Discover Properties
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate("/property-list")}
+                sx={{
+                  backgroundColor: Colors.primary,
+                  color: "white",
+                  px: { xs: 3, sm: 6 },
+                  py: { xs: 1, sm: 2 },
+                  fontSize: { xs: "12px", sm: "15px", md: "15px" },
+                  fontWeight: 600,
+                  textTransform: "none",
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
+                  "&:hover": {
+                    backgroundColor: Colors.primary,
+                    boxShadow: "0 6px 20px rgba(34, 197, 94, 0.4)",
+                    transform: "translateY(-2px)",
+                    opacity: 0.8,
+                  },
+                  transition: "all 0.3s ease-in-out",
+                }}
+              >
+                View More
+              </Button>
+            </Box>
+          </Box>
 
-        
           <Grid
             container
             spacing={{ xs: 2, sm: 3, md: 4 }}
             sx={{ mb: 4, justifyContent: "center" }}
           >
             {properties.map((property) => (
-              <Grid item xs={12} sm={6} lg={3} key={property.id}>
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                lg={3}
+                sx={{ paddingLeft: "18px !important" }}
+                key={property.id}
+              >
                 <Card
                   sx={{
                     height: "100%",
@@ -318,46 +828,46 @@ const Home = () => {
                     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     transition: "all 0.3s ease-in-out",
                     cursor: "pointer",
+                    overflow: "hidden",
                     "&:hover": {
                       transform: "translateY(-4px)",
                       boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     },
                   }}
-                  onClick={() => navigate(`/property-detail/${property._id}`)}
                 >
                   <CardMedia
                     component="img"
                     height={isMobile ? "200" : "250"}
                     image={property.images[0]}
                     alt={property.imageAlt}
-                    sx={{
-                      objectFit: "cover",
-                    }}
+                    sx={{ objectFit: "cover" }}
                   />
+
                   <CardContent
                     sx={{
                       flexGrow: 1,
                       display: "flex",
                       flexDirection: "column",
-                      p: { xs: 2, sm: 3 },
+                      justifyContent: "space-between",
+                      p: { xs: 2, sm: 2 },
                     }}
                   >
-                  
+                    {/* Title */}
                     <Typography
                       variant="h6"
                       component="h3"
                       sx={{
                         fontWeight: 600,
-                        mb: 2,
                         fontSize: { xs: "1.1rem", sm: "1.25rem" },
                         color: "#2d3748",
                         textAlign: "center",
+                        mb: 1,
                       }}
                     >
                       {property.name}
                     </Typography>
 
-                   
+                    {/* Address & Type */}
                     <Box sx={{ textAlign: "center", mb: 2 }}>
                       <Typography
                         variant="body2"
@@ -367,7 +877,7 @@ const Home = () => {
                           lineHeight: 1.4,
                         }}
                       >
-                        {property.address}
+                      AED {formatPrice(property.price)}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -381,53 +891,101 @@ const Home = () => {
                       </Typography>
                     </Box>
 
-                    <Typography
-                      variant="body2"
+                    {/* Beds, Baths, Area */}
+                    <Box
                       sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: 1,
+                        mb: 2,
                         color: "#4a5568",
-                        fontSize: "0.9rem",
-                        fontWeight: 500,
-                        textAlign: "center",
-                        mt: "auto",
                       }}
                     >
-                      AED {property.price}
-                    </Typography>
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <BedIcon fontSize="small" />
+                        <Typography variant="body2">
+                          {property.beds} Beds
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <BathtubIcon fontSize="small" />
+                        <Typography variant="body2">
+                          {property.baths} Baths
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <SquareFoot fontSize="small" />
+                        <Typography variant="body2">
+                          {property.area} sqft
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                   
+                    
+
+                    {/* Action Buttons */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 1,
+                        
+                      }}
+                    >
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: Colors.primary,
+                          color: "white",
+                          textTransform: "none",
+                          fontWeight: 500,
+                          "&:hover": {
+                            backgroundColor: Colors.primary,
+                            opacity: 0.8,
+                          },
+                        }}
+                        onClick={() => {
+                          if (webUser?.token) {
+                            setPropertyData(property);
+                            setOpenBookDialog(true);
+                          } else {
+                            navigate("/agent/login");
+                            ErrorToaster("Please login to book a property");
+                          }
+                        }}
+                      >
+                        Book Now
+                      </Button>
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          color: "#3a84a6",
+                          borderColor: "#3a84a6",
+                          textTransform: "none",
+                          fontWeight: 500,
+                          "&:hover": {
+                            borderColor: "#2f6e8b",
+                            color: "#2f6e8b",
+                          },
+                        }}
+                        onClick={() =>
+                          navigate(`/property-detail/${property._id}`)
+                        }
+                      >
+                        View Details
+                      </Button>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
             ))}
           </Grid>
 
-          
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => navigate("/property-list")}
-              sx={{
-                backgroundColor: Colors.primary,
-                color: "white",
-                px: { xs: 4, sm: 6 },
-                py: { xs: 1.5, sm: 2 },
-                fontSize: { xs: "1rem", sm: "1.1rem" },
-                fontWeight: 600,
-                textTransform: "none",
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
-                "&:hover": {
-                  backgroundColor: Colors.primary,
-                  boxShadow: "0 6px 20px rgba(34, 197, 94, 0.4)",
-                  transform: "translateY(-2px)",
-                  opacity: 0.8,
-                },
-                transition: "all 0.3s ease-in-out",
-              }}
-            >
-              View More
-            </Button>
-          </Box>
-          
           <Divider
             sx={{
               mt: 13,
@@ -435,15 +993,11 @@ const Home = () => {
               borderBottomWidth: "2px",
             }}
           />
-       
         </Container>
       </Box>
-        </>
-      )}
-      
 
       {/* //rental listing  */}
-      <Box sx={{ py: { xs: 4, md: 8 }, backgroundColor: "#f8f9fa" }}>
+      <Box sx={{ py: { xs: 2, md: 2 }, backgroundColor: "#f8f9fa" }}>
         <Container sx={{ maxWidth: "1300px !important" }}>
           {/* Header Section */}
           <Box sx={{ textAlign: "center", mb: { xs: 4, md: 8 } }}>
@@ -457,7 +1011,7 @@ const Home = () => {
                 mb: 2,
               }}
             >
-              The Most Rental Listings
+The Perfect Place to Manage Your Property 
             </Typography>
             <Typography
               variant="h6"
@@ -469,8 +1023,7 @@ const Home = () => {
                 mx: "auto",
               }}
             >
-              Choose from over 1 million apartments, houses, condos, and
-              townhomes for rent.
+             Work with the best suite of property management tools on the market.
             </Typography>
           </Box>
 
@@ -491,7 +1044,7 @@ const Home = () => {
                         mb: 2,
                       }}
                     >
-                      Accept Applications Online
+                      Process Rent Payments Digitally
                     </Typography>
                     <Typography
                       variant="body1"
@@ -502,12 +1055,7 @@ const Home = () => {
                         mb: 3,
                       }}
                     >
-                      Simplify tenant onboarding with digital applications. Let
-                      prospects apply anytime, anywhere, with secure ID and
-                      background verification built in. Review, approve, and
-                      communicate—all from your dashboard. It’s faster, more
-                      professional, and hassle-free for both property managers
-                      and renters.
+                     Collect rent on time every time with built-in online payments. Tenants can pay via credit card, bank transfer, or auto-debit—no chasing, no delays. Track transactions in real-time and enjoy automated receipts and reporting. Say goodbye to cash hassles for good.
                     </Typography>
                   </Box>
                 </Grid>
@@ -530,15 +1078,15 @@ const Home = () => {
             <Grid item xs={12} sx={{ mt: { xs: 2, md: 4 } }}>
               <Divider
                 sx={{
-                  my: { xs: 4, md: 6 },
                   borderColor: "grey",
                   borderBottomWidth: "2px",
                 }}
               />
             </Grid>
 
-            {/* Property Management Section */}
-            <Grid item xs={12} sx={{ mt: { xs: 2, md: 4 } }}>
+            {/* why Cjoose   */}
+
+            <Grid item xs={12} sx={{ mt: { xs: 2, md: 2 } }}>
               <Box sx={{ textAlign: "center", mb: { xs: 3, md: 4 } }}>
                 <Typography
                   variant="h4"
@@ -550,7 +1098,7 @@ const Home = () => {
                     mb: 2,
                   }}
                 >
-                  The Perfect Place to Manage Your Property
+                  Why Choose RR Properties?
                 </Typography>
                 <Typography
                   variant="body1"
@@ -561,118 +1109,313 @@ const Home = () => {
                     mx: "auto",
                   }}
                 >
-                  Work with the best suite of property management tools on the
-                  market.
+                  Experience the future of property management with our
+                  comprehensive suite of tools
                 </Typography>
               </Box>
 
               <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ pr: { md: 2 } }}>
-                    <Typography
-                      variant="h5"
-                      component="h4"
+                {features.map((feature, index) => (
+                  <Grid item xs={12} md={4} key={index}>
+                    <Paper
+                      elevation={3}
                       sx={{
-                        fontSize: { xs: "1.25rem", sm: "1.5rem" },
-                        fontWeight: 600,
-                        color: "#2d3748",
-                        mb: 2,
+                        p: 4,
+                        textAlign: "center",
+                        borderRadius: 4,
+                        transition: "box-shadow 0.3s ease-in-out",
+                        backgroundColor: "transparent",
+                        "&:hover": {
+                          boxShadow: 6,
+                        },
                       }}
                     >
-                      Process Rent Payments Digitally
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontSize: { xs: "0.95rem", sm: "1rem", md: "1.1rem" },
-                        color: "#718096",
-                        lineHeight: 1.6,
-                        mb: 3,
-                      }}
-                    >
-                      Collect rent on time every time with built-in online
-                      payments. Tenants can pay via credit card, bank transfer,
-                      or auto-debit—no chasing, no delays. Track transactions in
-                      real-time and enjoy automated receipts and reporting. Say
-                      goodbye to cash hassles for good.
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box
-                    component="img"
-                    src={Images.section3}
-                    alt="Apartment building exterior for rental advertising"
-                    sx={{
-                      width: "100%",
-                      height: { xs: "250px", md: "300px" },
-                      objectFit: "cover",
-                      borderRadius: 2,
-                    }}
-                  />
-                </Grid>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          mb: 3,
+                        }}
+                      >
+                        {feature.icon}
+                      </Box>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 600, color: "text.primary", mb: 2 }}
+                      >
+                        {feature.title}
+                      </Typography>
+                      <Typography
+                        sx={{ color: "text.secondary", lineHeight: 1.6 }}
+                      >
+                        {feature.description}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                ))}
               </Grid>
             </Grid>
 
-            {/* Lease 100% Online */}
             <Grid item xs={12} sx={{ mt: { xs: 2, md: 4 } }}>
-              <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
-                <Grid item xs={12} md={6}>
-                  <Box
-                    component="img"
-                    src={Images.section4}
-                    alt="Happy couple with keys - new renters"
-                    sx={{
-                      width: "100%",
-                      height: { xs: "250px", md: "300px" },
-                      objectFit: "cover",
-                      borderRadius: 2,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ pl: { md: 2 } }}>
-                    <Typography
-                      variant="h4"
-                      component="h3"
-                      sx={{
-                        fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
-                        fontWeight: 600,
-                        color: "#2d3748",
-                        mb: 2,
-                      }}
-                    >
-                      Lease 100% Online
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontSize: { xs: "0.95rem", sm: "1rem", md: "1.1rem" },
-                        color: "#718096",
-                        lineHeight: 1.6,
-                        mb: 3,
-                      }}
-                    >
-                      Manage your entire leasing process from anywhere. From
-                      listing properties to signing digital leases, our platform
-                      streamlines everything online—saving you time, effort, and
-                      paperwork. No more manual contracts or office visits—just
-                      seamless, secure, and efficient leasing in a few clicks.
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
+              <Divider
+                sx={{
+                  borderColor: "grey",
+                  borderBottomWidth: "2px",
+                }}
+              />
             </Grid>
+            {/* Property Management Section */}
+           
+
+            {/* Lease 100% Online */}
+          
           </Grid>
         </Container>
       </Box>
 
+{/* //Contact Form// */}
+
+<Box
+      sx={{
+        minHeight: "100vh",
+        backgroundImage: `url(${Images.banner2})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        position: "relative",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(245, 240, 220, 0.9)", 
+          zIndex: 1,
+        },
+      }}
+    >
+      <Container
+        maxWidth="lg"
+        sx={{
+          position: "relative",
+          zIndex: 2,
+          py: { xs: 4, md: 8 },
+        }}
+      >
+        <Grid container spacing={4} alignItems="stretch">
+          {/* Contact Information Section */}
+          <Grid item xs={12} md={6}>
+            <Box sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <Typography
+                variant="h3"
+                component="h1"
+                sx={{
+                  fontWeight: "bold",
+                  color: "#2c3e50",
+                  mb: 3,
+                  fontSize: { xs: "2rem", md: "2.5rem" },
+                }}
+              >
+                Contact Us
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#666",
+                  mb: 4,
+                  fontSize: "1.1rem",
+                  lineHeight: 1.6,
+                }}
+              >
+                We’re always ready to help you whenever you need support. Whether you’re exploring for the first time or coming back, we’re here to make things easier.
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#666",
+                  mb: 2,
+                  fontSize: "1.1rem",
+                }}
+              >
+                If you have any questions or can’t find what you’re looking for, feel free to reach out. Our team is friendly, responsive, and happy to assist.
+              </Typography>
+
+            
+            </Box>
+          </Grid>
+
+          {/* Contact Form Section */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, md: 4 },
+                backgroundColor: "transparent",
+                height: "100%",
+              }}
+            >
+              <Typography
+                variant="h4"
+                component="h2"
+                sx={{
+                  fontWeight: "bold",
+                  color: "#2c3e50",
+                  mb: 4,
+                  fontSize: { xs: "1.8rem", md: "2rem" },
+                }}
+              >
+                Contact Form
+              </Typography>
+
+              <Box component="form" onSubmit={handleSubmit2} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#666",
+                      mb: 1,
+                      fontSize: "1rem",
+                    }}
+                  >
+                    Your Name
+                    <Typography component="span" sx={{ color: "#d32f2f", ml: 0.5 }}>
+                      *
+                    </Typography>
+                  </Typography>
+                  <TextField
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        "& fieldset": {
+                          borderColor: "#ddd",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#bbb",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#2c3e50",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#666",
+                      mb: 1,
+                      fontSize: "1rem",
+                    }}
+                  >
+                    Your Email
+                  </Typography>
+                  <TextField
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        "& fieldset": {
+                          borderColor: "#ddd",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#bbb",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#2c3e50",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#666",
+                      mb: 1,
+                      fontSize: "1rem",
+                    }}
+                  >
+                    Your Message
+                  </Typography>
+                  <TextField
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    multiline
+                    rows={6}
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        "& fieldset": {
+                          borderColor: "#ddd",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#bbb",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#2c3e50",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  endIcon={<Send />}
+                  sx={{
+                    backgroundColor:Colors.primary,
+                    color: "white",
+                    py: 1.5,
+                    px: 4,
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    textTransform: "none",
+                    borderRadius: 1,
+                    alignSelf: "flex-start",
+                    "&:hover": {
+                      backgroundColor: Colors.primary,
+                      opacity: 0.8,
+                    },
+                  }}
+                >
+                  Send Message
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
       {/* Footer */}
 
       <Box
         component="footer"
         sx={{
-          backgroundColor: "#2d3748",
+          backgroundColor: Colors.primary,
           color: "white",
 
           pb: 2,
@@ -686,7 +1429,7 @@ const Home = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#a0aec0",
+                    color: Colors.white,
                     mr: 2,
                     display: { xs: "none", sm: "block" },
                   }}
@@ -698,7 +1441,7 @@ const Home = () => {
                     key={social.name}
                     href={social.url}
                     sx={{
-                      color: "#a0aec0",
+                      color: Colors.white,
                       "&:hover": {
                         color: "white",
                         backgroundColor: Colors.primary,
@@ -728,12 +1471,11 @@ const Home = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#a0aec0",
+                    color: Colors.white,
                     fontSize: "0.875rem",
                   }}
                 >
-                  © {moment().format("YYYY")}  All rights
-                  reserved.
+                  © {moment().format("YYYY")} All rights reserved.
                 </Typography>
               </Box>
             </Grid>
@@ -741,7 +1483,243 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* login signup modal */}
+      {/* Booking modal */}
+      <SimpleDialog
+        open={openBookDialog}
+        onClose={() => {
+          setOpenBookDialog(false);
+          reset();
+          setValue("timeSlot", "");
+        }}
+        border={`4px solid ${Colors.primary}`}
+        title={`Book This ${propertyData?.type}`}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
+            {/* Date Picker */}
+
+            <Grid item xs={12} md={12}>
+              <InputLabel>Select Date</InputLabel>
+
+              <TextField
+                type="date"
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                error={!!errors.date}
+                helperText={errors.date?.message}
+                {...register("date", { required: "Date is required" })}
+              />
+            </Grid>
+
+            {/* Time Slot Chips */}
+            <Grid item xs={12} md={12}>
+              <InputLabel>Select Time Slot</InputLabel>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                {timeSlots.map((slot) => (
+                  <Chip
+                    key={slot}
+                    label={slot}
+                    clickable
+                    color={selectedTime === slot ? "primary" : "default"}
+                    onClick={() =>
+                      setValue("timeSlot", slot, { shouldValidate: true })
+                    }
+                  />
+                ))}
+              </Box>
+              {errors.timeSlot && (
+                <Typography color="error" variant="caption">
+                  {errors.timeSlot.message}
+                </Typography>
+              )}
+              {/* Hidden time slot input */}
+              <input
+                type="hidden"
+                {...register("timeSlot", { required: "Time slot is required" })}
+              />
+            </Grid>
+
+            {/* Document Upload */}
+            {/* <Grid item xs={12} md={12}>
+              <InputLabel>Upload Document</InputLabel>
+              <Box
+                component="label"
+                sx={{
+                  border: "2px dashed #ccc",
+                  borderRadius: 2,
+                  padding: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  bgcolor: "#f9f9f9",
+                  gap: 1,
+                  flexDirection: "column",
+                  textAlign: "center",
+                }}
+              >
+                {docLoading ? (
+                  <Loader width="30px" height="30px" color={Colors.primary} />
+                ) : (
+                  <>
+                    <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+                    <Typography variant="caption">
+                      {document ? `Document Uploaded` : "Upload RERA Document"}
+                    </Typography>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  hidden
+                  {...register("document", {
+                    required: "Document is required",
+                  })}
+                  onChange={handleUploadDoc}
+                />
+              </Box>
+              {errors.document && (
+                <Typography color="error" variant="caption">
+                  {errors.document.message}
+                </Typography>
+              )}
+            </Grid> */}
+
+            <Grid item xs={12} md={12}>
+              <InputLabel>Additional Notes </InputLabel>
+
+              <TextField
+                type="text"
+                fullWidth
+                placeholder="Type Additional Notes here"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                {...register("notes")}
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ color: Colors.white }}
+                fullWidth
+              >
+                {bookingLoading ? (
+                  <Loader width="20px" height="20px" color={Colors.primary} />
+                ) : (
+                  "Book Now"
+                )}
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </SimpleDialog>
+
+      <Dialog
+        open={openFilterModal}
+        onClose={() => setOpenFilterModal(false)}
+        fullWidth
+      >
+        <DialogTitle>Filter Properties</DialogTitle>
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+        >
+          {/* Location Input */}
+          <InputBase
+            fullWidth
+            value={filters.location}
+            onChange={(e) =>
+              setFilters({ ...filters, location: e.target.value })
+            }
+            placeholder="Area, project or community"
+            startAdornment={<SearchIcon sx={{ color: "gray", mr: 1 }} />}
+            sx={{
+              px: 1,
+              py: 1.5,
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+            }}
+          />
+
+          {/* Property Type */}
+          <FormControl fullWidth>
+            <Select
+              value={filters.propertyType}
+              onChange={(e) =>
+                setFilters({ ...filters, propertyType: e.target.value })
+              }
+              displayEmpty
+              size="small"
+            >
+              <MenuItem value="">Select Type</MenuItem>
+              <MenuItem value="apartment">Apartment</MenuItem>
+              <MenuItem value="villa">Villa</MenuItem>
+              <MenuItem value="townhouse">Townhouse</MenuItem>
+            </Select>
+          </FormControl>
+
+          <Accordion
+            elevation={0}
+            sx={{
+              border: "1px solid #e2e8f0",
+              borderRadius: 2,
+              "& .MuiAccordionSummary-root": {
+                minHeight: "4px !important",
+              },
+            }}
+          >
+            <AccordionSummary expandIcon={<ExpandMore />}>
+              <Typography variant="body2">Price Range</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body2" sx={{ mb: 2, fontWeight: 600 }}>
+                  Price Range (AED)
+                </Typography>
+                <Slider
+                  value={filters.priceRange}
+                  onChange={(e, newValue) =>
+                    setFilters({ ...filters, priceRange: newValue })
+                  }
+                  valueLabelDisplay="auto"
+                  min={maxMin?.min_price || 0}
+                  max={maxMin?.max_price || 10000000}
+                  step={100000}
+                  valueLabelFormat={(value) => `${value}AED`}
+                  sx={{
+                    color: Colors.primary,
+                  }}
+                />
+              </Box>
+              
+            </AccordionDetails>
+          </Accordion>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenFilterModal(false)}>Close</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setOpenFilterModal(false);
+              handleSearch();
+            }}
+            sx={{
+              backgroundColor: Colors.primary,
+              "&:hover": {
+                backgroundColor: Colors.primary,
+                opacity: 0.8,
+              },
+            }}
+          >
+            Search
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

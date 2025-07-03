@@ -491,7 +491,7 @@ export default function MyBooking() {
             {/* Rating */}
             <Box>
               <Typography fontWeight={500} color="text.primary" gutterBottom>
-                Rate His Experience
+              Rate Overall Experience
               </Typography>
               <Rating
                 name="rating"
@@ -500,7 +500,7 @@ export default function MyBooking() {
                   setValue("rating", value || 0);
                   trigger("rating");
                 }}
-                sx={{ color: Colors.primary }}
+                sx={{ color: Colors.primary ,fontSize: "2.5rem"}}
               />
               <Box mt={0.5}>
                 {errors.rating && (
@@ -549,7 +549,8 @@ export default function MyBooking() {
                   fontWeight: "bold",
                   fontSize: "1rem",
                   ":hover": {
-                    backgroundColor: Colors.primaryDark || "#0056b3",
+                    backgroundColor: Colors.primary,
+                    opacity: 0.9,
                   },
                 }}
               >

@@ -73,11 +73,13 @@ function App() {
             <Route path="/admin" element={<Login />} />
             <Route path="/agent/login" element={<AgentLogin />} />
             <Route path="/agent/signup" element={<AgentSignup />} />
-          
-            {webUser?.token && (
-              <>
             <Route path="/property-list" element={<PropertyList />} />
             <Route path="/property-detail/:id" element={<PropertyDetail />} />
+            {/* <Route path="/my-booking" element={<MyBooking />} /> */}
+            {webUser?.token && (
+              <>
+            {/* <Route path="/property-list" element={<PropertyList />} />
+            <Route path="/property-detail/:id" element={<PropertyDetail />} /> */}
             <Route path="/my-booking" element={<MyBooking />} />
               </>
             )}

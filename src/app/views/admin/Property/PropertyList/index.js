@@ -83,7 +83,7 @@ const PropertyList = () => {
     idParam = "",
     pageParam = 1,
     limitParam = 10,
-    companyId = ""
+   
   ) => {
     setLoading(true);
     try {
@@ -93,7 +93,7 @@ const PropertyList = () => {
         idParam,
         pageParam,
         limitParam,
-        companyId
+        "",""
       );
       setData(data?.properties);
       setCount(data.count);
@@ -106,7 +106,7 @@ const PropertyList = () => {
   };
 
   useEffect(() => {
-    getProperties(search, id, page + 1, limit, "");
+    getProperties(search, id, page + 1, limit, "","");
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
@@ -117,7 +117,7 @@ const PropertyList = () => {
       );
 
       setOpenDialog(false);
-      getProperties(search, id, page + 1, limit);
+      getProperties(search, id, page + 1, limit,"","");
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -127,7 +127,7 @@ const PropertyList = () => {
   };
 
   const handleSearch = () => {
-    getProperties(search, id, 1, limit);
+    getProperties(search, id, 1, limit,"","");
   };
 
   const handlePageChange = (event, newPage) => {
@@ -137,12 +137,19 @@ const PropertyList = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getProperties("", "", 1, limit);
+    getProperties("", "", 1, limit,"","");
   };
 
   const filteredData = data.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -307,7 +314,7 @@ const PropertyList = () => {
                     {row?.purpose}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.price}
+                    {formatPrice(row?.price)}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     <Typography

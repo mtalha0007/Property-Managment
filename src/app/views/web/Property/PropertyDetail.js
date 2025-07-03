@@ -131,6 +131,14 @@ function PropertyDetail() {
       setDocLoading(false);
     }
   };
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
 
   const onSubmit = async (data) => {
     setBookingLoading(true);
@@ -139,7 +147,7 @@ function PropertyDetail() {
       email: webUser?.email,
       agent_id: webUser?._id,
       property_id: propertyData?._id,
-      doc: document,
+      // doc: document,
       date: data?.date,
       time: data?.timeSlot,
       notes: data?.notes,
@@ -199,7 +207,7 @@ function PropertyDetail() {
         searchParam,
         idParam,
         pageParam,
-        limitParam
+        limitParam,"",""
       );
 
       // Exclude the property with currentPropertyId
@@ -216,7 +224,7 @@ function PropertyDetail() {
   };
 
   useEffect(() => {
-    getProperties("", "", 1, 5);
+    getProperties("", "", 1, 5,"","");
   }, [navigate]);
 
   const { isLoaded } = useJsApiLoader({
@@ -225,7 +233,14 @@ function PropertyDetail() {
 
   if (!isLoaded)
     return (
-      <div style={{ display: "flex",justifyContent:"center", alignItems:"center" ,height:"100vh"}}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         {" "}
         <Loader width="40px" height="40px" color={Colors.primary} />
       </div>
@@ -379,35 +394,52 @@ function PropertyDetail() {
                     mb: 2,
                   }}
                 >
-                  <Box sx={{width:'100%'}}>
-                    <Box sx={{display:"flex",justifyContent:"space-between"}}>
-                    <Typography
-                      variant="h4"
-                      sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1 ,fontSize:{md:"35px",sm:"30px",xs:"20px"}}}
+                  <Box sx={{ width: "100%" }}>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
                     >
-                       {propertyData?.name}
-                    </Typography>
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          fontWeight: "bold",
+                          color: "#2c3e50",
+                          mb: 1,
+                          fontSize: { md: "35px", sm: "30px", xs: "20px" },
+                        }}
+                      >
+                        {propertyData?.name}
+                      </Typography>
                       <Button
-                      variant="contained"
-                      
-                      sx={{
-                        backgroundColor: "#16a085",
-                        color: Colors.white,
-                        borderRadius:5,
-                        fontSize:"13px",
-                        "&:hover": { backgroundColor: "#138d75" },
-                      }}
-                      onClick={() => setOpenBookDialog(true)}
-                    >
-                      Book Now
-                    </Button>
+                        variant="contained"
+                        sx={{
+                          backgroundColor: Colors.primary,
+                          color: Colors.white,
+                          borderRadius: 5,
+                          fontSize: "13px",
+                          "&:hover": { backgroundColor: Colors.primary ,opacity: 0.9},
+                        }}
+                        onClick={() => {
+                          if(webUser?.token) {
+                          setOpenBookDialog(true);
+                        }else{
+                          navigate("/agent/login");
+                          ErrorToaster("Please login to book a property");
+                        }}}
+                      >
+                        Book Now
+                      </Button>
                     </Box>
-                    
+
                     <Typography
                       variant="h5"
-                      sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1,fontSize:{md:"30px",sm:"25px",xs:"16px"} }}
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#2c3e50",
+                        mb: 1,
+                        fontSize: { md: "30px", sm: "25px", xs: "16px" },
+                      }}
                     >
-                      AED {propertyData?.price}
+                      AED {formatPrice(propertyData?.price)}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Typography variant="h6" sx={{ color: "#34495e", mb: 2 }}>
@@ -426,7 +458,8 @@ function PropertyDetail() {
                         }}
                         onClick={() => setOpenMapModal(true)}
                       >
-                        <RoomIcon color="primary" />View Map Location
+                        <RoomIcon color="primary" />
+                        View Map Location
                       </Typography>
                     </Box>
                     <SimpleDialog
@@ -863,7 +896,7 @@ function PropertyDetail() {
                           {property?.description}
                         </Typography>
                         <Typography variant="body2" sx={{ color: "green" }}>
-                          Price: AED {property?.price?.toLocaleString()}
+                          Price: AED {formatPrice(property?.price)}
                         </Typography>
                       </Box>
                     </Box>

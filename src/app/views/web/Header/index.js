@@ -218,7 +218,8 @@ export default function Header() {
                   src={Images.logo}
                   alt="Talha's Estate"
                   sx={{
-                    width: 110,
+                    width:{md :"150px" ,xs:"100px"},
+                    height:{md :"88px" ,xs:"60px"},
                   
                   }}
                 />
