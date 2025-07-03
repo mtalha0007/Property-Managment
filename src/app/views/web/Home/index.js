@@ -1423,7 +1423,7 @@ The Perfect Place to Manage Your Property
           backgroundColor: Colors.primary,
           color: "white",
 
-          pb: 2,
+          py: 2,
         }}
       >
         <Container maxWidth="xl">
