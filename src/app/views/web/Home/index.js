@@ -1086,7 +1086,7 @@ The Perfect Place to Manage Your Property
 
             {/* why Cjoose   */}
 
-            <Grid item xs={12} sx={{ mt: { xs: 2, md: 2 } }}>
+            <Grid item xs={12} sx={{ mt: { xs: 2, md: 2 } ,pb:4 }}>
               <Box sx={{ textAlign: "center", mb: { xs: 3, md: 4 } }}>
                 <Typography
                   variant="h4"
@@ -1176,6 +1176,7 @@ The Perfect Place to Manage Your Property
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         position: "relative",
+        
         "&::before": {
           content: '""',
           position: "absolute",
