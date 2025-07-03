@@ -1156,14 +1156,7 @@ The Perfect Place to Manage Your Property
               </Grid>
             </Grid>
 
-            <Grid item xs={12} sx={{ mt: { xs: 2, md: 4 } }}>
-              <Divider
-                sx={{
-                  borderColor: "grey",
-                  borderBottomWidth: "2px",
-                }}
-              />
-            </Grid>
+           
             {/* Property Management Section */}
            
 
