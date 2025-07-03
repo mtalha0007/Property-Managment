@@ -86,7 +86,6 @@ const Home = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [open, setOpen] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
   const [preview, setPreview] = useState(null);
   const [images, setImages] = useState(null);
@@ -99,6 +98,16 @@ const Home = () => {
   const [maxMin, setMaxMin] = useState(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [openFilterModal, setOpenFilterModal] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const [filters, setFilters] = useState({
     propertyType: "",
     location: "",
@@ -207,7 +216,7 @@ const [formData, setFormData] = useState({
         </IconButton>
       </Box>
       <Divider />
-      <List onClick={() => setOpen(true)}>
+      <List >
         <ListItem button>
           <ListItemText primary="Sign Up / Sign In" />
         </ListItem>
@@ -493,42 +502,55 @@ const [formData, setFormData] = useState({
               </FormControl>
 
               {/* Price Range */}
-              <Accordion
-                elevation={0}
-                sx={{
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 2,
-                  "& .MuiAccordionSummary-root": {
-                    minHeight: "4px !important",
-                  },
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="body2">Price Range</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 2, fontWeight: 600 }}>
-                      Price Range (AED)
-                    </Typography>
-                    <Slider
-                      value={filters.priceRange}
-                      onChange={(e, newValue) =>
-                        setFilters({ ...filters, priceRange: newValue })
-                      }
-                      valueLabelDisplay="auto"
-                      min={maxMin?.min_price || 0}
-                      max={maxMin?.max_price || 10000000}
-                      step={100000}
-                      valueLabelFormat={(value) => `${value}AED`}
-                      sx={{
-                        color: Colors.primary,
-                      }}
-                    />
-                  </Box>
-                 
-                </AccordionDetails>
-              </Accordion>
+              <FormControl  size="small" sx={{}}>
+      <Button
+        onClick={handleClick}
+        variant="outlined"
+        endIcon={<ExpandMore />}
+        sx={{
+          height: 40,
+         
+          justifyContent: "space-between",
+          color: "#555",
+          textTransform: "none",
+          borderColor: "#ccc",
+        }}
+        fullWidth
+      >
+        {filters.priceRange[0] && filters.priceRange[1]
+          ? `${filters.priceRange[0]} - ${filters.priceRange[1]} AED`
+          : "Select Price Range"}
+      </Button>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          sx: { width: 300, p: 2 },
+        }}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
+          Price Range (AED)
+        </Typography>
+        <Slider
+          value={filters.priceRange}
+          onChange={(e, newValue) =>
+            setFilters({ ...filters, priceRange: newValue })
+          }
+          valueLabelDisplay="auto"
+          min={maxMin?.min_price || 0}
+          max={maxMin?.max_price || 10000000}
+          step={100000}
+          valueLabelFormat={(value) => `${value} AED`}
+          sx={{ color: Colors.primary }}
+        />
+      </Menu>
+    </FormControl>
 
               <Button
                 variant="contained"
@@ -1251,18 +1273,7 @@ The Perfect Place to Manage Your Property
                 height: "100%",
               }}
             >
-              <Typography
-                variant="h4"
-                component="h2"
-                sx={{
-                  fontWeight: "bold",
-                  color: "#2c3e50",
-                  mb: 4,
-                  fontSize: { xs: "1.8rem", md: "2rem" },
-                }}
-              >
-                Contact Form
-              </Typography>
+             
 
               <Box component="form" onSubmit={handleSubmit2} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <Box>

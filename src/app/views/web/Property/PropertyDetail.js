@@ -426,7 +426,7 @@ function PropertyDetail() {
                           ErrorToaster("Please login to book a property");
                         }}}
                       >
-                        Book Now
+                        Book a visit
                       </Button>
                     </Box>
 
@@ -1071,7 +1071,7 @@ function PropertyDetail() {
             </Grid>
 
             {/* Document Upload */}
-            <Grid item xs={12} md={12}>
+            {/* <Grid item xs={12} md={12}>
               <InputLabel>Upload Document</InputLabel>
               <Box
                 component="label"
@@ -1114,7 +1114,7 @@ function PropertyDetail() {
                   {errors.document.message}
                 </Typography>
               )}
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12} md={12}>
               <InputLabel>Additional Notes </InputLabel>
@@ -1139,9 +1139,9 @@ function PropertyDetail() {
                 fullWidth
               >
                 {bookingLoading ? (
-                  <Loader width="20px" height="20px" color={Colors.primary} />
+                  <Loader width="20px" height="20px" color={Colors.white} />
                 ) : (
-                  "Book Now"
+                  "Book a visit"
                 )}
               </Button>
             </Grid>
