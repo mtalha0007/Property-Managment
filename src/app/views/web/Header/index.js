@@ -19,7 +19,7 @@ import {
   MenuItem,
   ListItemIcon,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
@@ -46,7 +46,7 @@ import SimpleDialog from "../../../components/Dialog";
 import Colors from "../../../assets/styles";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -59,6 +59,19 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  const path = useLocation()
+
+  console.log(path)
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10); 
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -176,15 +189,27 @@ export default function Header() {
   );
   return (
     <>
-      <AppBar
-        position="static"
-        elevation={0}
-        sx={{
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(0,0,0,0.1)",
-        }}
-      >
+           <AppBar
+       position={path?.pathname === "/" ? (scrolled ? "sticky" : "absolute") : "static"}
+       elevation={path?.pathname === "/" ? (scrolled ? 4 : 0) : 1}
+       sx={{
+         backgroundColor:
+           path?.pathname === "/"
+             ? scrolled
+               ? "#2f4f7f61"
+               : "transparent"
+             : "white",
+         backdropFilter: path?.pathname === "/" && scrolled ? "blur(10px)" : "none",
+         boxShadow:
+           path?.pathname === "/"
+             ? scrolled
+               ? "0 2px 8px rgba(0,0,0,0.1)"
+               : "none"
+             : "0 1px 2px rgba(0,0,0,0.05)",
+         transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+         zIndex: 1201,
+       }}
+    >
         <Container maxWidth="xl" sx={{ padding: "0px !important" }}>
           <Toolbar sx={{ justifyContent: "space-between", py: 1 }}>
             <Box

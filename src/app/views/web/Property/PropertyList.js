@@ -52,6 +52,7 @@ import { Images } from "../../../assets/images";
 import { useNavigate, useParams } from "react-router-dom";
 import Colors from "../../../assets/styles";
 import { useLocation } from "react-router-dom";
+import Loader from "../../../components/Loader";
 
 const ProfessionalPropertyListing = () => {
   const theme = useTheme();
@@ -214,6 +215,7 @@ const ProfessionalPropertyListing = () => {
     const currentImageIndex = currentImageIndexes[property.id] || 0;
 
     return (
+      
       <Card
         sx={{
           borderRadius: 3,
@@ -669,12 +671,23 @@ const ProfessionalPropertyListing = () => {
           {console.log(properties)}
           {/* Properties Grid */}
           <Grid container spacing={3}>
-            {properties.map((property) => (
-              <Grid item xs={12} sm={12} lg={12} key={property._id}>
-                <PropertyCard property={property} />
-              </Grid>
-            ))}
-          </Grid>
+  {loading ? (
+    <Grid item xs={12} display="flex" justifyContent="center" py={5}>
+      <Loader width="40px" height="40px" color={Colors.primary} />
+    </Grid>
+  ) : properties.length === 0 ? (
+    <Grid item xs={12} display="flex" justifyContent="center" py={5}>
+      <Typography>No properties found</Typography>
+    </Grid>
+  ) : (
+    properties.map((property) => (
+      <Grid item xs={12} sm={12} lg={12} key={property._id}>
+        <PropertyCard property={property} />
+      </Grid>
+    ))
+  )}
+</Grid>
+
           {properties.length < count && (
             <Box sx={{ textAlign: "center", mt: 4 }}>
               <Button
