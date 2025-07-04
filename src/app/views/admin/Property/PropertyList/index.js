@@ -93,7 +93,7 @@ const PropertyList = () => {
         idParam,
         pageParam,
         limitParam,
-        "",""
+        "","","",""
       );
       setData(data?.properties);
       setCount(data.count);
