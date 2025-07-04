@@ -419,12 +419,15 @@ function PropertyDetail() {
                           "&:hover": { backgroundColor: Colors.primary ,opacity: 0.9},
                         }}
                         onClick={() => {
-                          if(webUser?.token) {
-                          setOpenBookDialog(true);
-                        }else{
-                          navigate("/agent/login");
-                          ErrorToaster("Please login to book a property");
-                        }}}
+                          if (webUser?.token) {
+                            setOpenBookDialog(true);
+                          } else {
+                            const currentPath = window.location.pathname;
+                            navigate(`/agent/login?redirect=${encodeURIComponent(currentPath)}`);
+                            ErrorToaster("Please login to book a property");
+                          }
+                        }}
+                        
                       >
                         Book a visit
                       </Button>

@@ -97,9 +97,9 @@ const BookingList = () => {
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const sleep = () => new Promise((r) => setTimeout(r, 1000));
-  const { control, handleSubmit ,register} = useForm();
+  const { control, handleSubmit, register } = useForm();
   const reasons = ["Price", "Size", "Layout", "Condition", "Location"];
- 
+
   const {
     register: register2,
     setValue: setValue2,
@@ -367,52 +367,42 @@ const BookingList = () => {
                   </TableCell> */}
 
                   <TableCell sx={{ textAlign: "center" }}>
-                    <Typography
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: "12px", // spacing between icons
-                        alignItems: "center",
-                      }}
-                    >
-                      {row?.feedback && (
-                        <>
-                          <Box
-                            onClick={(e) => {
-                              e.stopPropagation();
-console.log(row?.feedback)
-                              setSelectedPropertyId(row._id);
-                              setOpenDetailDialog(true);
-                              setValue2("interested", row?.feedback.interested);
-                              setValue2("helpInterested", row?.feedback.reason);
-                              setValue2("helpNotInterested", row?.feedback.reason);
-                              setValue2("interestedOptions", row?.feedback.is_offer);
-                              setValue2("notInterestedReasons", row?.feedback.is_offer);
-                              setValue2("rating", row?.feedback.rating ?? 0);
-                              setValue2(
-                                "comment",
-                                row?.feedback.comment ?? ""
-                              );
-                            }}
-                            sx={{ cursor: "pointer" }}
-                            dangerouslySetInnerHTML={{
-                              __html: Svgs["details"],
-                            }}
-                          />
-                        </>
-                      )}
-
-                      {/* Delete Icon */}
-                      {/* <Box
+                    {row?.feedback && (
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          background: Colors.primary,
+                          color: Colors.white,
+                          " :hover": {
+                            background: Colors.primary,
+                            opacity: 0.9,
+                            color: Colors.white,
+                          },
+                        }}
+                        size="small"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setOpenDialog(true);
+                          console.log(row?.feedback);
                           setSelectedPropertyId(row._id);
+                          setOpenDetailDialog(true);
+                          setValue2("interested", row?.feedback.interested);
+                          setValue2("helpInterested", row?.feedback.reason);
+                          setValue2("helpNotInterested", row?.feedback.reason);
+                          setValue2(
+                            "interestedOptions",
+                            row?.feedback.is_offer
+                          );
+                          setValue2(
+                            "notInterestedReasons",
+                            row?.feedback.is_offer
+                          );
+                          setValue2("rating", row?.feedback.rating ?? 0);
+                          setValue2("comment", row?.feedback.comment ?? "");
                         }}
-                        sx={{ cursor: "pointer" }}
-                        dangerouslySetInnerHTML={{ __html: Svgs["delete"] }}
-                      /> */}
-                    </Typography>
+                      >
+                        View Feedback
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -573,10 +563,7 @@ console.log(row?.feedback)
                 </Typography>
               </FormLabel>
 
-              <RadioGroup
-                row
-                value={watch("interested") ? "true" : "false"} 
-              >
+              <RadioGroup row value={watch("interested") ? "true" : "false"}>
                 <FormControlLabel
                   value="true"
                   control={<Radio disabled />}
@@ -591,104 +578,94 @@ console.log(row?.feedback)
             </FormControl>
           </Box>
           {watch("interested") == true ? (
-              <>
-                <Box mb={2}>
-                  <Typography fontWeight={500}>
-                    Did they ask about making an offer or booking a second
-                    visit? *
-                  </Typography>
-                  <FormGroup row>
-  {["Making Offer", "Booking Second Visit"].map((option) => (
-    <FormControlLabel
-      key={option}
-      label={option}
-      control={
-        <Controller
-          name="interestedOptions"
-          control={control2}
-          render={({ field }) => (
-            <Checkbox
-              disabled
-              checked={field.value?.includes(option)}
-              onChange={() => {}} 
-            />
-          )}
-        />
-      }
-    />
-  ))}
-</FormGroup>
-
-                 
-                </Box>
-
-                <Box mb={3}>
-                  <TextField
-                    label="What would help convert this interest into a deal? *"
-                    fullWidth
-                    multiline
-                   disabled
-
-                    rows={3}
-                    {...register2("helpInterested", {
-                      required: "This field is required.",
-                    })}
-                   
-                    
-                  />
-                </Box>
-              </>
-            ) : (
-              <>
-                <Box mb={2}>
-                  <Typography fontWeight={500}>
-                    What was the main reason the client was not interested? *
-                  </Typography>
-                  <FormGroup row>
-                    {reasons.map((reason) => (
-                      <FormControlLabel
-                        key={reason}
-                        control={
-                          <Controller
-                            name="notInterestedReasons"
-                            control={control2}
-                            rules={{
-                              validate: (val) =>
-                                val?.length > 0 ||
-                                "Select at least one reason.",
-                            }}
-                            render={({ field }) => (
-                              <Checkbox
+            <>
+              <Box mb={2}>
+                <Typography fontWeight={500}>
+                  Did they ask about making an offer or booking a second visit?
+                  *
+                </Typography>
+                <FormGroup row>
+                  {["Making Offer", "Booking Second Visit"].map((option) => (
+                    <FormControlLabel
+                      key={option}
+                      label={option}
+                      control={
+                        <Controller
+                          name="interestedOptions"
+                          control={control2}
+                          render={({ field }) => (
+                            <Checkbox
                               disabled
-                                checked={field?.value?.includes(reason)}
-                              
-                              />
-                            )}
-                          />
-                        }
-                        label={reason}
-                      />
-                    ))}
-                  </FormGroup>
-                 
-                </Box>
+                              checked={field.value?.includes(option)}
+                              onChange={() => {}}
+                            />
+                          )}
+                        />
+                      }
+                    />
+                  ))}
+                </FormGroup>
+              </Box>
 
-                <Box mb={3}>
-                  <TextField
-                    label="What would help convert this lead into potential customer? *"
-                    fullWidth
-                    multiline
-                   disabled
-                    rows={3}
-                    {...register2("helpNotInterested", {
-                      required: "This field is required.",
-                    })}
-                    
-                  />
-                </Box>
-              </>
-            )}
-         
+              <Box mb={3}>
+                <TextField
+                  label="What would help convert this interest into a deal? *"
+                  fullWidth
+                  multiline
+                  disabled
+                  rows={3}
+                  {...register2("helpInterested", {
+                    required: "This field is required.",
+                  })}
+                />
+              </Box>
+            </>
+          ) : (
+            <>
+              <Box mb={2}>
+                <Typography fontWeight={500}>
+                  What was the main reason the client was not interested? *
+                </Typography>
+                <FormGroup row>
+                  {reasons.map((reason) => (
+                    <FormControlLabel
+                      key={reason}
+                      control={
+                        <Controller
+                          name="notInterestedReasons"
+                          control={control2}
+                          rules={{
+                            validate: (val) =>
+                              val?.length > 0 || "Select at least one reason.",
+                          }}
+                          render={({ field }) => (
+                            <Checkbox
+                              disabled
+                              checked={field?.value?.includes(reason)}
+                            />
+                          )}
+                        />
+                      }
+                      label={reason}
+                    />
+                  ))}
+                </FormGroup>
+              </Box>
+
+              <Box mb={3}>
+                <TextField
+                  label="What would help convert this lead into potential customer? *"
+                  fullWidth
+                  multiline
+                  disabled
+                  rows={3}
+                  {...register2("helpNotInterested", {
+                    required: "This field is required.",
+                  })}
+                />
+              </Box>
+            </>
+          )}
 
           {/* Rating */}
           <Box>
@@ -708,7 +685,6 @@ console.log(row?.feedback)
             </Box>
           </Box>
 
-
           {/* Comments */}
           <Box>
             <TextField
@@ -719,9 +695,7 @@ console.log(row?.feedback)
               variant="outlined"
               disabled
               {...register2("comment")}
-             
             />
-           
           </Box>
         </Box>
       </SimpleDialog>

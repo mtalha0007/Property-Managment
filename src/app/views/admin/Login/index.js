@@ -68,7 +68,7 @@ function App() {
     }
   };
   return (
-    <Grid container>
+    <Grid container alignItems={"center"}>
       <Grid
         item
         xs={12}
@@ -77,7 +77,7 @@ function App() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          paddingTop: "90px",
+          // paddingTop: "90px",
           backgroundColor: "#fefefe",
           
           height: { xs: "100vh", md: "auto" },

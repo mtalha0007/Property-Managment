@@ -16,14 +16,17 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAuth } from "../../../context";
 import { useNavigate } from "react-router-dom";
 import { Images } from "../../../assets/images";
-import Loader from "../../../components/Loader";
+import Loader from "../../../components/Loader"; 
+ import { useLocation } from "react-router-dom";
+
+
 
 function AgentLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loader, setLoader] = useState(false);
   const { WebUserLogin } = useAuth();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const {
     register,
     handleSubmit,
@@ -32,21 +35,27 @@ function AgentLogin() {
     formState: { errors },
   } = useForm();
 
+
+  
+  // Inside onSubmit:
   const onSubmit = async (data) => {
     setLoader(true);
     const obj = {
       email: data.email,
       password: data.password,
     };
-
+  
     try {
       const response = await AuthServices.agentLogin(obj);
-      console.log(response);
-
       WebUserLogin(response?.data?.user);
-
       SuccessToaster(response?.message);
-      navigate("/");
+  
+      const params = new URLSearchParams(location.search);
+      const redirectPath = params.get("redirect") || "/";
+  
+      // Prevent going back to login page
+      navigate(redirectPath, { replace: true });
+  
       reset();
     } catch (error) {
       ErrorToaster(error);
@@ -54,6 +63,8 @@ function AgentLogin() {
       setLoader(false);
     }
   };
+  
+  
   return (
     <Box
       sx={{
