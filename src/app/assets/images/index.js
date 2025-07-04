@@ -1,7 +1,7 @@
 const Images = {
   logo: require("./logo.png"),
   bgLogin: require("./]loginbg.jpg"),
-  sideImage: require("./sideimage2.jpg"),
+  sideImage: require("./agentlogin.png"),
   trendingUp: require("./trending-up.png"),
   trendingDowm: require("./trending-down.png"),
   userDashboard: require("./userdashboard.png"),
@@ -36,6 +36,9 @@ const Images = {
   hero3: require("./hero3.webp"),
   hero4: require("./hero4.webp"),
   hero5: require("./hero5.webp"),
+  hero6: require("./hero6.webp"),
+  hero7: require("./hero7.webp"),
+  hero8: require("./hero8.webp"),
 
   video: require("./video.mp4"),
 };

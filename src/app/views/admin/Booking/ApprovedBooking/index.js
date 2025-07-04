@@ -29,6 +29,7 @@ import {
   FormLabel,
   RadioGroup,
   Radio,
+  FormGroup,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RestoreIcon from "@mui/icons-material/Restore";
@@ -54,7 +55,7 @@ const tableHead = [
   "Booking Date",
   "Booking Time",
   "Property Name",
-  "Document",
+  // "Document",
   //   "Status",
   "Action",
 ];
@@ -96,12 +97,15 @@ const BookingList = () => {
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const sleep = () => new Promise((r) => setTimeout(r, 1000));
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit ,register} = useForm();
+  const reasons = ["Price", "Size", "Layout", "Condition", "Location"];
+ 
   const {
     register: register2,
     setValue: setValue2,
     trigger,
     watch,
+    control: control2,
     formState: { errors },
   } = useForm();
   const ratingValue = watch("rating");
@@ -335,7 +339,7 @@ const BookingList = () => {
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.property?.name}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  {/* <TableCell sx={{ textAlign: "center" }}>
                     {row?.doc ? (
                       <Tooltip title="View Document">
                         <IconButton
@@ -351,7 +355,7 @@ const BookingList = () => {
                     ) : (
                       "-"
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   {/* <TableCell sx={{ textAlign: "center" }}>
                     <Chip
                     onClick={()=>setOpenStatusDialog(true)}
@@ -376,10 +380,14 @@ const BookingList = () => {
                           <Box
                             onClick={(e) => {
                               e.stopPropagation();
-
+console.log(row?.feedback)
                               setSelectedPropertyId(row._id);
                               setOpenDetailDialog(true);
                               setValue2("interested", row?.feedback.interested);
+                              setValue2("helpInterested", row?.feedback.reason);
+                              setValue2("helpNotInterested", row?.feedback.reason);
+                              setValue2("interestedOptions", row?.feedback.is_offer);
+                              setValue2("notInterestedReasons", row?.feedback.is_offer);
                               setValue2("rating", row?.feedback.rating ?? 0);
                               setValue2(
                                 "comment",
@@ -395,7 +403,7 @@ const BookingList = () => {
                       )}
 
                       {/* Delete Icon */}
-                      <Box
+                      {/* <Box
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenDialog(true);
@@ -403,7 +411,7 @@ const BookingList = () => {
                         }}
                         sx={{ cursor: "pointer" }}
                         dangerouslySetInnerHTML={{ __html: Svgs["delete"] }}
-                      />
+                      /> */}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -555,7 +563,7 @@ const BookingList = () => {
         border={`4px solid ${Colors.primary}`}
         title="Agent FeedBack"
       >
-        <Box display="flex" flexDirection="column" gap={3} p={3}>
+        <Box display="flex" flexDirection="column" gap={2} p={2}>
           {/* Interested Checkbox */}
           <Box>
             <FormControl component="fieldset">
@@ -567,7 +575,7 @@ const BookingList = () => {
 
               <RadioGroup
                 row
-                value={watch("interested") ? "true" : "false"} // boolean to string
+                value={watch("interested") ? "true" : "false"} 
               >
                 <FormControlLabel
                   value="true"
@@ -582,8 +590,105 @@ const BookingList = () => {
               </RadioGroup>
             </FormControl>
           </Box>
+          {watch("interested") == true ? (
+              <>
+                <Box mb={2}>
+                  <Typography fontWeight={500}>
+                    Did they ask about making an offer or booking a second
+                    visit? *
+                  </Typography>
+                  <FormGroup row>
+  {["Making Offer", "Booking Second Visit"].map((option) => (
+    <FormControlLabel
+      key={option}
+      label={option}
+      control={
+        <Controller
+          name="interestedOptions"
+          control={control2}
+          render={({ field }) => (
+            <Checkbox
+              disabled
+              checked={field.value?.includes(option)}
+              onChange={() => {}} 
+            />
+          )}
+        />
+      }
+    />
+  ))}
+</FormGroup>
 
-          <Divider />
+                 
+                </Box>
+
+                <Box mb={3}>
+                  <TextField
+                    label="What would help convert this interest into a deal? *"
+                    fullWidth
+                    multiline
+                   disabled
+
+                    rows={3}
+                    {...register2("helpInterested", {
+                      required: "This field is required.",
+                    })}
+                   
+                    
+                  />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box mb={2}>
+                  <Typography fontWeight={500}>
+                    What was the main reason the client was not interested? *
+                  </Typography>
+                  <FormGroup row>
+                    {reasons.map((reason) => (
+                      <FormControlLabel
+                        key={reason}
+                        control={
+                          <Controller
+                            name="notInterestedReasons"
+                            control={control2}
+                            rules={{
+                              validate: (val) =>
+                                val?.length > 0 ||
+                                "Select at least one reason.",
+                            }}
+                            render={({ field }) => (
+                              <Checkbox
+                              disabled
+                                checked={field?.value?.includes(reason)}
+                              
+                              />
+                            )}
+                          />
+                        }
+                        label={reason}
+                      />
+                    ))}
+                  </FormGroup>
+                 
+                </Box>
+
+                <Box mb={3}>
+                  <TextField
+                    label="What would help convert this lead into potential customer? *"
+                    fullWidth
+                    multiline
+                   disabled
+                    rows={3}
+                    {...register2("helpNotInterested", {
+                      required: "This field is required.",
+                    })}
+                    
+                  />
+                </Box>
+              </>
+            )}
+         
 
           {/* Rating */}
           <Box>
@@ -594,7 +699,7 @@ const BookingList = () => {
               name="rating"
               value={ratingValue || 0}
               readOnly
-              sx={{ color: Colors.primary }}
+              sx={{ color: Colors.primary, fontSize: "2.5rem" }}
             />
             <Box mt={0.5}>
               {errors.rating && (
@@ -603,7 +708,6 @@ const BookingList = () => {
             </Box>
           </Box>
 
-          <Divider />
 
           {/* Comments */}
           <Box>

@@ -106,7 +106,7 @@ const PropertyList = () => {
   };
 
   useEffect(() => {
-    getProperties(search, id, page + 1, limit, "","");
+    getProperties(search, id, page + 1, limit, "","","","");
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
@@ -117,7 +117,7 @@ const PropertyList = () => {
       );
 
       setOpenDialog(false);
-      getProperties(search, id, page + 1, limit,"","");
+      getProperties(search, id, page + 1, limit,"","","","");
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -127,7 +127,7 @@ const PropertyList = () => {
   };
 
   const handleSearch = () => {
-    getProperties(search, id, 1, limit,"","");
+    getProperties(search, id, 1, limit,"","","","");
   };
 
   const handlePageChange = (event, newPage) => {
@@ -137,7 +137,7 @@ const PropertyList = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getProperties("", "", 1, limit,"","");
+    getProperties("", "", 1, limit,"","","","");
   };
 
   const filteredData = data.filter((item) =>

@@ -82,7 +82,7 @@ import {
           searchParam,
           "",
           pageParam,
-          limit,"",""
+          limit,"","","",""
         );
         const newProps = data?.properties || [];
         setPropertyData((prev) =>
@@ -96,7 +96,7 @@ import {
     };
   
     useEffect(() => {
-      getProperties(debouncedSearch, page ,"" ,"");
+      getProperties(debouncedSearch, page ,"" ,"","","");
     }, [debouncedSearch, page]);
   
     const getInvestorById = async () => {

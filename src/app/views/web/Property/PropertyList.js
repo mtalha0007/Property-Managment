@@ -76,31 +76,30 @@ const ProfessionalPropertyListing = () => {
   const query = useQuery();
   console.log(query, "query");
   const location = query.get("location");
-  const type = query.get("type");
+  const type = query.get("type") || "";
   const priceMin = query.get("priceMin");
   const priceMax = query.get("priceMax");
+  const purpose = query.get("purpose") || "";
 
-  console.log(type, "type");
 
-  const debounceRef = useRef(null);
 
   const handleSearchChange = useCallback((value) => {
-   
-      setSearch(value);
-  
+    setSearch(value);
   }, []);
 
   useEffect(() => {
-  
-    setSearch( location ? location : "");
+    setSearch(location ? location : "");
+    
     setFilters((prev) => ({
       ...prev,
+      propertyType: filters?.propertyType ? filters?.propertyType : type,
+      purpose: filters?.purpose ? filters?.purpose : purpose,
       priceRange: [
         priceMin !== null && !isNaN(priceMin) ? priceMin : prev.priceRange[0],
         priceMax !== null && !isNaN(priceMax) ? priceMax : prev.priceRange[1],
       ],
     }));
-  }, [priceMin, priceMax,location]);
+  }, [priceMin, priceMax, location ,type ,purpose ]);
 
   const handleMouseEnter = (property) => {
     const total = property.images.length;
@@ -146,13 +145,30 @@ const ProfessionalPropertyListing = () => {
     setLoading(true);
     try {
       const { data } = await PropertyServices.getProperty(
-        searchParam ? searchParam :location ? location :"",
+        searchParam ? searchParam : location ? location : "",
         idParam,
         pageParam,
         limitParam,
-        filters?.priceRange[0] ? filters?.priceRange[0] :  priceMin ?priceMin :0,
-        filters?.priceRange[1] ? filters?.priceRange[1] :  priceMax ? priceMax :"",
-      
+        filters?.priceRange[0]
+          ? filters?.priceRange[0]
+          : priceMin
+          ? priceMin
+          : 0,
+        filters?.priceRange[1]
+          ? filters?.priceRange[1]
+          : priceMax
+          ? priceMax
+          : "",
+        filters?.propertyType === ""
+          ? ""
+          : filters?.propertyType
+          ? filters.propertyType
+          : type,
+          filters?.purpose === ""
+          ? ""
+          : filters?.purpose
+          ? filters.purpose
+          : type,
       );
       setMaxMin(data);
       setProperties((prev) =>
@@ -169,17 +185,19 @@ const ProfessionalPropertyListing = () => {
   const [filters, setFilters] = useState({
     location: "",
     propertyType: "",
-    priceRange: [0, 5000000],
+    priceRange: [maxMin?.min_price, maxMin?.max_price],
     bedrooms: "",
     bathrooms: "",
     area: [0, 10000],
-    sortBy: "price-low",
+    purpose:""
   });
   console.log(filters);
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       setPage(0);
+     
+      
       getProperties(
         search,
         id,
@@ -187,13 +205,29 @@ const ProfessionalPropertyListing = () => {
         limit,
         false,
         filters?.priceRange[0],
-        filters?.priceRange[1]
+        filters?.priceRange[1],
+        filters?.propertyType == ""
+          ? ""
+          : filters?.propertyType
+          ? filters.propertyType
+          : type,
+          filters?.purpose == ""
+          ? ""
+          : filters?.purpose
+          ? filters.purpose
+          : type,
       );
-    }, 1000); 
-  
-    return () => clearTimeout(debounceTimeout); 
-  }, [search, id, filters?.priceRange[0], filters?.priceRange[1]]);
-  
+    }, 1000);
+
+    return () => clearTimeout(debounceTimeout);
+  }, [
+    search,
+    id,
+    filters?.priceRange[0],
+    filters?.priceRange[1],
+    filters?.propertyType,
+    filters?.purpose,
+  ]);
 
   const handleShowMore = () => {
     const nextPage = page + 1;
@@ -205,7 +239,19 @@ const ProfessionalPropertyListing = () => {
       limit,
       true,
       filters?.priceRange[0],
-      filters?.priceRange[1]
+      filters?.priceRange[1],
+      filters?.propertyType === ""
+      ? ""
+      : filters?.propertyType
+        ? filters.propertyType
+        : type,
+        "",
+      filters?.purpose === ""
+      ? ""
+      : filters?.purpose
+        ? filters.purpose
+        : purpose,
+        ""
     );
   };
 
@@ -215,7 +261,6 @@ const ProfessionalPropertyListing = () => {
     const currentImageIndex = currentImageIndexes[property.id] || 0;
 
     return (
-      
       <Card
         sx={{
           borderRadius: 3,
@@ -550,7 +595,7 @@ const ProfessionalPropertyListing = () => {
 
               <Grid container spacing={3}>
                 {/* Search Location */}
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
                     placeholder="Search by Name"
@@ -575,7 +620,7 @@ const ProfessionalPropertyListing = () => {
                 </Grid>
 
                 {/* Property Type */}
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <FormControl fullWidth>
                     <InputLabel>Property Type</InputLabel>
                     <Select
@@ -593,9 +638,28 @@ const ProfessionalPropertyListing = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+                {/* Prupose*/}
+                <Grid item xs={12} md={3}>
+                  <FormControl fullWidth>
+                    <InputLabel>Select Purpse</InputLabel>
+                    <Select
+                      value={filters.purpose}
+                      label="Property Type"
+                      onChange={(e) =>
+                        setFilters({ ...filters, purpose: e.target.value })
+                      }
+                      sx={{ borderRadius: 2 }}
+                    >
+                      <MenuItem value="">Both</MenuItem>
+                      <MenuItem value="sell">Sell</MenuItem>
+                      <MenuItem value="rent">Rent</MenuItem>
+                      
+                    </Select>
+                  </FormControl>
+                </Grid>
 
                 {/* Advanced Filters */}
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   {/* <Accordion
                     elevation={0}
                     sx={{
@@ -611,7 +675,7 @@ const ProfessionalPropertyListing = () => {
                     </AccordionSummary>
                     <AccordionDetails> */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 2, fontWeight: 600 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       Price Range (AED)
                     </Typography>
                     <Slider
@@ -671,22 +735,22 @@ const ProfessionalPropertyListing = () => {
           {console.log(properties)}
           {/* Properties Grid */}
           <Grid container spacing={3}>
-  {loading ? (
-    <Grid item xs={12} display="flex" justifyContent="center" py={5}>
-      <Loader width="40px" height="40px" color={Colors.primary} />
-    </Grid>
-  ) : properties.length === 0 ? (
-    <Grid item xs={12} display="flex" justifyContent="center" py={5}>
-      <Typography>No properties found</Typography>
-    </Grid>
-  ) : (
-    properties.map((property) => (
-      <Grid item xs={12} sm={12} lg={12} key={property._id}>
-        <PropertyCard property={property} />
-      </Grid>
-    ))
-  )}
-</Grid>
+            {loading ? (
+              <Grid item xs={12} display="flex" justifyContent="center" py={5}>
+                <Loader width="40px" height="40px" color={Colors.primary} />
+              </Grid>
+            ) : properties.length === 0 ? (
+              <Grid item xs={12} display="flex" justifyContent="center" py={5}>
+                <Typography>No properties found</Typography>
+              </Grid>
+            ) : (
+              properties.map((property) => (
+                <Grid item xs={12} sm={12} lg={12} key={property._id}>
+                  <PropertyCard property={property} />
+                </Grid>
+              ))
+            )}
+          </Grid>
 
           {properties.length < count && (
             <Box sx={{ textAlign: "center", mt: 4 }}>

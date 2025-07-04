@@ -47,7 +47,7 @@ const tableHead = [
   "Booking Date",
   "Booking Time",
   "Property Name",
-  "Document",
+  // "Document",
   "Status",
   "Action",
 ];
@@ -85,6 +85,7 @@ const BookingList = () => {
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState([]);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -157,6 +158,7 @@ const BookingList = () => {
     item.name.toLowerCase().includes(search.toLowerCase())
   );
   const onSubmit = async (data) => {
+    setSubmitLoading(true)
     const obj = {
       status: data?.status,
       agent_id: selectedBooking?.agent_id,
@@ -173,6 +175,7 @@ const BookingList = () => {
       ErrorToaster(error);
       console.log(error);
     } finally {
+      setSubmitLoading(false)
     }
   };
   return (
@@ -334,7 +337,7 @@ const BookingList = () => {
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.property?.name}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  {/* <TableCell sx={{ textAlign: "center" }}>
                     {row?.doc ? (
                       <Tooltip title="View Document">
                         <IconButton
@@ -350,7 +353,7 @@ const BookingList = () => {
                     ) : (
                       "-"
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Chip
                       onClick={() => {
@@ -521,7 +524,7 @@ const BookingList = () => {
 
             {/* Submit Button */}
             <Button type="submit" variant="contained" color="primary" fullWidth>
-              Confirm
+              {submitLoading ? <Loader width="20px" height="20px" color={Colors.white} /> :"Confirm"}
             </Button>
           </Stack>
         </form>

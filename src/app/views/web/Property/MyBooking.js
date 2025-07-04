@@ -22,6 +22,7 @@ import {
   Radio,
   FormControl,
   FormLabel,
+  FormGroup,
 } from "@mui/material";
 import {
   Search,
@@ -46,7 +47,7 @@ import AuthServices from "../../../api/AuthServices/auth.index";
 import { useAuth } from "../../../context";
 import SimpleDialog from "../../../components/Dialog";
 import Colors from "../../../assets/styles";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Loader from "../../../components/Loader";
 
 export default function MyBooking() {
@@ -61,7 +62,8 @@ export default function MyBooking() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const { webUser } = useAuth();
 
-  console.log(webUser, "WebUserWebUserWebUserWebUser");
+  const reasons = ["Price", "Size", "Layout", "Condition", "Location"];
+
   const {
     register,
     handleSubmit,
@@ -69,29 +71,41 @@ export default function MyBooking() {
     watch,
     trigger,
     reset,
+    control,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      interested: false,
+      interested: true,
       rating: 0,
-      comments: "",
-    },
-    mode: "onChange",
+      // comments: "",
+
+      interestedOptions: [],
+      notInterestedReasons: [],
+        // helpInterested: " ",
+        // helpNotInterested: " ",
+      },
+    mode: "onSubmit",
   });
   const ratingValue = watch("rating");
   const interested = watch("interested");
 
+  
   const onSubmit = async (data) => {
+    console.log(data);
+    setFeedBackLoading(true); 
     const obj = {
       id: selectedBooking?._id,
       feedback: {
-        interested: data?.interested == "true" ? true : false,
+        interested: data?.interested,
         rating: data?.rating,
         comment: data?.comments,
+        is_offer :data?.interested == true ? data?.interestedOptions : data?.notInterestedReasons,
+        reason: data?.interested == true ? data?.helpInterested :data?.helpNotInterested
       },
     };
     console.log(obj);
-    setFeedBackLoading(true);
+    
 
     try {
       const response = await AuthServices.createFeedBack(obj);
@@ -377,7 +391,7 @@ export default function MyBooking() {
 
                       {/* Property Features */}
                       {booking.property?.features &&
-                        booking.property.features.length > 0 && (
+                        booking.property?.features?.length > 0 && (
                           <Box mt={2}>
                             <Typography
                               variant="body2"
@@ -409,7 +423,7 @@ export default function MyBooking() {
         )}
 
         {/* Empty State */}
-        {!loading && data.length === 0 && (
+        {!loading && data?.length === 0 && (
           <Box textAlign="center" py={8}>
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No bookings found
@@ -423,7 +437,7 @@ export default function MyBooking() {
         )}
 
         {/* Pagination */}
-        {!loading && data.length > 0 && Math.ceil(count / limit) > 1 && (
+        {!loading && data?.length > 0 && Math.ceil(count / limit) > 1 && (
           <Box display="flex" justifyContent="center" mt={4}>
             <Pagination
               count={Math.ceil(count / limit)}
@@ -448,9 +462,9 @@ export default function MyBooking() {
         title="We value your feedback!"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Box display="flex" flexDirection="column" gap={3} p={3}>
+          <Box display="flex" flexDirection="column" gap={2} p={2}>
             {/* Interested Checkbox */}
-            <Box>
+            <Box mb={3}>
               <FormControl>
                 <FormLabel>
                   <Typography fontWeight={500} color="text.primary">
@@ -459,7 +473,7 @@ export default function MyBooking() {
                 </FormLabel>
                 <RadioGroup
                   row
-                  defaultValue="true"
+                  value={interested}
                   onChange={(e) => {
                     setValue("interested", e.target.value === "true");
                     trigger("interested");
@@ -467,31 +481,149 @@ export default function MyBooking() {
                 >
                   <FormControlLabel
                     value="true"
-                    control={<Radio {...register("interested")} />}
+                    control={<Radio />}
                     label="Interested"
                   />
                   <FormControlLabel
                     value="false"
-                    control={<Radio {...register("interested")} />}
+                    control={<Radio />}
                     label="Not Interested"
                   />
                 </RadioGroup>
-              </FormControl>
-              <Box mt={0.5}>
                 {errors.interested && (
                   <FormHelperText error>
                     {errors.interested.message}
                   </FormHelperText>
                 )}
-              </Box>
+              </FormControl>
             </Box>
 
-            <Divider />
+            {interested ? (
+              <>
+                <Box mb={2}>
+                  <Typography fontWeight={500}>
+                    Did they ask about making an offer or booking a second
+                    visit? *
+                  </Typography>
+                  <FormGroup row>
+                    {["Making Offer", "Booking Second Visit"].map((option) => (
+                      <FormControlLabel
+                        key={option}
+                        control={
+                          <Controller
+                            name="interestedOptions"
+                            control={control}
+                            rules={{
+                              validate: (val) =>
+                                val?.length > 0 || "Select at least one.",
+                            }}
+                            render={({ field }) => (
+                              <Checkbox
+                                checked={field?.value?.includes(option)}
+                                onChange={(e) => {
+                                  const newValue = e.target.checked
+                                    ? [...field?.value, option]
+                                    : field?.value.filter(
+                                        (val) => val !== option
+                                      );
+                                  field?.onChange(newValue);
+                                }}
+                              />
+                            )}
+                          />
+                        }
+                        label={option}
+                      />
+                    ))}
+                  </FormGroup>
+                  {errors.interestedOptions && (
+                    <FormHelperText error>
+                      {errors.interestedOptions.message}
+                    </FormHelperText>
+                  )}
+                </Box>
 
+                <Box mb={3}>
+                  <TextField
+                    label="What would help convert this interest into a deal? *"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    {...register("helpInterested", {
+                      required: "This field is required.",
+                    })}
+                    error={!!errors.helpInterested}
+                    helperText={errors.helpInterested?.message}
+                    
+                  />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box mb={2}>
+                  <Typography fontWeight={500}>
+                    What was the main reason the client was not interested? *
+                  </Typography>
+                  <FormGroup row>
+                    {reasons.map((reason) => (
+                      <FormControlLabel
+                        key={reason}
+                        control={
+                          <Controller
+                            name="notInterestedReasons"
+                            control={control}
+                            rules={{
+                              validate: (val) =>
+                                val?.length > 0 ||
+                                "Select at least one reason.",
+                            }}
+                            render={({ field }) => (
+                              <Checkbox
+                                checked={field?.value?.includes(reason)}
+                                onChange={(e) => {
+                                  const newValue = e?.target?.checked
+                                    ? [...field?.value, reason]
+                                    : field?.value.filter(
+                                        (val) => val !== reason
+                                      );
+                                  field?.onChange(newValue);
+                                }}
+                              />
+                            )}
+                          />
+                        }
+                        label={reason}
+                      />
+                    ))}
+                  </FormGroup>
+                  {errors.notInterestedReasons && (
+                    <FormHelperText error>
+                      {errors.notInterestedReasons.message}
+                    </FormHelperText>
+                  )}
+                </Box>
+
+                <Box mb={3}>
+                  <TextField
+                    label="What would help convert this lead into potential customer? *"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    {...register("helpNotInterested", {
+                      required: "This field is required.",
+                    })}
+                    error={!!errors.helpNotInterested}
+                    helperText={errors.helpNotInterested?.message}
+                  />
+                </Box>
+              </>
+            )}
+
+          
             {/* Rating */}
             <Box>
               <Typography fontWeight={500} color="text.primary" gutterBottom>
-              Rate Overall Experience
+                Rate Overall Experience
               </Typography>
               <Rating
                 name="rating"
@@ -500,7 +632,7 @@ export default function MyBooking() {
                   setValue("rating", value || 0);
                   trigger("rating");
                 }}
-                sx={{ color: Colors.primary ,fontSize: "2.5rem"}}
+                sx={{ color: Colors.primary, fontSize: "2.5rem" }}
               />
               <Box mt={0.5}>
                 {errors.rating && (
@@ -509,7 +641,7 @@ export default function MyBooking() {
               </Box>
             </Box>
 
-            <Divider />
+           
 
             {/* Comments */}
             <Box>
@@ -524,14 +656,10 @@ export default function MyBooking() {
                   required: "Comments are required",
                 })}
                 error={!!errors.comments}
+                helperText={errors.comments?.message}
+                
               />
-              <Box mt={0.5}>
-                {errors.comments && (
-                  <FormHelperText error>
-                    {errors.comments.message}
-                  </FormHelperText>
-                )}
-              </Box>
+             
             </Box>
 
             {/* Submit Button */}

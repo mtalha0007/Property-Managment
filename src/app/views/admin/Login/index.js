@@ -174,12 +174,12 @@ function App() {
             sx={{
               width: "74%",
               marginTop: "35px",
-              backgroundColor: "white",
-              color: "#5c5c5c",
-              "&:hover": { backgroundColor: "#f0f0f0" },
+              backgroundColor:Colors.primary,
+              color: Colors.white,
+              "&:hover": { backgroundColor: Colors.primary,opacity:0.9 },
             }}
           >
-            {loading ? <Loader width={"20px"} height={"20px"} color={Colors.primary}  /> : "Login"}
+            {loading ? <Loader width={"20px"} height={"20px"} color={Colors.white}  /> : "Login"}
           </Button>
           
           

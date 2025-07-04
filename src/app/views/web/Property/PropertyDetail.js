@@ -207,7 +207,7 @@ function PropertyDetail() {
         searchParam,
         idParam,
         pageParam,
-        limitParam,"",""
+        limitParam,"","","",""
       );
 
       // Exclude the property with currentPropertyId
@@ -224,7 +224,7 @@ function PropertyDetail() {
   };
 
   useEffect(() => {
-    getProperties("", "", 1, 5,"","");
+    getProperties("", "", 1, 5,"","","","");
   }, [navigate]);
 
   const { isLoaded } = useJsApiLoader({

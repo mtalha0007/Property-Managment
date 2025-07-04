@@ -79,16 +79,15 @@ import FileServices from "../../../api/FileServices/file.index";
 import { useAuth } from "../../../context";
 import PropertyServices from "../../../api/PropertyServices/property.index";
 import Header from "../Header";
-import { Send } from "@mui/icons-material"
+import { Send } from "@mui/icons-material";
 
 const Home = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [isSignup, setIsSignup] = useState(false);
-  const [preview, setPreview] = useState(null);
-  const [images, setImages] = useState(null);
+  const [selectedType, setSelectedType] = useState(""); 
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [openBookDialog, setOpenBookDialog] = useState(false);
@@ -114,24 +113,24 @@ const Home = () => {
     bedrooms: "",
     priceRange: [0, 10000000],
   });
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
-  })
+  });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit2 = (e) => {
-    e.preventDefault()
-    console.log("Form submitted:", formData)
+    e.preventDefault();
+    console.log("Form submitted:", formData);
     // Handle form submission here
-  }
+  };
   const { WebUserLogin, webUser } = useAuth();
   const timeSlots = [
     "1-2",
@@ -169,7 +168,7 @@ const [formData, setFormData] = useState({
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-  
+
     if (filters.location) {
       params.append("location", filters.location);
     }
@@ -177,16 +176,17 @@ const [formData, setFormData] = useState({
     if (filters.propertyType) {
       params.append("type", filters.propertyType);
     }
-  
+
     if (filters.priceRange?.length === 2) {
       params.append("priceMin", filters.priceRange[0]);
       params.append("priceMax", filters.priceRange[1]);
     }
-  
-  
+    if(selectedType){
+      params.append("purpose", selectedType.toLowerCase());
+    }
+
     navigate(`/property-list?${params.toString()}`);
   };
-  
 
   const mobileMenu = (
     <Drawer
@@ -216,7 +216,7 @@ const [formData, setFormData] = useState({
         </IconButton>
       </Box>
       <Divider />
-      <List >
+      <List>
         <ListItem button>
           <ListItemText primary="Sign Up / Sign In" />
         </ListItem>
@@ -236,6 +236,8 @@ const [formData, setFormData] = useState({
         idParam,
         pageParam,
         limitParam,
+        "",
+        "",
         "",
         ""
       );
@@ -266,7 +268,7 @@ const [formData, setFormData] = useState({
   ];
 
   useEffect(() => {
-    getProperties("", "", 1, 8, "", "");
+    getProperties("", "", 1, 8, "", "","","");
   }, []);
 
   const handlePropertyClick = (propertyName) => {
@@ -314,6 +316,9 @@ const [formData, setFormData] = useState({
     { name: "MERAAS", logo: Images.hero3 },
     { name: "SOBHA", logo: Images.hero4 },
     { name: "NAKHEEL", logo: Images.hero5 },
+    { name: "Sobha", logo: Images.hero6 },
+    { name: "Sobha", logo: Images.hero7 },
+    { name: "Sobha", logo: Images.hero8 },
   ];
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
@@ -416,24 +421,28 @@ const [formData, setFormData] = useState({
                 mb: 2,
               }}
             >
-              {["Buy", "Rent"].map((label) => (
-                <Button
-                  key={label}
-                  variant="outlined"
-                  sx={{
-                    color: "white",
-                    borderColor: "white",
-                    borderRadius: "8px",
-                    px: 3,
-                    textTransform: "none",
-                    "&:hover": {
-                      backgroundColor: "rgba(255,255,255,0.1)",
-                    },
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
+              {["Sell", "Rent", "Both"].map((label) => (
+  <Button
+    key={label}
+    variant="outlined"
+    onClick={() => setSelectedType(label)}
+    sx={{
+      color: "white",
+      borderColor: "white",
+      borderRadius: "8px",
+      px: 3,
+      textTransform: "none",
+      backgroundColor: selectedType === label ? Colors.primary : "transparent",
+      "&:hover": {
+        backgroundColor:
+          selectedType === label ? Colors.primary : "rgba(255,255,255,0.1)",
+      },
+    }}
+  >
+    {label}
+  </Button>
+))}
+
             </Box>
 
             {/* Search Bar with Fields */}
@@ -502,55 +511,55 @@ const [formData, setFormData] = useState({
               </FormControl>
 
               {/* Price Range */}
-              <FormControl  size="small" sx={{}}>
-      <Button
-        onClick={handleClick}
-        variant="outlined"
-        endIcon={<ExpandMore />}
-        sx={{
-          height: 40,
-         
-          justifyContent: "space-between",
-          color: "#555",
-          textTransform: "none",
-          borderColor: "#ccc",
-        }}
-        fullWidth
-      >
-        {filters.priceRange[0] && filters.priceRange[1]
-          ? `${filters.priceRange[0]} - ${filters.priceRange[1]} AED`
-          : "Select Price Range"}
-      </Button>
+              <FormControl size="small" sx={{}}>
+                <Button
+                  onClick={handleClick}
+                  variant="outlined"
+                  endIcon={<ExpandMore />}
+                  sx={{
+                    height: 40,
 
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          sx: { width: 300, p: 2 },
-        }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-          Price Range (AED)
-        </Typography>
-        <Slider
-          value={filters.priceRange}
-          onChange={(e, newValue) =>
-            setFilters({ ...filters, priceRange: newValue })
-          }
-          valueLabelDisplay="auto"
-          min={maxMin?.min_price || 0}
-          max={maxMin?.max_price || 10000000}
-          step={100000}
-          valueLabelFormat={(value) => `${value} AED`}
-          sx={{ color: Colors.primary }}
-        />
-      </Menu>
-    </FormControl>
+                    justifyContent: "space-between",
+                    color: "#555",
+                    textTransform: "none",
+                    borderColor: "#ccc",
+                  }}
+                  fullWidth
+                >
+                  {filters.priceRange[0] && filters.priceRange[1]
+                    ? `${filters.priceRange[0]} - ${filters.priceRange[1]} AED`
+                    : "Select Price Range"}
+                </Button>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  PaperProps={{
+                    sx: { width: 300, p: 2 },
+                  }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
+                    Price Range (AED)
+                  </Typography>
+                  <Slider
+                    value={filters.priceRange}
+                    onChange={(e, newValue) =>
+                      setFilters({ ...filters, priceRange: newValue })
+                    }
+                    valueLabelDisplay="auto"
+                    min={maxMin?.min_price || 0}
+                    max={maxMin?.max_price || 10000000}
+                    step={100000}
+                    valueLabelFormat={(value) => `${value} AED`}
+                    sx={{ color: Colors.primary }}
+                  />
+                </Menu>
+              </FormControl>
 
               <Button
                 variant="contained"
@@ -570,7 +579,6 @@ const [formData, setFormData] = useState({
               </Button>
             </Box>
 
-            
             <Box
               onClick={() => setOpenFilterModal(true)}
               sx={{
@@ -742,36 +750,62 @@ const [formData, setFormData] = useState({
                   fontWeight: 500,
                 }}
               >
-                Partners with <br />
-                Dubai’s leading <br />
-                developers
+                Partners with Dubai’s leading developers
               </Typography>
             </Grid>
 
-            {developers.map((dev, idx) => (
-              <Grid
-                item
-                key={idx}
-                xs={4}
-                md={2}
+            <Grid item xs={12} md={10}>
+              <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
                 }}
               >
                 <Box
-                  component="img"
-                  src={dev.logo}
-                  alt={dev.name}
                   sx={{
-                    maxWidth: "100px",
-                    height: "auto",
-                    objectFit: "contain",
+                    display: "inline-flex",
+                    animation: "scrollLeft 30s linear infinite",
                   }}
-                />
-              </Grid>
-            ))}
+                >
+                  {developers.concat(developers).map((dev, idx) => (
+                    <Box
+                      key={idx}
+                      sx={{
+                        px: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={dev.logo}
+                        alt={dev.name}
+                        sx={{
+                          maxWidth: "100px",
+                          height: "auto",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+
+                {/* Keyframes for scrolling */}
+                <style>
+                  {`
+        @keyframes scrollLeft {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}
+                </style>
+              </Box>
+            </Grid>
           </Grid>
         </Container>
       </Box>
@@ -899,7 +933,7 @@ const [formData, setFormData] = useState({
                           lineHeight: 1.4,
                         }}
                       >
-                      AED {formatPrice(property.price)}
+                        AED {formatPrice(property.price)}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -943,16 +977,12 @@ const [formData, setFormData] = useState({
                       </Box>
                     </Box>
 
-                   
-                    
-
                     {/* Action Buttons */}
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         gap: 1,
-                        
                       }}
                     >
                       <Button
@@ -1033,7 +1063,7 @@ const [formData, setFormData] = useState({
                 mb: 2,
               }}
             >
-The Perfect Place to Manage Your Property 
+              The Perfect Place to Manage Your Property
             </Typography>
             <Typography
               variant="h6"
@@ -1045,7 +1075,8 @@ The Perfect Place to Manage Your Property
                 mx: "auto",
               }}
             >
-             Work with the best suite of property management tools on the market.
+              Work with the best suite of property management tools on the
+              market.
             </Typography>
           </Box>
 
@@ -1066,7 +1097,8 @@ The Perfect Place to Manage Your Property
                         mb: 2,
                       }}
                     >
-                      Process Rent Payments Digitally
+                      Professional Agent Portal for Efficient Property
+                      Management
                     </Typography>
                     <Typography
                       variant="body1"
@@ -1077,7 +1109,12 @@ The Perfect Place to Manage Your Property
                         mb: 3,
                       }}
                     >
-                     Collect rent on time every time with built-in online payments. Tenants can pay via credit card, bank transfer, or auto-debit—no chasing, no delays. Track transactions in real-time and enjoy automated receipts and reporting. Say goodbye to cash hassles for good.
+                      The agent portal provides seamless access to the latest
+                      property listings. Agents can explore available units,
+                      match them to client needs, and schedule viewings through
+                      a centralized and intuitive platform. It is designed to
+                      enhance productivity, improve coordination, and support
+                      agents in delivering an exceptional client experience.{" "}
                     </Typography>
                   </Box>
                 </Grid>
@@ -1108,7 +1145,7 @@ The Perfect Place to Manage Your Property
 
             {/* why Cjoose   */}
 
-            <Grid item xs={12} sx={{ mt: { xs: 2, md: 2 } ,pb:4 }}>
+            <Grid item xs={12} sx={{ mt: { xs: 2, md: 2 }, pb: 4 }}>
               <Box sx={{ textAlign: "center", mb: { xs: 3, md: 4 } }}>
                 <Typography
                   variant="h4"
@@ -1178,243 +1215,254 @@ The Perfect Place to Manage Your Property
               </Grid>
             </Grid>
 
-           
             {/* Property Management Section */}
-           
 
             {/* Lease 100% Online */}
-          
           </Grid>
         </Container>
       </Box>
 
-{/* //Contact Form// */}
+      {/* //Contact Form// */}
 
-<Box
-      sx={{
-        minHeight: "100vh",
-        backgroundImage: `url(${Images.banner2})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        position: "relative",
-        
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(245, 240, 220, 0.9)", 
-          zIndex: 1,
-        },
-      }}
-    >
-      <Container
-        maxWidth="lg"
+      <Box
         sx={{
+          minHeight: "100vh",
+          backgroundImage: `url(${Images.banner2})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
           position: "relative",
-          zIndex: 2,
-          py: { xs: 4, md: 8 },
+
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(245, 240, 220, 0.9)",
+            zIndex: 1,
+          },
         }}
       >
-        <Grid container spacing={4} alignItems="stretch">
-          {/* Contact Information Section */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <Typography
-                variant="h3"
-                component="h1"
+        <Container
+          maxWidth="lg"
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            py: { xs: 4, md: 8 },
+          }}
+        >
+          <Grid container spacing={4} alignItems="stretch">
+            {/* Contact Information Section */}
+            <Grid item xs={12} md={6}>
+              <Box
                 sx={{
-                  fontWeight: "bold",
-                  color: "#2c3e50",
-                  mb: 3,
-                  fontSize: { xs: "2rem", md: "2.5rem" },
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
                 }}
               >
-                Contact Us
-              </Typography>
-
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "#666",
-                  mb: 4,
-                  fontSize: "1.1rem",
-                  lineHeight: 1.6,
-                }}
-              >
-                We’re always ready to help you whenever you need support. Whether you’re exploring for the first time or coming back, we’re here to make things easier.
-              </Typography>
-
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "#666",
-                  mb: 2,
-                  fontSize: "1.1rem",
-                }}
-              >
-                If you have any questions or can’t find what you’re looking for, feel free to reach out. Our team is friendly, responsive, and happy to assist.
-              </Typography>
-
-            
-            </Box>
-          </Grid>
-
-          {/* Contact Form Section */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 3, md: 4 },
-                backgroundColor: "transparent",
-                height: "100%",
-              }}
-            >
-             
-
-              <Box component="form" onSubmit={handleSubmit2} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                <Box>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "#666",
-                      mb: 1,
-                      fontSize: "1rem",
-                    }}
-                  >
-                    Your Name
-                    <Typography component="span" sx={{ color: "#d32f2f", ml: 0.5 }}>
-                      *
-                    </Typography>
-                  </Typography>
-                  <TextField
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    fullWidth
-                    required
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        "& fieldset": {
-                          borderColor: "#ddd",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#bbb",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#2c3e50",
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-
-                <Box>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "#666",
-                      mb: 1,
-                      fontSize: "1rem",
-                    }}
-                  >
-                    Your Email
-                  </Typography>
-                  <TextField
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    fullWidth
-                    required
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        "& fieldset": {
-                          borderColor: "#ddd",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#bbb",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#2c3e50",
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-
-                <Box>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "#666",
-                      mb: 1,
-                      fontSize: "1rem",
-                    }}
-                  >
-                    Your Message
-                  </Typography>
-                  <TextField
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    fullWidth
-                    required
-                    multiline
-                    rows={6}
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        "& fieldset": {
-                          borderColor: "#ddd",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#bbb",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#2c3e50",
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  endIcon={<Send />}
+                <Typography
+                  variant="h3"
+                  component="h1"
                   sx={{
-                    backgroundColor:Colors.primary,
-                    color: "white",
-                    py: 1.5,
-                    px: 4,
-                    fontSize: "1rem",
                     fontWeight: "bold",
-                    textTransform: "none",
-                    borderRadius: 1,
-                    alignSelf: "flex-start",
-                    "&:hover": {
-                      backgroundColor: Colors.primary,
-                      opacity: 0.8,
-                    },
+                    color: "#2c3e50",
+                    mb: 3,
+                    fontSize: { xs: "2rem", md: "2.5rem" },
                   }}
                 >
-                  Send Message
-                </Button>
+                  Contact Us
+                </Typography>
+
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#666",
+                    mb: 4,
+                    fontSize: "1.1rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  We’re always ready to help you whenever you need support.
+                  Whether you’re exploring for the first time or coming back,
+                  we’re here to make things easier.
+                </Typography>
+
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#666",
+                    mb: 2,
+                    fontSize: "1.1rem",
+                  }}
+                >
+                  If you have any questions or can’t find what you’re looking
+                  for, feel free to reach out. Our team is friendly, responsive,
+                  and happy to assist.
+                </Typography>
               </Box>
-            </Paper>
+            </Grid>
+
+            {/* Contact Form Section */}
+            <Grid item xs={12} md={6}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: { xs: 3, md: 4 },
+                  backgroundColor: "transparent",
+                  height: "100%",
+                }}
+              >
+                <Box
+                  component="form"
+                  onSubmit={handleSubmit2}
+                  sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+                >
+                  <Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "#666",
+                        mb: 1,
+                        fontSize: "1rem",
+                      }}
+                    >
+                      Your Name
+                      <Typography
+                        component="span"
+                        sx={{ color: "#d32f2f", ml: 0.5 }}
+                      >
+                        *
+                      </Typography>
+                    </Typography>
+                    <TextField
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: "rgba(255, 255, 255, 0.8)",
+                          "& fieldset": {
+                            borderColor: "#ddd",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "#bbb",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#2c3e50",
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "#666",
+                        mb: 1,
+                        fontSize: "1rem",
+                      }}
+                    >
+                      Your Email
+                    </Typography>
+                    <TextField
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: "rgba(255, 255, 255, 0.8)",
+                          "& fieldset": {
+                            borderColor: "#ddd",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "#bbb",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#2c3e50",
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "#666",
+                        mb: 1,
+                        fontSize: "1rem",
+                      }}
+                    >
+                      Your Message
+                    </Typography>
+                    <TextField
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      fullWidth
+                      required
+                      multiline
+                      rows={6}
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: "rgba(255, 255, 255, 0.8)",
+                          "& fieldset": {
+                            borderColor: "#ddd",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "#bbb",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#2c3e50",
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    endIcon={<Send />}
+                    sx={{
+                      backgroundColor: Colors.primary,
+                      color: "white",
+                      py: 1.5,
+                      px: 4,
+                      fontSize: "1rem",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      borderRadius: 1,
+                      alignSelf: "flex-start",
+                      "&:hover": {
+                        backgroundColor: Colors.primary,
+                        opacity: 0.8,
+                      },
+                    }}
+                  >
+                    Send Message
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
-    </Box>
+        </Container>
+      </Box>
       {/* Footer */}
 
       <Box
@@ -1615,9 +1663,9 @@ The Perfect Place to Manage Your Property
                 fullWidth
               >
                 {bookingLoading ? (
-                  <Loader width="20px" height="20px" color={Colors.primary} />
+                  <Loader width="20px" height="20px" color={Colors.white} />
                 ) : (
-                  "Book Now"
+                  "Book a visit"
                 )}
               </Button>
             </Grid>
@@ -1701,7 +1749,6 @@ The Perfect Place to Manage Your Property
                   }}
                 />
               </Box>
-              
             </AccordionDetails>
           </Accordion>
         </DialogContent>
