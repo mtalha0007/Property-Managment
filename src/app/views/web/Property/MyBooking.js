@@ -265,7 +265,7 @@ export default function MyBooking() {
                           }}
                         >
                           {booking.status == "approved" &&
-                            !booking?.feedback && (
+                            !booking?.feedback?.rating && (
                               <Chip
                                 label={"Give FeedBack"}
                                 sx={{

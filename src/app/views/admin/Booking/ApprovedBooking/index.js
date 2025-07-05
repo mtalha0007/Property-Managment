@@ -367,7 +367,7 @@ const BookingList = () => {
                   </TableCell> */}
 
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.feedback && (
+                    {row?.feedback?.rating && (
                       <Button
                         variant="outlined"
                         sx={{
