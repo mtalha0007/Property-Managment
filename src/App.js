@@ -70,7 +70,7 @@ function App() {
           <Routes>
          
             <Route path="/" element={<Home />} />
-            <Route path="/admin" element={<Login />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/agent/login" element={<AgentLogin />} />
             <Route path="/agent/signup" element={<AgentSignup />} />
             <Route path="/property-list" element={<PropertyList />} />
@@ -87,7 +87,7 @@ function App() {
            
            {user?.role == "admin" ? (
             <>
-            <Route element={user ? <DashboardLayout /> : <Navigate to={"/admin"} />}>
+            <Route element={user ? <DashboardLayout /> : <Navigate to={"/login"} />}>
               {AdminRoutes.map((item, i) => (
                 <Route key={i} path={item.path} element={item.component} />
               ))}

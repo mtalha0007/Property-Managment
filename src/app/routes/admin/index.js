@@ -21,7 +21,7 @@ import BookingApproved from "../../views/admin/Booking/ApprovedBooking/index";
 
 const AdminRoutes = [
   {
-    path: "/admin",
+    path: "/login",
     component: <Login />
   },
   {

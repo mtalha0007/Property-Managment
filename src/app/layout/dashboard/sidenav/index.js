@@ -258,7 +258,7 @@ export default function SideNav({ status, toggleStatus ,setStatus}) {
             <ListItemButton
               onClick={() => {
                 userLogout();
-                navigate("/admin");
+                navigate("/login");
               }}
               sx={{
                 p: "12px 16px",

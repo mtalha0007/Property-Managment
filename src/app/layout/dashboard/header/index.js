@@ -163,7 +163,7 @@ function Header({ status, toggleStatus }) {
                     sx={{ my: 1 }}
                     onClick={() => {
                       userLogout();
-                      navigate("/admin");
+                      navigate("/login");
                       handleMenuClose();
                     }}
                   >
