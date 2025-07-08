@@ -622,24 +622,34 @@ export default function MyBooking() {
           
             {/* Rating */}
             <Box>
-              <Typography fontWeight={500} color="text.primary" gutterBottom>
-                Rate Overall Experience
-              </Typography>
-              <Rating
-                name="rating"
-                value={ratingValue}
-                onChange={(_, value) => {
-                  setValue("rating", value || 0);
-                  trigger("rating");
-                }}
-                sx={{ color: Colors.primary, fontSize: "2.5rem" }}
-              />
-              <Box mt={0.5}>
-                {errors.rating && (
-                  <FormHelperText error>Please select a rating</FormHelperText>
-                )}
-              </Box>
-            </Box>
+        <Typography fontWeight={500} color="text.primary" gutterBottom>
+          Rate Overall Experience
+        </Typography>
+
+        <Controller
+          name="rating"
+          control={control}
+          rules={{
+            validate: (value) =>
+              value > 0 || "Please select at least 1 star",
+          }}
+          render={({ field }) => (
+            <Rating
+              {...field}
+              value={field.value}
+              onChange={(_, value) => field.onChange(value || 0)}
+              sx={{ color: "primary.main", fontSize: "2.5rem" }}
+            />
+          )}
+        />
+
+        {errors.rating && (
+          <FormHelperText error>
+            {errors.rating.message}
+          </FormHelperText>
+        )}
+      </Box>
+
 
            
 
