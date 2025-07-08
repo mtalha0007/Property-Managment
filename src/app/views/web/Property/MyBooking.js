@@ -316,7 +316,7 @@ export default function MyBooking() {
                           </Typography>
                         </Box>
 
-                        <Box display="flex" alignItems="center" gap={2}>
+                        <Box display="flex" alignItems="center" flexWrap="wrap" gap={2}>
                           <Box display="flex" alignItems="center" gap={0.5}>
                             <Home fontSize="small" color="action" />
                             <Typography variant="body2" color="text.secondary">
