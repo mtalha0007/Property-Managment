@@ -655,7 +655,7 @@ sx={{fontSize:"13px"}}
         <Typography variant="subtitle2" fontWeight={600}>
           Purpose:
         </Typography>
-        <Typography sx={{textTransform:"capitalize"}}  variant="body2">{propertyData?.purpose || "—"}</Typography>
+        <Typography sx={{textTransform:"capitalize"}}  variant="body2">{propertyData?.purpose == "both" ? "Sale/Rent" :propertyData?.purpose }</Typography>
       </Grid>
 
       

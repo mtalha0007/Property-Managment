@@ -179,7 +179,7 @@ const theme = useTheme();
           ["Rental Price", formatPrice(propertyData?.rental_price)],
           ["Rental Price/sqft", formatPrice(propertyData?.rental_price_per_sqft)],
           ["Annual Rent", formatPrice(propertyData?.annual_rent)],
-          ["Purpose", propertyData?.purpose],
+          ["Purpose", propertyData?.purpose  == "both" ? "Sale/Rent" :propertyData?.purpose],
          
           
           ["Description", propertyData?.description],

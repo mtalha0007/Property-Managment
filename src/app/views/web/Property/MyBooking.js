@@ -49,6 +49,7 @@ import SimpleDialog from "../../../components/Dialog";
 import Colors from "../../../assets/styles";
 import { useForm, Controller } from "react-hook-form";
 import Loader from "../../../components/Loader";
+import LocalParkingIcon from "@mui/icons-material/LocalParking";
 
 export default function MyBooking() {
   const [data, setData] = useState([]);
@@ -311,7 +312,7 @@ export default function MyBooking() {
                               color="text.secondary"
                               ml={1}
                             >
-                              / {booking.property?.payment_terms}
+                             
                             </Typography>
                           </Typography>
                         </Box>
@@ -320,21 +321,16 @@ export default function MyBooking() {
                           <Box display="flex" alignItems="center" gap={0.5}>
                             <Home fontSize="small" color="action" />
                             <Typography variant="body2" color="text.secondary">
-                              {booking.property?.type}
+                              {booking.property?.type == "commercialOffice" ?"Commercial Office":""}
                             </Typography>
                           </Box>
                           <Box display="flex" alignItems="center" gap={0.5}>
-                            <Bed fontSize="small" color="action" />
+                            < LocalParkingIcon fontSize="small" color="action" />
                             <Typography variant="body2" color="text.secondary">
-                              {booking.property?.beds} beds
+                              {booking.property?.parking_space} 
                             </Typography>
                           </Box>
-                          <Box display="flex" alignItems="center" gap={0.5}>
-                            <Bathtub fontSize="small" color="action" />
-                            <Typography variant="body2" color="text.secondary">
-                              {booking.property?.baths} baths
-                            </Typography>
-                          </Box>
+                          
                           <Box display="flex" alignItems="center" gap={0.5}>
                             <AspectRatio fontSize="small" color="action" />
                             <Typography variant="body2" color="text.secondary">
