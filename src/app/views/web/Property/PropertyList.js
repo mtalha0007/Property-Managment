@@ -46,6 +46,8 @@ import {
   ViewModule,
   Info,
 } from "@mui/icons-material";
+import LocalParkingIcon from "@mui/icons-material/LocalParking";
+
 import PropertyServices from "../../../api/PropertyServices/property.index";
 import Header from "../Header";
 import { Images } from "../../../assets/images";
@@ -53,6 +55,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import Colors from "../../../assets/styles";
 import { useLocation } from "react-router-dom";
 import Loader from "../../../components/Loader";
+import SimpleDialog from "../../../components/Dialog";
+import moment from "moment";
+import { useAuth } from "../../../context";
+import { ErrorToaster, SuccessToaster } from "../../../components/Toaster";
+import { useForm } from "react-hook-form";
+import AuthServices from "../../../api/AuthServices/auth.index";
 
 const ProfessionalPropertyListing = () => {
   const theme = useTheme();
@@ -68,6 +76,24 @@ const ProfessionalPropertyListing = () => {
   const intervalRef = useRef({});
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [maxMin, setMaxMin] = useState(null);
+  const [openStatus, setOpenStatus] = useState(false);
+  const { WebUserLogin, webUser } = useAuth();
+  const [openBookDialog, setOpenBookDialog] = useState(false);
+  const [propertyData, setPropertyData] = useState([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const selectedTime = watch("timeSlot");
+
   const navigate = useNavigate();
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -81,15 +107,13 @@ const ProfessionalPropertyListing = () => {
   const priceMax = query.get("priceMax");
   const purpose = query.get("purpose") || "";
 
-
-
   const handleSearchChange = useCallback((value) => {
     setSearch(value);
   }, []);
 
   useEffect(() => {
     setSearch(location ? location : "");
-    
+
     setFilters((prev) => ({
       ...prev,
       propertyType: filters?.propertyType ? filters?.propertyType : type,
@@ -99,7 +123,7 @@ const ProfessionalPropertyListing = () => {
         priceMax !== null && !isNaN(priceMax) ? priceMax : prev.priceRange[1],
       ],
     }));
-  }, [priceMin, priceMax, location ,type ,purpose ]);
+  }, [priceMin, priceMax, location, type, purpose]);
 
   const handleMouseEnter = (property) => {
     const total = property.images.length;
@@ -120,7 +144,7 @@ const ProfessionalPropertyListing = () => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -164,11 +188,7 @@ const ProfessionalPropertyListing = () => {
           : filters?.propertyType
           ? filters.propertyType
           : type,
-          filters?.purpose === ""
-          ? ""
-          : filters?.purpose
-          ? filters.purpose
-          : type,
+        filters?.purpose === "" ? "" : filters?.purpose ? filters.purpose : type
       );
       setMaxMin(data);
       setProperties((prev) =>
@@ -181,6 +201,47 @@ const ProfessionalPropertyListing = () => {
       setLoading(false);
     }
   };
+  const timeSlots = [
+    "1-2",
+    "2-3",
+    "3-4",
+    "4-5",
+    "5-6",
+    "6-7",
+    "7-8",
+    "8-9",
+    "9-10",
+    "10-11",
+    "11-12",
+    "12-1",
+  ];
+  const onSubmit = async (data) => {
+    setBookingLoading(true);
+    const obj = {
+      name: webUser?.name,
+      email: webUser?.email,
+      agent_id: webUser?._id,
+      property_id: propertyData?._id,
+      // doc: document,
+      date: data?.date,
+      time: data?.timeSlot,
+      notes: data?.notes,
+    };
+    console.log(obj);
+    try {
+      const response = await AuthServices.createBooking(obj);
+
+      SuccessToaster(response?.message);
+      setOpenBookDialog(false);
+      reset();
+      setValue("timeSlot", "");
+      // setDocument(null);
+    } catch (error) {
+      ErrorToaster(error);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   const [filters, setFilters] = useState({
     location: "",
@@ -189,15 +250,14 @@ const ProfessionalPropertyListing = () => {
     bedrooms: "",
     bathrooms: "",
     area: [0, 10000],
-    purpose:""
+    purpose: "",
   });
   console.log(filters);
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       setPage(0);
-     
-      
+
       getProperties(
         search,
         id,
@@ -211,11 +271,7 @@ const ProfessionalPropertyListing = () => {
           : filters?.propertyType
           ? filters.propertyType
           : type,
-          filters?.purpose == ""
-          ? ""
-          : filters?.purpose
-          ? filters.purpose
-          : type,
+        filters?.purpose == "" ? "" : filters?.purpose ? filters.purpose : type
       );
     }, 1000);
 
@@ -241,22 +297,22 @@ const ProfessionalPropertyListing = () => {
       filters?.priceRange[0],
       filters?.priceRange[1],
       filters?.propertyType === ""
-      ? ""
-      : filters?.propertyType
+        ? ""
+        : filters?.propertyType
         ? filters.propertyType
         : type,
-        "",
+      "",
       filters?.purpose === ""
-      ? ""
-      : filters?.purpose
+        ? ""
+        : filters?.purpose
         ? filters.purpose
         : purpose,
-        ""
+      ""
     );
   };
 
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
-
+const [selectedProperty , setSelectedProperty] = useState(null)
   const PropertyCard = ({ property }) => {
     const currentImageIndex = currentImageIndexes[property.id] || 0;
 
@@ -273,15 +329,13 @@ const ProfessionalPropertyListing = () => {
           },
           cursor: "pointer",
         }}
-        onClick={() => {
-          navigate(`/property-detail/${property._id}`);
-        }}
+      
       >
         <Grid container>
           {/* Image Section */}
           <Grid item xs={12} md={5}>
             <Box
-              sx={{ position: "relative", height: { xs: 250, md: 320 } }}
+              sx={{ position: "relative", height: { xs: 250, md: 420 } }}
               onMouseEnter={() => handleMouseEnter(property)}
               onMouseLeave={() => handleMouseLeave(property._id)}
             >
@@ -346,17 +400,67 @@ const ProfessionalPropertyListing = () => {
                 }}
               >
                 {/* Price */}
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 700,
-                    color: "#2d3748",
-                    mb: 2,
-                    fontSize: { xs: "1.5rem", md: "2rem" },
-                  }}
-                >
-                  {property.name}
-                </Typography>
+                <Grid container alignItems="center" justifyContent="space-between" spacing={2} mb={2}>
+  {/* Buttons - shown first on xs */}
+  <Grid
+    item
+    xs={12}
+    sm={6}
+    md={6}
+    sx={{ order: { xs: 1, sm: 2 } }}
+  >
+    <Box display="flex" justifyContent={{ xs: "center", sm: "flex-end", md: "flex-end" }} gap={2}>
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ textTransform: "none", fontWeight: 600 }}
+        onClick={() => {
+          if (webUser?.token) {
+            setPropertyData(property);
+            setOpenBookDialog(true);
+          } else {
+            navigate("/agent/login");
+            ErrorToaster("Please login to book a property");
+          }
+        }}
+      >
+        Book a Visit
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        sx={{ textTransform: "none", fontWeight: 600 }}
+        onClick={() => {
+          navigate(`/property-detail/${property._id}`);
+        }}
+      >
+        View Details
+      </Button>
+    </Box>
+  </Grid>
+
+  {/* Property Name - shown second on xs */}
+  <Grid
+    item
+    xs={12}
+    sm={6}
+    md={6}
+    sx={{ order: { xs: 2, sm: 1 } }}
+  >
+    <Typography
+      variant="h4"
+      sx={{
+        fontWeight: 700,
+        color: "#2d3748",
+        fontSize: { xs: "1.5rem", md: "2rem" },
+      }}
+    >
+      {property.name}
+    </Typography>
+  </Grid>
+</Grid>
+
+
 
                 {/* Property Details */}
                 <Box
@@ -376,31 +480,23 @@ const ProfessionalPropertyListing = () => {
                       textTransform: "capitalize",
                     }}
                   >
-                    {property.type}
+                    {property.type == "commercialOffice"
+                      ? "Commercial Office"
+                      : ""}
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Box
                       sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                     >
-                      <Bed sx={{ fontSize: 18, color: "#666" }} />
+                      <LocalParkingIcon sx={{ fontSize: 18, color: "#666" }} />
                       <Typography
                         variant="body1"
                         sx={{ fontWeight: 600, color: "#2d3748" }}
                       >
-                        {property.beds}
+                        {property?.parking_space}
                       </Typography>
                     </Box>
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <Bathtub sx={{ fontSize: 18, color: "#666" }} />
-                      <Typography
-                        variant="body1"
-                        sx={{ fontWeight: 600, color: "#2d3748" }}
-                      >
-                        {property.baths}
-                      </Typography>
-                    </Box>
+
                     <Box
                       sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                     >
@@ -422,6 +518,7 @@ const ProfessionalPropertyListing = () => {
                     mb: 2,
                     fontWeight: 500,
                     fontSize: "1rem",
+                    textTransform: "capitalize ",
                   }}
                 >
                   {property.features?.join(" | ")}
@@ -444,30 +541,9 @@ const ProfessionalPropertyListing = () => {
                       lineHeight: 1.5,
                     }}
                   >
-                    {property.location}
+                    {property.address}
                   </Typography>
                 </Box>
-
-                {/* Validation Note */}
-                {property.validationDate && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: 3,
-                    }}
-                  >
-                    <CheckCircle sx={{ fontSize: 16, color: "#3182ce" }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#3182ce", fontSize: "0.9rem" }}
-                    >
-                      Property authenticity was validated on{" "}
-                      {property.validationDate}
-                    </Typography>
-                  </Box>
-                )}
 
                 {/* Handover and Payment Plan */}
                 <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
@@ -481,13 +557,13 @@ const ProfessionalPropertyListing = () => {
                         fontSize: "0.75rem",
                       }}
                     >
-                      Price
+                      Selling Price
                     </Typography>
                     <Typography
                       variant="body1"
                       sx={{ fontWeight: 600, color: "#2d3748" }}
                     >
-                      AED {formatPrice(property.price)}
+                      {formatPrice(property.price)}
                     </Typography>
                   </Box>
                   <Box>
@@ -500,7 +576,7 @@ const ProfessionalPropertyListing = () => {
                         fontSize: "0.75rem",
                       }}
                     >
-                      Payment Plan
+                      Selling price per (sqft)
                     </Typography>
                     <Box
                       sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
@@ -513,11 +589,95 @@ const ProfessionalPropertyListing = () => {
                           textTransform: "capitalize",
                         }}
                       >
-                        {property.payment_terms}
+                        {formatPrice(property?.selling_price_sqft)}
                       </Typography>
-                      <Info sx={{ fontSize: 14, color: "#666" }} />
                     </Box>
                   </Box>
+                </Box>
+                <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      Rental Price
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ fontWeight: 600, color: "#2d3748" }}
+                    >
+                      {formatPrice(property.rental_price)}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      Rental price per (sqft)
+                    </Typography>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                    >
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 600,
+                          color: "#2d3748",
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {formatPrice(property?.rental_price_per_sqft)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  {property?.rented_vacant == "rented" && (
+
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      Status
+                    </Typography>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                    >
+                      <Chip
+                        label={property?.rented_vacant}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          
+
+                            setSelectedProperty(property)
+                            setOpenStatus(true)
+                          
+                        }}
+                        variant="outlined"
+                        sx={{
+                          textTransform: "capitalize",
+                          fontWeight: 600,
+                          fontSize: "14px",
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                  )}
                 </Box>
               </Box>
             </Box>
@@ -632,9 +792,9 @@ const ProfessionalPropertyListing = () => {
                       sx={{ borderRadius: 2 }}
                     >
                       <MenuItem value="">All Types</MenuItem>
-                      <MenuItem value="villa">Villa</MenuItem>
-                      <MenuItem value="apartment">Apartment</MenuItem>
-                      <MenuItem value="townhouse">Townhouse</MenuItem>
+                      <MenuItem value="commercialOffice">
+                        Commercial Office
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -653,7 +813,6 @@ const ProfessionalPropertyListing = () => {
                       <MenuItem value="">Both</MenuItem>
                       <MenuItem value="sell">Sell</MenuItem>
                       <MenuItem value="rent">Rent</MenuItem>
-                      
                     </Select>
                   </FormControl>
                 </Grid>
@@ -766,6 +925,196 @@ const ProfessionalPropertyListing = () => {
           )}
         </Container>
       </Box>
+
+
+      <SimpleDialog
+  open={openStatus}
+  onClose={() => setOpenStatus(false)}
+  border={`4px solid ${Colors.primary}`}
+  title="Rent Details"
+>
+<Grid container spacing={4} mt={1}>
+  <Grid item xs={12} md={6}>
+    <Typography variant="subtitle2" fontWeight={600}>
+      Tenure (Years):
+    </Typography>
+    <Typography variant="body2">
+      {selectedProperty?.tenure_years || "—"}
+    </Typography>
+  </Grid>
+
+  <Grid item xs={12} md={6}>
+    <Typography variant="subtitle2" fontWeight={600}>
+      Contract Value:
+    </Typography>
+    <Typography variant="body2">
+      {selectedProperty?.contract_value
+        ? formatPrice(selectedProperty.contract_value)
+        : "—"}
+    </Typography>
+  </Grid>
+
+  <Grid item xs={12} md={6}>
+    <Typography variant="subtitle2" fontWeight={600}>
+      Lease Start Date:
+    </Typography>
+    <Typography variant="body2">
+      {selectedProperty?.lease_start_date
+        ? moment(selectedProperty.lease_start_date).format("DD-MM-YYYY")
+        : "—"}
+    </Typography>
+  </Grid>
+
+  <Grid item xs={12} md={6}>
+    <Typography variant="subtitle2" fontWeight={600}>
+      Lease End Date:
+    </Typography>
+    <Typography variant="body2">
+      {selectedProperty?.lease_end_date
+        ? moment(selectedProperty.lease_end_date).format("DD-MM-YYYY")
+        : "—"}
+    </Typography>
+  </Grid>
+</Grid>
+
+</SimpleDialog>
+
+
+<SimpleDialog
+        open={openBookDialog}
+        onClose={() => {
+          setOpenBookDialog(false);
+          reset();
+          setValue("timeSlot", "");
+        }}
+        border={`4px solid ${Colors.primary}`}
+        title={`Book This ${propertyData?.type}`}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
+            {/* Date Picker */}
+
+            <Grid item xs={12} md={12}>
+              <InputLabel>Select Date</InputLabel>
+
+              <TextField
+                type="date"
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                error={!!errors.date}
+                helperText={errors.date?.message}
+                {...register("date", { required: "Date is required" })}
+              />
+            </Grid>
+
+            {/* Time Slot Chips */}
+            <Grid item xs={12} md={12}>
+              <InputLabel>Select Time Slot</InputLabel>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                {timeSlots.map((slot) => (
+                  <Chip
+                    key={slot}
+                    label={slot}
+                    clickable
+                    color={selectedTime === slot ? "primary" : "default"}
+                    onClick={() =>
+                      setValue("timeSlot", slot, { shouldValidate: true })
+                    }
+                  />
+                ))}
+              </Box>
+              {errors.timeSlot && (
+                <Typography color="error" variant="caption">
+                  {errors.timeSlot.message}
+                </Typography>
+              )}
+              {/* Hidden time slot input */}
+              <input
+                type="hidden"
+                {...register("timeSlot", { required: "Time slot is required" })}
+              />
+            </Grid>
+
+            {/* Document Upload */}
+            {/* <Grid item xs={12} md={12}>
+              <InputLabel>Upload Document</InputLabel>
+              <Box
+                component="label"
+                sx={{
+                  border: "2px dashed #ccc",
+                  borderRadius: 2,
+                  padding: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  bgcolor: "#f9f9f9",
+                  gap: 1,
+                  flexDirection: "column",
+                  textAlign: "center",
+                }}
+              >
+                {docLoading ? (
+                  <Loader width="30px" height="30px" color={Colors.primary} />
+                ) : (
+                  <>
+                    <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+                    <Typography variant="caption">
+                      {document ? `Document Uploaded` : "Upload RERA Document"}
+                    </Typography>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  hidden
+                  {...register("document", {
+                    required: "Document is required",
+                  })}
+                  onChange={handleUploadDoc}
+                />
+              </Box>
+              {errors.document && (
+                <Typography color="error" variant="caption">
+                  {errors.document.message}
+                </Typography>
+              )}
+            </Grid> */}
+
+            <Grid item xs={12} md={12}>
+              <InputLabel>Additional Notes </InputLabel>
+
+              <TextField
+                type="text"
+                fullWidth
+                placeholder="Type Additional Notes here"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                {...register("notes")}
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ color: Colors.white }}
+                fullWidth
+              >
+                {bookingLoading ? (
+                  <Loader width="20px" height="20px" color={Colors.white} />
+                ) : (
+                  "Book a visit"
+                )}
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </SimpleDialog>
     </>
   );
 };

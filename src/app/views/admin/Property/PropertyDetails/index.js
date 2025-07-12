@@ -28,15 +28,17 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import { PDFExport } from "@progress/kendo-react-pdf";
 import PropertyServices from "../../../../api/PropertyServices/property.index";
 import { ErrorToaster } from "../../../../components/Toaster";
+import LocalParkingIcon from "@mui/icons-material/LocalParking";
+import DescriptionIcon from "@mui/icons-material/Description";
+
 
 const InfoRow = ({ label, value }) => (
-  <Box display="flex" py={1}>
-    <Box flex={2} color="text.secondary" fontWeight={500}>
-      {label}
-    </Box>
-    <Box flex={3}>{value || "-"}</Box>
+  <Box display="flex" justifyContent="space-between" mb={1}>
+    <Typography fontWeight="bold">{label}:</Typography>
+    <Typography sx={{textTransform:'capitalize'}}>{value}</Typography>
   </Box>
-)
+);
+
 
 export default function PropertyDetails() {
   const [propertyData, setPropertyData] = useState([]);
@@ -69,7 +71,7 @@ const theme = useTheme();
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -131,10 +133,10 @@ const theme = useTheme();
           <Grid container spacing={2} alignItems="center">
             <Grid item>
               <Avatar
-                src=""
-                sx={{ width: 96, height: 96, fontSize: 32, bgcolor: theme.palette.primary.main }}
+                src={propertyData?.images?.[0]}
+                sx={{ width: 96, height: 96, fontSize: 32 }}
               >
-                {propertyData?.name?.charAt(0)}
+                
               </Avatar>
             </Grid>
             <Grid item xs>
@@ -146,13 +148,13 @@ const theme = useTheme();
                 <Typography variant="body2">{propertyData?.address}</Typography>
               </Box>
               <Box mt={1} display="flex" gap={1}>
-                <Chip label={propertyData?.type} color="primary" variant="outlined" />
+                <Chip label={propertyData?.type == "commercialOffice" ? "Commercial Office" :""} color="primary" variant="outlined" />
                 <Chip label={propertyData?.status} variant="outlined" />
               </Box>
             </Grid>
             <Grid item>
               <Typography variant="h4" color="success.main" fontWeight={700}>
-                AED { formatPrice(propertyData?.price)}
+                 { formatPrice(propertyData?.price)}
               </Typography>
               <Typography variant="body2" color="text.secondary" textAlign="right">
                 {propertyData?.payment_terms}
@@ -163,83 +165,139 @@ const theme = useTheme();
       </Card>
 
       <Grid container spacing={2}>
-        {/* Basic Info */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={1} sx={{ borderRadius: 2 }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" gap={1} mb={2}>
-                <Home color="primary" />
-                <Typography variant="h6">Basic Information</Typography>
-              </Box>
-              {[
-                ["Reference No", propertyData?.refno],
-                ["Property Type", propertyData?.type],
-                ["Purpose", propertyData?.purpose],
-                ["Date Added", moment(propertyData?.createdAt).format("DD-MM-YYYY")],
-                ["Location", propertyData?.location],
-                ["Description", propertyData?.description],
-              ].map(([label, value]) => (
-                <InfoRow key={label} label={label} value={value} />
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
+  {/* Basic Info */}
+  <Grid item xs={12} md={6}>
+    <Card elevation={1} sx={{ borderRadius: 2 }}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={1} mb={2}>
+          <Home color="primary" />
+          <Typography variant="h6">Basic Information</Typography>
+        </Box>
+        {[
+          ["Unit Number", propertyData?.unit_number],
+          ["Selling Price/sqft", formatPrice(propertyData?.selling_price_sqft)],
+          ["Rental Price", formatPrice(propertyData?.rental_price)],
+          ["Rental Price/sqft", formatPrice(propertyData?.rental_price_per_sqft)],
+          ["Annual Rent", formatPrice(propertyData?.annual_rent)],
+          ["Purpose", propertyData?.purpose],
+         
+          
+          ["Description", propertyData?.description],
+          propertyData?.images?.length > 0
+    ? [
+        "Images",
+        <Box display="flex" flexWrap="wrap" gap={2}>
+          {propertyData.images.map((img, index) => (
+            <Box
+              key={index}
+              sx={{
+                width: 100,
+                height: 80,
+                overflow: "hidden",
+                borderRadius: 2,
+                cursor: "pointer",
+                boxShadow: 1,
+              }}
+              onClick={() => window.open(img, "_blank")}
+            >
+              <img
+                src={img}
+                alt={`Property ${index}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Box>
+          ))}
+        </Box>,
+      ]
+    : null,
 
-        {/* Property Details */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={1} sx={{ borderRadius: 2 }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" gap={1} mb={2}>
-                <AttachMoney color="primary" />
-                <Typography variant="h6">Property Details</Typography>
-              </Box>
-              {[
-                ["Area", `${propertyData?.area} sq ft`],
-                ["Bedrooms", (
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Bed fontSize="small" /> {propertyData?.beds}
-                  </Box>
-                )],
-                ["Bathrooms", (
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Bathtub fontSize="small" /> {propertyData?.baths}
-                  </Box>
-                )],
-                ["Category", propertyData?.category],
-                ["Availability", propertyData?.timing],
-                ["Features", (
-                  <Box display="flex" flexWrap="wrap" gap={1}>
-                    {propertyData?.features?.map((feature, i) => (
-                      <Chip key={i} label={feature} variant="outlined" size="small" />
-                    ))}
-                  </Box>
-                )],
-              ].map(([label, value]) => (
-                <InfoRow key={label} label={label} value={value} />
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
 
-        {/* Booked Dates */}
-        {/* {propertyData?.bookedDates?.length > 0 && (
-          <Grid item xs={12}>
-            <Card elevation={1} sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Box display="flex" alignItems="center" gap={1} mb={2}>
-                  <CalendarToday color="primary" />
-                  <Typography variant="h6">Booked Dates</Typography>
-                </Box>
-                <Box display="flex" flexWrap="wrap" gap={1}>
-                  {propertyData.bookedDates.map((date, i) => (
-                    <Chip key={i} label={moment(date).format("DD-MM-YYYY")} color="secondary" size="small" />
-                  ))}
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        )} */}
-      </Grid>
+        ].filter(Boolean).map(([label, value]) => (
+          <InfoRow key={label} label={label} value={value || "—"} />
+        ))}
+      </CardContent>
+    </Card>
+  </Grid>
+
+  {/* Property Details */}
+  <Grid item xs={12} md={6}>
+    <Card elevation={1} sx={{ borderRadius: 2 }}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={1} mb={2}>
+          <AttachMoney color="primary" />
+          <Typography variant="h6">Property Details</Typography>
+        </Box>
+        {[
+        
+          ["Area", `${propertyData?.area} sq ft`],
+        
+          ["Category", propertyData?.category],
+          ["Comments", propertyData?.comments],
+          ["Service Charges", formatPrice(propertyData?.service_charges)],
+          ["Parking Spaces", propertyData?.parking_space],
+          ["Status", propertyData?.rented_vacant],
+          // Inside Property Details Card
+
+
+// Add below map
+propertyData?.brochureDocumment && [
+  "Brochure Document",
+  <Button
+    variant="outlined"
+    size="small"
+    onClick={() => window.open(propertyData.brochureDocumment, "_blank")}
+    startIcon={<DescriptionIcon />}
+  >
+    View Brochure
+  </Button>,
+],
+propertyData?.buildingLayout && [
+  "Building Layout",
+  <Button
+    variant="outlined"
+    size="small"
+    onClick={() => window.open(propertyData.buildingLayout, "_blank")}
+    startIcon={<DescriptionIcon />}
+  >
+    View Layout
+  </Button>,
+],
+
+          [
+            "Features",
+            <Box display="flex" flexWrap="wrap" gap={1}>
+              {propertyData?.features?.map((feature, i) => (
+                <Chip key={i} label={feature} variant="outlined" size="small" />
+              ))}
+            </Box>,
+          ],
+          propertyData?.rented_vacant === "rented" && ["Tenure (Years)", propertyData?.tenure_years],
+          propertyData?.rented_vacant === "rented" && [
+            "Lease Start Date",
+            propertyData?.lease_start_date
+              ? moment(propertyData.lease_start_date).format("DD-MM-YYYY")
+              : "—",
+          ],
+          propertyData?.rented_vacant === "rented" && [
+            "Lease End Date",
+            propertyData?.lease_end_date
+              ? moment(propertyData.lease_end_date).format("DD-MM-YYYY")
+              : "—",
+          ],
+          propertyData?.rented_vacant === "rented" && [
+            "Contract Value",
+            propertyData?.contract_value ? formatPrice(propertyData.contract_value) : "—",
+          ],
+        ]
+          .filter(Boolean) // remove false/null rows
+          .map(([label, value]) => (
+            <InfoRow key={label} label={label} value={value || "—"} />
+          ))}
+      </CardContent>
+    </Card>
+  </Grid>
+</Grid>
+
     </Box>
   
 

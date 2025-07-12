@@ -27,6 +27,9 @@ import "react-phone-input-2/lib/style.css";
 import { AddressForm } from "../../../../components/AdressMap";
 import SelectAddressDialog from "../../../../components/AdressMap/SelectAddressDialo";
 import FileServices from "../../../../api/FileServices/file.index";
+import moment from "moment";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import Loader from "../../../../components/Loader";
 
 export default function UpdateProperty() {
   const containerRef = useRef(null);
@@ -61,6 +64,12 @@ export default function UpdateProperty() {
   const [featureInput, setFeatureInput] = useState("");
 const [featureList, setFeatureList] = useState([]);
 const [images, setImages] = useState([]);
+const [brochureLoading, setBrochureLoading] = useState(false);
+  const [brochureDocumment, setBrochureDocumment] = useState(null);
+  const [buildingLayout, setBuildingLayout] = useState(null);
+  const [buildingLayoutLoading, setBuildingLayoutLoading] = useState(false);
+  const [rentedVacant, setRentedVacant] = useState("");
+
 
 
   const toggleDropdown = () => {
@@ -137,7 +146,48 @@ const [images, setImages] = useState([]);
   // }, [page]);
  
 
-  
+  const handleUploadDoc = async (e) => {
+    setBrochureLoading(true);
+    const formData = new FormData();
+    const selectedFiles = Array.from(e.target.files);
+
+    selectedFiles.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    try {
+      const response = await FileServices.uploadDocument(formData);
+      console.log(response);
+      setBrochureDocumment(response?.url);
+      // setDocPreview(response?.url);
+      SuccessToaster(response?.message);
+    } catch (error) {
+      ErrorToaster(error);
+    } finally {
+      setBrochureLoading(false);
+    }
+  };
+  const handleUploadDoc2 = async (e) => {
+    setBuildingLayoutLoading(true);
+    const formData = new FormData();
+    const selectedFiles = Array.from(e.target.files);
+
+    selectedFiles.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    try {
+      const response = await FileServices.uploadDocument(formData);
+      console.log(response);
+      setBuildingLayout(response?.url);
+      // setDocPreview(response?.url);
+      SuccessToaster(response?.message);
+    } catch (error) {
+      ErrorToaster(error);
+    } finally {
+      setBuildingLayoutLoading(false);
+    }
+  };
   const {
     register,
     handleSubmit,
@@ -167,15 +217,36 @@ const [images, setImages] = useState([]);
       setPurpose(data?.property?.purpose);
       setValue("purpose", data?.property?.purpose);
       setValue("area", data?.property?.area);
-
+      setValue("unit_number",data?.property?.unit_number)
+      setValue("selling_price_sqft",data?.property?.selling_price_sqft)
+      setValue("rental_price",data?.property?.rental_price)
+      setValue("rental_price_per_sqft",data?.property?.rental_price_per_sqft)
+      setValue("annual_rent",data?.property?.annual_rent)
+      setValue("service_charges",data?.property?.service_charges)
       setValue("address", data?.property?.address);
       setValue("location",data?.property?.location);
       setValue("refno", data?.property?.refno);
-
+      setValue("tenure_years", data?.property?.tenure_years);
+      setValue("contract_value", data?.property?.contract_value);
+      setBrochureDocumment(data?.property?.brochureDocumment)
+      setBuildingLayout(data?.property?.buildingLayout)
+      setValue(
+        "lease_start_date",
+        data?.property?.lease_start_date
+          ? moment(data.property.lease_start_date).format("YYYY-MM-DD")
+          : ""
+      ); 
+      setValue(
+        "lease_end_date",
+        data?.property?.lease_end_date
+          ? moment(data.property.lease_end_date).format("YYYY-MM-DD")
+          : ""
+      );  
+      setRentedVacant(data?.property?.rented_vacant)
       setFeatureList(data?.property?.features)
       
-      setValue("beds", data?.property?.beds);
-      setValue("baths", data?.property?.baths);
+      setValue("parking_space", data?.property?.parking_space);
+      setValue("comments", data?.property?.comments);
   
       setValue("description", data?.property?.description);
       setImages(data?.property?.images);
@@ -196,23 +267,42 @@ getProperties()
       id: param.id,
       name: data.propertName,
       price: data.price,
+      unit_number: data.unit_number,
+      selling_price_sqft: data?.selling_price_sqft,
+
       type: type,
-      purpose: data.purpose,
+      rental_price: data?.rental_price,
       area: data.area,
+      rental_price_per_sqft: data?.rental_price_per_sqft,
+      address: data.address,
+      annual_rent: data?.annual_rent,
+      features: data.features,
+      service_charges:data?.service_charges,
+      rented_vacant:rentedVacant,
+      parking_space:data?.parking_space,
+      category: category,
+      comments:data?.comments,
+      purpose: data.purpose,
+      description: data.description,
+      images: images,
+      brochureDocumment:brochureDocumment,
+      buildingLayout:buildingLayout,
+      
+      tenure_years:data?.tenure_years,
+      contract_value:data?.contract_value,
+      lease_start_date:data?.lease_start_date,
+      lease_end_date:data?.lease_end_date
+
 
       // company_id: managmentCompany,
-      address: data.address,
-      location:mapAddress,
-      latitude:lat,
-      longitude:lng,
-       refno: data.refno,
-       features: data.features,
-       beds: data.beds,
-       baths: data.baths,
-       description: data.description,
-       images: images,
-       category: category,
-       payment_terms: paymentTerms,
+      // location: mapAddress,
+      // latitude: lat,
+      // longitude: lng,
+      // refno: data.refno,
+      // beds: data.beds,
+      // baths: data.baths,
+     
+      // payment_terms: paymentTerms,
     };
     try {
       const data = await PropertyServices.updateProperty(obj);
@@ -304,66 +394,32 @@ getProperties()
         </Typography>
         <Box sx={{ mt: 1.5 }}>
         <Grid container spacing={2}>
-            <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                Property Name
+                Building Name
               </InputLabel>
               <TextField
                 fullWidth
                 {...register("propertName", {
-                  required: "Property Name is required",
+                  required: "Building Name is required",
                   validate: (value) =>
-                    value?.trim() !== "" || "Property Name is required",
+                    getValues("propertName")!== "" || "Building Name is required",
                 })}
                 error={errors.propertName && true}
                 helperText={errors?.propertName?.message}
               />
             </Grid>
-              {/* <Grid item xs={12} md={5}>
-                <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                  Management Company
-                </InputLabel>
-                <Autocomplete
-                  fullWidth
-                  options={managmentCompanyData}
-                  getOptionLabel={(option) => option.name || ""}
-                  // isOptionEqualToValue={(option, value) =>
-                  //   option._id === value._id
-                  // }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={errors.managmentCompany && true}
-                      helperText={errors?.managmentCompany?.message}
-                      {...register("managmentCompany", {
-                        required:
-                          managmentCompany === ""
-                            ? "Management Company is required"
-                            : false,
-                      })}
-                    />
-                  )}
-                  value={
-                    managmentCompanyData.find(
-                      (company) => company._id === managmentCompany
-                    ) || null
-                  }
-                  onChange={(e, newValue) =>
-                    setManagmentCompany(newValue ? newValue._id : "")
-                  }
-                />
-              </Grid> */}
-           
+
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                Price
+                Total Selling Price
               </InputLabel>
-              <TextField 
+              <TextField
                 fullWidth
                 {...register("price", {
-                  required: "Price is required",
+                  required: "Total Selling Price is required",
                   validate: (value) =>
-                    getValues('price') != "" || "Price is required",
+                    getValues("price") !== "" || "Total Selling Price is required",
                 })}
                 error={!!errors.price}
                 helperText={errors?.price?.message}
@@ -371,16 +427,44 @@ getProperties()
             </Grid>
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-               Type
+                Unit Number
+              </InputLabel>
+              <TextField
+                fullWidth
+                {...register("unit_number", {
+                  required: "Unit Number is required",
+                  validate: (value) =>
+                    getValues("unit_number") !== "" || "Unit Number is required",
+                })}
+                error={!!errors.unit_number}
+                helperText={errors?.unit_number?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+                Selling price per (sqft)
+              </InputLabel>
+              <TextField
+                fullWidth
+                {...register("selling_price_sqft", {
+                  required: "Selling price per (sqft) is required",
+                  validate: (value) =>
+                   getValues("selling_price_sqft") !== "" ||
+                    "Selling price per (sqft) is required",
+                })}
+                error={!!errors.selling_price_sqft}
+                helperText={errors?.selling_price_sqft?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+                Type
               </InputLabel>
               <TextField
                 fullWidth
                 select
                 {...register("type", {
-                  required:
-                    type == ""
-                      ? "Type is required"
-                      : false,
+                  required: type == "" ? "Type is required" : false,
                   onChange: (e) => {
                     setValue("type", e.target.value);
                     setType(e.target.value);
@@ -391,51 +475,34 @@ getProperties()
                 value={type}
                 // onChange={(e) => setBillingPreference(e.target.value)}
               >
-                <MenuItem value="villa">Villa</MenuItem>
-                <MenuItem value="apartment">Apartment</MenuItem>
-                <MenuItem value="townhouse">Town House</MenuItem>
-              
+                <MenuItem value="commercialOffice">Commercial Ofice</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-               Purpose
+                Rental Price
               </InputLabel>
               <TextField
                 fullWidth
-                select
-                {...register("purpose", {
-                  required:
-                    purpose == ""
-                      ? "Purpose is required"
-                      : false,
-                  onChange: (e) => {
-                    setValue("purpose", e.target.value);
-                    setPurpose(e.target.value);
-                  },
+                {...register("rental_price", {
+                  required: "Rental Price is required",
+                  validate: (value) =>
+                    getValues("rental_price") !== "" || "Rental Price is required",
                 })}
-                error={errors.purpose && true}
-                helperText={errors?.purpose?.message}
-                value={purpose}
-                // onChange={(e) => setBillingPreference(e.target.value)}
-              >
-                <MenuItem value="sale">Sale</MenuItem>
-                <MenuItem value="rent">Rent</MenuItem>
-                <MenuItem value="both">Both</MenuItem>
-              
-              </TextField>
+                error={!!errors.rental_price}
+                helperText={errors?.rental_price?.message}
+              />
             </Grid>
-          
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                Area (sqft)
+                Size (sqft)
               </InputLabel>
-              <TextField 
+              <TextField
                 fullWidth
                 {...register("area", {
-                  required: "Area is required",
+                  required: "Size is required",
                   validate: (value) =>
-                    value?.trim() !== "" || "Area is required",
+                    getValues("area") !== "" || "Size is required",
                 })}
                 error={!!errors.area}
                 helperText={errors?.area?.message}
@@ -443,170 +510,48 @@ getProperties()
             </Grid>
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+                Rental Price per (sqft)
+              </InputLabel>
+              <TextField
+                fullWidth
+                {...register("rental_price_per_sqft", {
+                  required: "Rental Price per (sqft) is required",
+                  validate: (value) =>
+                    getValues("rental_price_per_sqft") !== "" ||
+                    "Rental Price per (sqft) is required",
+                })}
+                error={!!errors.rental_price_per_sqft}
+                helperText={errors?.rental_price_per_sqft?.message}
+              />
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Address
               </InputLabel>
-              <TextField 
+              <TextField
                 fullWidth
                 {...register("address", {
                   required: "Address is required",
                   validate: (value) =>
-                    value?.trim() !== "" || "Address is required",
+                    getValues("address") !== "" || "Address is required",
                 })}
                 error={!!errors.address}
                 helperText={errors?.address?.message}
               />
             </Grid>
-            {/* <Grid item xs={12} sm={12} md={5}>
-              <InputLabel sx={{ fontWeight: "bold", color: "black" }}>
-                Area (sqft)
-              </InputLabel>
-              <div>
-                <div>
-                  <div className="dropdown-container">
-                    <input
-                      type="text"
-                      id="dropdown-font"
-                      className="dropdown-toggle"
-                      placeholder="Select Area"
-                      style={{ fontFamily: searchTerm }}
-                      value={searchTerm}
-                      onClick={toggleDropdown}
-                      onChange={handleSearch}
-                    />
-                    {isDropdownOpen && (
-                      <div className="dropdown-content">
-                        <div
-                          ref={containerRef}
-                          onScroll={handleScroll}
-                          className="dropdown-list"
-                        >
-                          {citiesData.map((font) => {
-                            return (
-                              <div
-                                key={font.family}
-                                style={{
-                                  fontFamily: font.family,
-                                  cursor: "pointer",
-                                  padding: "10px",
-                                }}
-                                onClick={(e) => {
-                                  setSearchTerm(font);
-                                  setIsDropdownOpen(false);
-                                }}
-                              >
-                                {font}
-                              </div>
-                            );
-                          })}
-                          {loading && <div>Loading more Areas...</div>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Grid> */}
-            <Grid item xs={12} sm={12} md={5}>
-            <InputLabel sx={{ fontWeight: "bold", color: "black" }}>
-               Select Location
-              </InputLabel>
-              <TextField
-                fullWidth
-                value={getValues("location") || ""}
-                defaultValue={selectedDeliveryAddress?.address}
-                inputProps={{ readOnly: true }}
-               
-                onClick={() => {
-                  setSelectAddressDialog(false);
-                  setAddressFormDialog(true);
-                }}
-                // onClick={() => setSelectAddressDialog(true)}
-                // placeholder="Enter Address"
-                variant="outlined"
-                {...register("location", {
-                  required: "Location is required",
-                })}
-                helperText={errors.location?.message}
-                error={!!errors.location}
-              />
-              <SelectAddressDialog
-                open={selectAddressDialog}
-                onClose={(data) => {
-                  setSelectAddressDialog(false);
-                  setSelectedDeliveryAddress(data);
-                  setAddressFormDialog(false);
-                }}
-                addressLists={addressLists || []}
-                addNewAddress={() => {
-                  setSelectAddressDialog(false);
-                  setAddressFormDialog(true);
-                }}
-                selectedAddress={selectedDeliveryAddress}
-              />
-              <AddressForm
-                open={addressFormDialog}
-                onClose={() => setAddressFormDialog(false)}
-                save={(data) => saveAddress(data)}
-              />
-            </Grid>
-{/* Phone number */}
-            {/* <Grid item xs={12} md={5}>
-              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                Phone Number
-              </InputLabel>
-              <FormControl
-                sx={{
-                  ".form-control": {
-                    height: "56px !important",
-                    background: "transparent !important",
-                  },
-                }}
-                error={!!errors.phoneNumber}
-                fullWidth
-              >
-                <Controller
-                  name="phoneNumber"
-                  control={control}
-                  rules={{
-                    required: "Phone number is required",
-                    validate: (value, formValues) => {
-                      // Get the selected country code from the PhoneInput value
-                      const selectedCountry = value.slice(0, 2) === "52" ? "mx" : "us";
-                      return phoneNumberValidation(value, selectedCountry);
-                    },
-                  }}
-                  render={({ field }) => (
-                    <PhoneInput
-                      country={"us"}
-                      onlyCountries={["us", "mx"]}
-                      countryCodeEditable={false}
-
-                      value={field.value}
-                      onChange={field.onChange}
-                      inputStyle={{ width: "100%" }}
-                      
-                     
-                    />
-                  )}
-                />
-                <FormHelperText>
-                  {errors.phoneNumber ? errors?.phoneNumber?.message : ""}
-                </FormHelperText>
-              </FormControl>
-            </Grid> */}
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                Ref No
+                Annual Rent
               </InputLabel>
               <TextField
                 fullWidth
-                {...register("refno", {
-                  required: "Ref No is required",
+                {...register("annual_rent", {
+                  required: "Annual Rent is required",
                   validate: (value) =>
-                    value?.trim() !== "" || "Ref No is required",
+                    getValues("annual_rent") !== "" || "Annual Rent is required",
                 })}
-                error={!!errors.refno}
-                helperText={errors?.refno?.message}
+                error={!!errors.annual_rent}
+                helperText={errors?.annual_rent?.message}
               />
             </Grid>
             <Grid item xs={12} md={5}>
@@ -651,46 +596,197 @@ getProperties()
   </Box>
 </Grid>
 
-            <Grid item xs={12} md={5}>
+<Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-              Beds
+              Service Charges
+
               </InputLabel>
               <TextField
                 fullWidth
-                {...register("beds", {
-                  required: "Beds is required",
+                {...register("service_charges", {
+                  required: "Service Charges is required",
                   validate: (value) =>
-                    getValues("beds") != "" || "Beds is required",
+                    getValues("service_charges") !== "" || "Service Charges is required",
                 })}
-                error={!!errors.beds}
-                helperText={errors?.beds?.message}
+                error={!!errors.service_charges}
+                helperText={errors?.service_charges?.message}
+              />
+            </Grid>
+            {/* Rented */}
+            <Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+                Status
+              </InputLabel>
+              <TextField
+                fullWidth
+                select
+                {...register("rented_vacant", {
+                  required: rentedVacant == "" ? "Rented/Vacant is required" : false,
+                  onChange: (e) => {
+                    setValue("rented_vacant", e.target.value);
+                    setRentedVacant(e.target.value);
+                  },
+                })}
+                error={errors.rented_vacant && true}
+                helperText={errors?.rented_vacant?.message}
+                value={rentedVacant}
+                // onChange={(e) => setBillingPreference(e.target.value)}
+              >
+                <MenuItem value="rented">Rented</MenuItem>
+                <MenuItem value="vacant">Vacant</MenuItem>
+              </TextField>
+            </Grid>
+            {rentedVacant === "rented" && (
+  <>
+    <Grid item xs={12} md={5}>
+      <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+        Tenure / Years
+      </InputLabel>
+      <TextField
+        fullWidth
+        {...register("tenure_years", {
+          required: "Tenure is required",
+        })}
+        error={!!errors.tenure_years}
+        helperText={errors?.tenure_years?.message}
+      />
+    </Grid>
+
+    <Grid item xs={12} md={5}>
+      <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+        Contract Value
+      </InputLabel>
+      <TextField
+        fullWidth
+        {...register("contract_value", {
+          required: "Contract value is required",
+        })}
+        error={!!errors.contract_value}
+        helperText={errors?.contract_value?.message}
+      />
+    </Grid>
+
+    <Grid item xs={12} md={5}>
+      <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+        Lease Start Date
+      </InputLabel>
+      <TextField
+        type="date"
+        fullWidth
+        {...register("lease_start_date", {
+          required: "Start date is required",
+        })}
+        error={!!errors.lease_start_date}
+        helperText={errors?.lease_start_date?.message}
+        InputLabelProps={{ shrink: true }}
+      />
+    </Grid>
+
+    <Grid item xs={12} md={5}>
+      <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+        Lease End Date
+      </InputLabel>
+      <TextField
+        type="date"
+        fullWidth
+        {...register("lease_end_date", {
+          required: "End date is required",
+        })}
+        error={!!errors.lease_end_date}
+        helperText={errors?.lease_end_date?.message}
+        InputLabelProps={{ shrink: true }}
+      />
+    </Grid>
+  </>
+)}
+<Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+              Parking Spaces
+
+              </InputLabel>
+              <TextField
+                fullWidth
+                {...register("parking_space", {
+                  required: "Parking Spaces is required",
+                  validate: (value) =>
+                    getValues("parking_space") !== "" || "Parking Spaces is required",
+                })}
+                error={!!errors.parking_space}
+                helperText={errors?.parking_space?.message}
               />
             </Grid>
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-              Baths
+                Category
               </InputLabel>
               <TextField
                 fullWidth
-                {...register("baths", {
-                  required: "Baths is required",
-                  validate: (value) =>
-                    getValues("baths") != "" || "Baths is required",
+                select
+                {...register("category", {
+                  required: category == "" ? "Category is required" : false,
+                  onChange: (e) => {
+                    setValue("category", e.target.value);
+                    setCategory(e.target.value);
+                  },
                 })}
-                error={!!errors.baths}
-                helperText={errors?.baths?.message}
+                error={errors.category && true}
+                helperText={errors?.category?.message}
+                value={category}
+                // onChange={(e) => setBillingPreference(e.target.value)}
+              >
+                <MenuItem value="furnished">Fully Furnished</MenuItem>
+                <MenuItem value="unfurnished">Unfurnished</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+              Fit Out Completion & Comments
+              </InputLabel>
+              <TextField
+                fullWidth
+                {...register("comments", {
+                  required: "Fit Out Completion & Comments is required",
+                  validate: (value) =>
+                   getValues("comments") !== "" || "Fit Out Completion & Comments is required",
+                })}
+                error={!!errors.comments}
+                helperText={errors?.comments?.message}
               />
             </Grid>
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-              Description
+                Purpose
+              </InputLabel>
+              <TextField
+                fullWidth
+                select
+                {...register("purpose", {
+                  required: purpose == "" ? "Purpose is required" : false,
+                  onChange: (e) => {
+                    setValue("purpose", e.target.value);
+                    setPurpose(e.target.value);
+                  },
+                })}
+                error={errors.purpose && true}
+                helperText={errors?.purpose?.message}
+                value={purpose}
+                // onChange={(e) => setBillingPreference(e.target.value)}
+              >
+                <MenuItem value="sale">Sale</MenuItem>
+                <MenuItem value="rent">Rent</MenuItem>
+                <MenuItem value="both">Both</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
+                Description
               </InputLabel>
               <TextField
                 fullWidth
                 {...register("description", {
                   required: "Description is required",
                   validate: (value) =>
-                    getValues("description") != "" || "Description is required",
+                    getValues("description") !== "" || "Description is required",
                 })}
                 error={!!errors.description}
                 helperText={errors?.description?.message}
@@ -698,7 +794,7 @@ getProperties()
             </Grid>
             <Grid item xs={12} md={5}>
   <InputLabel sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}>
-    Property Images
+    Upload Building Images
   </InputLabel>
 
   <FormControl fullWidth>
@@ -720,7 +816,9 @@ getProperties()
       component="label"
     >
       <Typography color="textSecondary">
-        {images.length > 0 ? `${images.length} image(s) selected` : "Upload Images"}
+        {images.length > 0
+          ? `${images.length} image(s) selected`
+          : "Upload Images"}
       </Typography>
       <input
         type="file"
@@ -729,103 +827,159 @@ getProperties()
         multiple
         onChange={(e) => {
           handleUpload(e);
-          
         }}
       />
     </Box>
   </FormControl>
 
-  {/* Preview Selected Images */}
-  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-  {images.map((imgObj, index) => (
-    <Box key={index} sx={{ position: 'relative' }}>
-      <img
-        src={imgObj}
-        alt={`preview-${index}`}
-        style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 4 }}
-      />
-      <Button
-        size="small"
-        onClick={() => {
-          setImages((prev) => prev.filter((_, i) => i !== index));
-        }}
-        sx={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          minWidth: '25px',
-          padding: '2px',
-          color: 'white',
-          backgroundColor: 'red',
-          fontSize: '12px',
-          ":hover": {
-            backgroundColor: 'darkred',
-          }
-        }}
-      >
-        ✕
-      </Button>
-    </Box>
-  ))}
-</Box>
+  {/* 👇 Hidden input to trigger validation */}
+  <input
+    type="hidden"
+    {...register("images", {
+      validate: () =>
+        images.length > 0 || "At least one image is required",
+    })}
+  />
 
+  {/* Show error message if any */}
+  {errors.images && (
+    <Typography variant="caption" color="error" mt={0.5}>
+      {errors.images.message}
+    </Typography>
+  )}
+
+  {/* Preview Selected Images */}
+  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+    {images.map((imgObj, index) => (
+      <Box key={index} sx={{ position: "relative" }}>
+        <img
+          src={imgObj}
+          alt={`preview-${index}`}
+          style={{
+            width: 100,
+            height: 100,
+            objectFit: "cover",
+            borderRadius: 4,
+          }}
+        />
+        <Button
+          size="small"
+          onClick={() => {
+            setImages((prev) => prev.filter((_, i) => i !== index));
+          }}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            minWidth: "25px",
+            padding: "2px",
+            color: "white",
+            backgroundColor: "red",
+            fontSize: "12px",
+            ":hover": {
+              backgroundColor: "darkred",
+            },
+          }}
+        >
+          ✕
+        </Button>
+      </Box>
+    ))}
+  </Box>
 </Grid>
-<Grid item xs={12} md={5}>
-              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-               Category
-              </InputLabel>
-              <TextField
-                fullWidth
-                select
-                {...register("category", {
-                  required:
-                    category == ""
-                      ? "Category is required"
-                      : false,
-                  onChange: (e) => {
-                    setValue("category", e.target.value);
-                    setCategory(e.target.value);
-                  },
-                })}
-                error={errors.category && true}
-                helperText={errors?.category?.message}
-                value={category}
-                // onChange={(e) => setBillingPreference(e.target.value)}
+
+            <Grid item xs={12} md={5}>
+            <InputLabel
+                sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}
               >
-                <MenuItem value="furnished">Furnished</MenuItem>
-                <MenuItem value="unfurnished">Unfurnished</MenuItem>
-               
-              
-              </TextField>
-            </Grid>
-<Grid item xs={12} md={5}>
-              <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-               Payment Terms
+               Upload Building Brochure 
+
               </InputLabel>
-              <TextField
-                fullWidth
-                select
-                {...register("paymentTerms", {
-                  required:
-                  paymentTerms == ""
-                      ? "Payment Terms is required"
-                      : false,
-                  onChange: (e) => {
-                    setValue("paymentTerms", e.target.value);
-                    setPaymentTerms(e.target.value);
-                  },
-                })}
-                error={errors.paymentTerms && true}
-                helperText={errors?.paymentTerms?.message}
-                value={paymentTerms}
-                // onChange={(e) => setBillingPreference(e.target.value)}
+             
+                <Box
+                  component="label"
+                  sx={{
+                    border: "2px dashed #ccc",
+                    borderRadius: 2,
+                    padding: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    bgcolor: "#f9f9f9",
+                  background:'white',
+                    flexDirection: "column",
+                    textAlign: "center",
+                    height:"20px"
+                  }}
+                >
+                  {brochureLoading ? (
+                    <Loader width="30px" height="30px" color={Colors.primary} />
+                  ) : (
+                    <>
+                      <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+                      <Typography variant="caption">
+                        {brochureDocumment
+                          ? `Brochure Documnet Uploaded`
+                          : "Upload Brochure Document"}
+                      </Typography>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    hidden
+                    onChange={handleUploadDoc}
+                  />
+                </Box>
+              </Grid>
+            <Grid item xs={12} md={5}>
+            <InputLabel
+                sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}
               >
-                <MenuItem value="yearly">Yearly</MenuItem>
-                <MenuItem value="monthly">Monthly</MenuItem>
-               
-              
-              </TextField>
-            </Grid>
+           Upload Building Layout
+
+
+              </InputLabel>
+             
+                <Box
+                  component="label"
+                  sx={{
+                    border: "2px dashed #ccc",
+                    borderRadius: 2,
+                    padding: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    bgcolor: "#f9f9f9",
+                  background:'white',
+                    flexDirection: "column",
+                    textAlign: "center",
+                    height:"20px"
+                  }}
+                >
+                  {buildingLayoutLoading ? (
+                    <Loader width="30px" height="30px" color={Colors.primary} />
+                  ) : (
+                    <>
+                      <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+                      <Typography variant="caption">
+                        {buildingLayout
+                          ? `Building Layout Uploaded`
+                          : "Upload Building Layout "}
+                      </Typography>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    hidden
+                    onChange={handleUploadDoc2}
+                  />
+                </Box>
+              </Grid>
+
 
            
            

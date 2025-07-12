@@ -170,7 +170,7 @@ export default function MyBooking() {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(price);
   };

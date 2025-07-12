@@ -21,6 +21,8 @@ import {
   TextField,
   Stack,
 } from "@mui/material";
+import LocalParkingIcon from "@mui/icons-material/LocalParking";
+
 import {
   LocationOn,
   PlayArrow,
@@ -46,6 +48,7 @@ import SimpleDialog from "../../../components/Dialog";
 import { useForm, Controller } from "react-hook-form";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RoomIcon from "@mui/icons-material/Room";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 // import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
@@ -56,6 +59,7 @@ import { useAuth } from "../../../context";
 import AuthServices from "../../../api/AuthServices/auth.index";
 import { AddressForm } from "../../../components/AdressMap";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
+import moment from "moment";
 
 function PropertyDetail() {
   const param = useParams();
@@ -134,7 +138,7 @@ function PropertyDetail() {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -442,13 +446,13 @@ function PropertyDetail() {
                         fontSize: { md: "30px", sm: "25px", xs: "16px" },
                       }}
                     >
-                      AED {formatPrice(propertyData?.price)}
+                       {formatPrice(propertyData?.price)}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Typography variant="h6" sx={{ color: "#34495e", mb: 2 }}>
                         {propertyData?.address}
                       </Typography>
-                      <Typography
+                      {/* <Typography
                         variant="h6"
                         sx={{
                           color: "#34495e",
@@ -463,9 +467,9 @@ function PropertyDetail() {
                       >
                         <RoomIcon color="primary" />
                         View Map Location
-                      </Typography>
+                      </Typography> */}
                     </Box>
-                    <SimpleDialog
+                    {/* <SimpleDialog
                       open={openMapModal}
                       onClose={() => setOpenMapModal(false)}
                       title={"Property Location"}
@@ -477,25 +481,21 @@ function PropertyDetail() {
                       >
                         <MarkerF position={center} />
                       </GoogleMap>
-                    </SimpleDialog>
+                    </SimpleDialog> */}
                     {/* Property Specs */}
-                    <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                    <Grid container spacing={2} alignItems="center" mb={3}>
+  {/* Left: Parking & Area */}
+  <Grid item xs={12} sm={6} md={6}>
+  <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        <Bed sx={{ color: "#7f8c8d" }} />
+                        <LocalParkingIcon sx={{ color: "#7f8c8d" }} />
                         <Typography variant="body1">
-                          {propertyData?.beds} Beds
+                          {propertyData?.parking_space} 
                         </Typography>
                       </Box>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Bathtub sx={{ color: "#7f8c8d" }} />
-                        <Typography variant="body1">
-                          {propertyData?.baths} Baths
-                        </Typography>
-                      </Box>
+                      
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
@@ -505,186 +505,234 @@ function PropertyDetail() {
                         </Typography>
                       </Box>
                     </Box>
+  </Grid>
+
+  {/* Right: Document Buttons */}
+  <Grid item xs={12} sm={6} md={6}>
+    <Box display="flex" justifyContent={{ xs: "flex-start", sm: "flex-end"  ,md: "flex-end" }} gap={2} >
+      {propertyData?.brochureDocumment && (
+        <Button
+          variant="outlined"
+          color="primary"
+sx={{fontSize:"13px"}}
+
+          startIcon={< DescriptionIcon />}
+          onClick={() => window.open(propertyData?.brochureDocumment, "_blank")}
+        >
+          View Brochure
+        </Button>
+      )}
+      {propertyData?.buildingLayout && (
+        <Button
+          variant="outlined"
+          color="primary"
+          startIcon={< DescriptionIcon />}
+sx={{fontSize:"13px"}}
+          onClick={() => window.open(propertyData?.buildingLayout, "_blank")}
+        >
+          View Layout
+        </Button>
+      )}
+    </Box>
+  </Grid>
+</Grid>
+
                   </Box>
                 </Box>
               </Box>
 
               {/* Property Description */}
               <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-                    {propertyData?.features?.join(" | ")}
-                  </Typography>
-                  <Typography variant="body1" sx={{ lineHeight: 1.7, mb: 3 }}>
-                    {propertyData?.description}
-                  </Typography>
+  <CardContent>
+    {/* Features */}
+    <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+      {propertyData?.features?.join(" | ")}
+    </Typography>
 
-                  <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                    Property Overview:
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 1 }}>
-                    • Location: {propertyData?.location}
-                  </Typography>
-                </CardContent>
-              </Card>
+    {/* Description */}
+    <Typography variant="body1" sx={{ lineHeight: 1.7, mb: 3 }}>
+      {propertyData?.description}
+    </Typography>
+
+    {/* Rental & Pricing Grid */}
+    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+      Rental & Pricing Details:
+    </Typography>
+    <Grid container spacing={2} mb={3}>
+      <Grid item xs={12} sm={6}>
+        <Typography variant="body2" fontWeight={600}>
+          Rental Price:
+        </Typography>
+        <Typography variant="body1">
+           {formatPrice(propertyData?.rental_price)}
+        </Typography>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Typography variant="body2" fontWeight={600}>
+          Rental Price / Sqft:
+        </Typography>
+        <Typography variant="body1">
+           {formatPrice(propertyData?.rental_price_per_sqft) }
+        </Typography>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Typography variant="body2" fontWeight={600}>
+          Annual Rent:
+        </Typography>
+        <Typography variant="body1">
+        {formatPrice(propertyData?.annual_rent)}
+        </Typography>
+      </Grid>
+     
+      <Grid item xs={12} sm={6}>
+        <Typography variant="body2" fontWeight={600}>
+          Selling Price / Sqft:
+        </Typography>
+        <Typography variant="body1">
+         {formatPrice(propertyData?.selling_price_sqft)}
+        </Typography>
+      </Grid>
+    </Grid>
+
+    
+   
+  </CardContent>
+</Card>
 
               {/* Property Information Table */}
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3 }}>
-                    Property Information
-                  </Typography>
+            
+<Card sx={{ mb: 3 }}>
+  <CardContent>
+    <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3 }}>
+      Property Information
+    </Typography>
 
-                  <TableContainer>
-                    <Table>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Name
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            {propertyData?.name}
-                          </TableCell>
-                          {/* <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            TruCheck™ on
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              16 April 2025
-                              <IconButton size="small">
-                                <CheckCircle
-                                  sx={{ fontSize: 16, color: "#27ae60" }}
-                                />
-                              </IconButton>
-                            </Box>
-                          </TableCell> */}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Type
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            {propertyData?.type}
-                          </TableCell>
-                          {/* <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            TruCheck™ on
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              16 April 2025
-                              <IconButton size="small">
-                                <CheckCircle
-                                  sx={{ fontSize: 16, color: "#27ae60" }}
-                                />
-                              </IconButton>
-                            </Box>
-                          </TableCell> */}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Purpose
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            {propertyData?.purpose}
-                          </TableCell>
-                          {/* <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Added on
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            16 April 2025
-                          </TableCell> */}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Reference no.
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            {propertyData?.refno}
-                          </TableCell>
-                          {/* <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Handover date
-                          </TableCell>
-                          <TableCell sx={{ border: "none", py: 1.5 }}>
-                            Q1 2028
-                          </TableCell> */}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Payment Terms
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              border: "none",
-                              py: 1.5,
-                              textTransform: "capitalize",
-                            }}
-                          >
-                            {propertyData?.payment_terms}
-                          </TableCell>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          ></TableCell>
-                          <TableCell
-                            sx={{ border: "none", py: 1.5 }}
-                          ></TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          >
-                            Category
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              border: "none",
-                              py: 1.5,
-                              textTransform: "capitalize",
-                            }}
-                          >
-                            {propertyData?.category}
-                          </TableCell>
-                          <TableCell
-                            sx={{ fontWeight: "bold", border: "none", py: 1.5 }}
-                          ></TableCell>
-                          <TableCell
-                            sx={{ border: "none", py: 1.5 }}
-                          ></TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
+    <Grid container spacing={2}>
+    
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Unit Number:
+        </Typography>
+        <Typography variant="body2">{propertyData?.unit_number || "—"}</Typography>
+      </Grid>
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Type:
+        </Typography>
+        <Typography variant="body2">{propertyData?.type == 'commercialOffice' ? "Commercial Office" :""}</Typography>
+      </Grid>
+
+     
+    
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Service Charges:
+        </Typography>
+        <Typography variant="body2">
+          {propertyData?.service_charges ? formatPrice(propertyData.service_charges) : "—"}
+        </Typography>
+      </Grid>
+
+      
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Category:
+        </Typography>
+        <Typography variant="body2">{propertyData?.category || "—"}</Typography>
+      </Grid>
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Comments:
+        </Typography>
+        <Typography sx={{wordWrap:"break-word"}}variant="body2">{propertyData?.comments || "—"}</Typography>
+      </Grid>
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Purpose:
+        </Typography>
+        <Typography sx={{textTransform:"capitalize"}}  variant="body2">{propertyData?.purpose || "—"}</Typography>
+      </Grid>
+
+      
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Status:
+        </Typography>
+        <Typography variant="body2">{propertyData?.status || "—"}</Typography>
+      </Grid>
+
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
+         Status:
+        </Typography>
+        <Typography sx={{textTransform:"capitalize"}} variant="body2">{propertyData?.rented_vacant || "—"}</Typography>
+      </Grid>
+
+
+
+      {propertyData?.rented_vacant === "rented" && (
+        <>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" fontWeight={600}>
+              Tenure (Years):
+            </Typography>
+            <Typography variant="body2">{propertyData?.tenure_years || "—"}</Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" fontWeight={600}>
+              Contract Value:
+            </Typography>
+            <Typography variant="body2">
+              {propertyData?.contract_value ? `AED ${propertyData.contract_value}` : "—"}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" fontWeight={600}>
+              Lease Start Date:
+            </Typography>
+            <Typography variant="body2">
+              {propertyData?.lease_start_date
+                ? moment(propertyData.lease_start_date).format("DD-MM-YYYY")
+                : "—"}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" fontWeight={600}>
+              Lease End Date:
+            </Typography>
+            <Typography variant="body2">
+              {propertyData?.lease_end_date
+                ? moment(propertyData.lease_end_date).format("DD-MM-YYYY")
+                : "—"}
+            </Typography>
+          </Grid>
+        </>
+      )}
+            {propertyData?.features?.length > 0 && (
+        <Grid item xs={12}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            Features:
+          </Typography>
+          <Box display="flex" flexWrap="wrap" gap={1} mt={0.5}>
+            {propertyData.features.map((feature, i) => (
+              <Chip key={i} label={feature} variant="outlined" size="small" />
+            ))}
+          </Box>
+        </Grid>
+      )}
+    </Grid>
+  </CardContent>
+</Card>
+
 
               {/* Validated Information */}
               {/* <Card>
@@ -899,7 +947,7 @@ function PropertyDetail() {
                           {property?.description}
                         </Typography>
                         <Typography variant="body2" sx={{ color: "green" }}>
-                          Price: AED {formatPrice(property?.price)}
+                          Price:  {formatPrice(property?.price)}
                         </Typography>
                       </Box>
                     </Box>

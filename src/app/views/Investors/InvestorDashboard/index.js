@@ -87,7 +87,7 @@ function Dashboard() {
   const cardData = [
   
     {
-      title: "Total Properties",
+      title: "Total Buildings",
       value: data?.totalProperties || 0,
       icon: <Business sx={{ fontSize: 40, color: Colors.success }} />,
       trend: data?.jobs?.growth >= 0 ? <TrendingUp /> : <TrendingDown />,

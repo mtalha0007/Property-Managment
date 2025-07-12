@@ -54,7 +54,7 @@ const tableHead = [
   "Email",
   "Booking Date",
   "Booking Time",
-  "Property Name",
+  "Building Name",
   // "Document",
   //   "Status",
   "Action",

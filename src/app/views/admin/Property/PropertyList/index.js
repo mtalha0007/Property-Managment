@@ -33,7 +33,7 @@ import Loader from "../../../../components/Loader";
 
 const tableHead = [
   "SR No",
-  "Ref No",
+  "Unit Number",
   "Property Name",
   "Type",
   "Area",
@@ -146,7 +146,7 @@ const PropertyList = () => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -299,19 +299,19 @@ const PropertyList = () => {
                     {index + 1}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.refno}
+                    {row?.unit_number}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.name}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {row?.type}
+                    {row?.type == "commercialOffice" ? "Commercial Office" :""}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.area + " sqft"}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {row?.purpose}
+                  <TableCell sx={{ textAlign: "center" ,textTransform:"capitalize" }}>
+                    {row?.purpose == "both" ? "Sale/Rent" :row?.purpose }
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {formatPrice(row?.price)}

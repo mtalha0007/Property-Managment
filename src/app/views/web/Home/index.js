@@ -40,6 +40,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from "@mui/material";
+import LocalParkingIcon from "@mui/icons-material/LocalParking";
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
@@ -86,7 +87,7 @@ const Home = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedType, setSelectedType] = useState(""); 
+  const [selectedType, setSelectedType] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -181,7 +182,7 @@ const Home = () => {
       params.append("priceMin", filters.priceRange[0]);
       params.append("priceMax", filters.priceRange[1]);
     }
-    if(selectedType){
+    if (selectedType) {
       params.append("purpose", selectedType.toLowerCase());
     }
 
@@ -268,7 +269,7 @@ const Home = () => {
   ];
 
   useEffect(() => {
-    getProperties("", "", 1, 8, "", "","","");
+    getProperties("", "", 1, 8, "", "", "", "");
   }, []);
 
   const handlePropertyClick = (propertyName) => {
@@ -323,7 +324,7 @@ const Home = () => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "AED",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -422,27 +423,29 @@ const Home = () => {
               }}
             >
               {["Sell", "Rent", "Both"].map((label) => (
-  <Button
-    key={label}
-    variant="outlined"
-    onClick={() => setSelectedType(label)}
-    sx={{
-      color: "white",
-      borderColor: "white",
-      borderRadius: "8px",
-      px: 3,
-      textTransform: "none",
-      backgroundColor: selectedType === label ? Colors.primary : "transparent",
-      "&:hover": {
-        backgroundColor:
-          selectedType === label ? Colors.primary : "rgba(255,255,255,0.1)",
-      },
-    }}
-  >
-    {label}
-  </Button>
-))}
-
+                <Button
+                  key={label}
+                  variant="outlined"
+                  onClick={() => setSelectedType(label)}
+                  sx={{
+                    color: "white",
+                    borderColor: "white",
+                    borderRadius: "8px",
+                    px: 3,
+                    textTransform: "none",
+                    backgroundColor:
+                      selectedType === label ? Colors.primary : "transparent",
+                    "&:hover": {
+                      backgroundColor:
+                        selectedType === label
+                          ? Colors.primary
+                          : "rgba(255,255,255,0.1)",
+                    },
+                  }}
+                >
+                  {label}
+                </Button>
+              ))}
             </Box>
 
             {/* Search Bar with Fields */}
@@ -504,9 +507,8 @@ const Home = () => {
                   }}
                 >
                   <MenuItem value="">Select Type</MenuItem>
-                  <MenuItem value="apartment">Apartment</MenuItem>
-                  <MenuItem value="villa">Villa</MenuItem>
-                  <MenuItem value="townhouse">Townhouse</MenuItem>
+                  <MenuItem value="commercialOffice">Commercial Office</MenuItem>
+
                 </Select>
               </FormControl>
 
@@ -933,7 +935,7 @@ const Home = () => {
                           lineHeight: 1.4,
                         }}
                       >
-                        AED {formatPrice(property.price)}
+                        {formatPrice(property.price)}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -943,7 +945,9 @@ const Home = () => {
                           lineHeight: 1.4,
                         }}
                       >
-                        {property.type}
+                        {property.type == "commercialOffice"
+                          ? "Commercial Office"
+                          : ""}
                       </Typography>
                     </Box>
 
@@ -958,17 +962,12 @@ const Home = () => {
                       }}
                     >
                       <Box display="flex" alignItems="center" gap={0.5}>
-                        <BedIcon fontSize="small" />
+                        <LocalParkingIcon fontSize="small" />
                         <Typography variant="body2">
-                          {property.beds} Beds
+                          {property.parking_space}
                         </Typography>
                       </Box>
-                      <Box display="flex" alignItems="center" gap={0.5}>
-                        <BathtubIcon fontSize="small" />
-                        <Typography variant="body2">
-                          {property.baths} Baths
-                        </Typography>
-                      </Box>
+
                       <Box display="flex" alignItems="center" gap={0.5}>
                         <SquareFoot fontSize="small" />
                         <Typography variant="body2">
@@ -1009,7 +1008,7 @@ const Home = () => {
                           }
                         }}
                       >
-                        Book Now
+                        Book a visit
                       </Button>
                       <Button
                         fullWidth
