@@ -956,19 +956,19 @@ const Home = () => {
                       sx={{
                         display: "flex",
                         justifyContent: "center",
-                        gap: 1,
+                        gap: 2,
                         mb: 2,
                         color: "#4a5568",
                       }}
                     >
-                      <Box display="flex" alignItems="center" gap={0.5}>
+                      <Box display="flex" alignItems="center" >
                         <LocalParkingIcon fontSize="small" />
                         <Typography variant="body2">
                           {property.parking_space}
                         </Typography>
                       </Box>
 
-                      <Box display="flex" alignItems="center" gap={0.5}>
+                      <Box display="flex" alignItems="center" >
                         <SquareFoot fontSize="small" />
                         <Typography variant="body2">
                           {property.area} sqft
@@ -1709,9 +1709,8 @@ const Home = () => {
               size="small"
             >
               <MenuItem value="">Select Type</MenuItem>
-              <MenuItem value="apartment">Apartment</MenuItem>
-              <MenuItem value="villa">Villa</MenuItem>
-              <MenuItem value="townhouse">Townhouse</MenuItem>
+              <MenuItem value="commercialOffice">Commercial Office</MenuItem>
+
             </Select>
           </FormControl>
 

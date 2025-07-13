@@ -39,6 +39,8 @@ import {
   CheckCircle,
 } from "@mui/icons-material";
 import ImageGallery from "react-image-gallery";
+import PaymentsTwoToneIcon from '@mui/icons-material/PaymentsTwoTone';
+
 import "react-image-gallery/styles/css/image-gallery.css";
 import Header from "../Header";
 import PropertyServices from "../../../api/PropertyServices/property.index";
@@ -60,6 +62,9 @@ import AuthServices from "../../../api/AuthServices/auth.index";
 import { AddressForm } from "../../../components/AdressMap";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import moment from "moment";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn"; // Money bag icon
+import ApartmentIcon from "@mui/icons-material/Apartment"; 
+
 
 function PropertyDetail() {
   const param = useParams();
@@ -488,7 +493,7 @@ function PropertyDetail() {
   <Grid item xs={12} sm={6} md={6}>
   <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        sx={{ display: "flex", alignItems: "center"}}
                       >
                         <LocalParkingIcon sx={{ color: "#7f8c8d" }} />
                         <Typography variant="body1">
@@ -497,7 +502,7 @@ function PropertyDetail() {
                       </Box>
                       
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        sx={{ display: "flex", alignItems: "center"}}
                       >
                         <SquareFoot sx={{ color: "#7f8c8d" }} />
                         <Typography variant="body1">
@@ -545,6 +550,9 @@ sx={{fontSize:"13px"}}
               <Card sx={{ mb: 3 }}>
   <CardContent>
     {/* Features */}
+    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+      Features and Description
+    </Typography>
     <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
       {propertyData?.features?.join(" | ")}
     </Typography>
@@ -554,51 +562,68 @@ sx={{fontSize:"13px"}}
       {propertyData?.description}
     </Typography>
 
-    {/* Rental & Pricing Grid */}
-    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-      Rental & Pricing Details:
-    </Typography>
-    <Grid container spacing={2} mb={3}>
-      <Grid item xs={12} sm={6}>
-        <Typography variant="body2" fontWeight={600}>
-          Rental Price:
-        </Typography>
-        <Typography variant="body1">
-           {formatPrice(propertyData?.rental_price)}
-        </Typography>
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Typography variant="body2" fontWeight={600}>
-          Rental Price / Sqft:
-        </Typography>
-        <Typography variant="body1">
-           {formatPrice(propertyData?.rental_price_per_sqft) }
-        </Typography>
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Typography variant="body2" fontWeight={600}>
-          Annual Rent:
-        </Typography>
-        <Typography variant="body1">
-        {formatPrice(propertyData?.annual_rent)}
-        </Typography>
-      </Grid>
-     
-      <Grid item xs={12} sm={6}>
-        <Typography variant="body2" fontWeight={600}>
-          Selling Price / Sqft:
-        </Typography>
-        <Typography variant="body1">
-         {formatPrice(propertyData?.selling_price_sqft)}
-        </Typography>
-      </Grid>
-    </Grid>
-
+   
+    
+   
     
    
   </CardContent>
 </Card>
+<Grid container spacing={2} mb={3}>
+  {/* Selling Information */}
+  <Grid item xs={12} md={6}>
+    <Card elevation={2} sx={{ borderRadius: 2 }}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={1} mb={1}>
+          < PaymentsTwoToneIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Selling Information
+          </Typography>
+        </Box>
+        <Typography variant="body2" fontWeight={600}>
+          Total Selling Price:
+        </Typography>
+        <Typography variant="body1" mb={1}>
+           {formatPrice(propertyData?.price)}
+        </Typography>
 
+        <Typography variant="body2" fontWeight={600}>
+          Selling Price per sqft:
+        </Typography>
+        <Typography variant="body1">
+           {formatPrice(propertyData?.selling_price_sqft)}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+
+  {/* Rental Information */}
+  <Grid item xs={12} md={6}>
+    <Card elevation={2} sx={{ borderRadius: 2 }}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={1} mb={1}>
+          <ApartmentIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            Rental Information
+          </Typography>
+        </Box>
+        <Typography variant="body2" fontWeight={600}>
+          Annual Rental Price:
+        </Typography>
+        <Typography variant="body1" mb={1}>
+           {formatPrice(propertyData?.rental_price)}
+        </Typography>
+
+        <Typography variant="body2" fontWeight={600}>
+          Rental Price per sqft:
+        </Typography>
+        <Typography variant="body1">
+           {formatPrice(propertyData?.rental_price_per_sqft)}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+</Grid>
               {/* Property Information Table */}
             
 <Card sx={{ mb: 3 }}>
@@ -628,25 +653,36 @@ sx={{fontSize:"13px"}}
 
       <Grid item xs={12} sm={6}>
         <Typography variant="subtitle2" fontWeight={600}>
+          Area (size)
+        </Typography>
+        <Typography variant="body2">
+          {propertyData?.area + " "+ "sqft"}
+        </Typography>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Typography variant="subtitle2" fontWeight={600}>
           Service Charges:
         </Typography>
         <Typography variant="body2">
           {propertyData?.service_charges ? formatPrice(propertyData.service_charges) : "—"}
         </Typography>
-      </Grid>
-
-      
-
-      <Grid item xs={12} sm={6}>
+        </Grid>
+        <Grid item xs={12} sm={6}>
         <Typography variant="subtitle2" fontWeight={600}>
           Category:
         </Typography>
-        <Typography variant="body2">{propertyData?.category || "—"}</Typography>
+        <Typography variant="body2">{propertyData?.category == "furnished" ? "Fully Furnished" : propertyData?.category}</Typography>
       </Grid>
+     
+      
+
+      
+
+     
 
       <Grid item xs={12} sm={6}>
         <Typography variant="subtitle2" fontWeight={600}>
-          Comments:
+        Availability :
         </Typography>
         <Typography sx={{wordWrap:"break-word"}}variant="body2">{propertyData?.comments || "—"}</Typography>
       </Grid>
@@ -655,18 +691,29 @@ sx={{fontSize:"13px"}}
         <Typography variant="subtitle2" fontWeight={600}>
           Purpose:
         </Typography>
-        <Typography sx={{textTransform:"capitalize"}}  variant="body2">{propertyData?.purpose == "both" ? "Sale/Rent" :propertyData?.purpose }</Typography>
+        <Typography sx={{textTransform:"capitalize"}}  variant="body2">{propertyData?.purpose == "both" ? "Sale-Rent (Both)" :propertyData?.purpose }</Typography>
       </Grid>
 
-      
+
 
       <Grid item xs={12} sm={6}>
         <Typography variant="subtitle2" fontWeight={600}>
-          Status:
+         Parking Spaces:
         </Typography>
-        <Typography variant="body2">{propertyData?.status || "—"}</Typography>
+        <Typography sx={{textTransform:"capitalize"}} variant="body2">{propertyData?.parking_space}</Typography>
       </Grid>
-
+      {propertyData?.features?.length > 0 && (
+        <Grid item xs={12} sm={6}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            Features:
+          </Typography>
+          <Box display="flex" flexWrap="wrap" gap={1} mt={0.5}>
+            {propertyData.features.map((feature, i) => (
+              <Chip key={i} label={feature} variant="outlined" size="small" />
+            ))}
+          </Box>
+        </Grid>
+      )}
       <Grid item xs={12} sm={6}>
         <Typography variant="subtitle2" fontWeight={600}>
          Status:
@@ -717,18 +764,7 @@ sx={{fontSize:"13px"}}
           </Grid>
         </>
       )}
-            {propertyData?.features?.length > 0 && (
-        <Grid item xs={12}>
-          <Typography variant="subtitle2" fontWeight={600}>
-            Features:
-          </Typography>
-          <Box display="flex" flexWrap="wrap" gap={1} mt={0.5}>
-            {propertyData.features.map((feature, i) => (
-              <Chip key={i} label={feature} variant="outlined" size="small" />
-            ))}
-          </Box>
-        </Grid>
-      )}
+           
     </Grid>
   </CardContent>
 </Card>

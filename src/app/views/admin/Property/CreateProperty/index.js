@@ -18,6 +18,8 @@ import Colors from "../../../../assets/styles";
 import { Controller, useForm } from "react-hook-form";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import CloseIcon from "@mui/icons-material/Close";
 import PropertyServices from "../../../../api/PropertyServices/property.index";
 import { useNavigate } from "react-router-dom";
 import { ErrorToaster, SuccessToaster } from "../../../../components/Toaster";
@@ -68,7 +70,8 @@ export default function CreateProperty() {
   const [buildingLayout, setBuildingLayout] = useState(null);
   const [buildingLayoutLoading, setBuildingLayoutLoading] = useState(false);
   const [rentedVacant, setRentedVacant] = useState("");
-
+  const [brochureError, setBrochureError] = useState("");
+  const [buildingLayoutError, setBuildingLayoutError] = useState("");
 
   const [selectAddressDialog, setSelectAddressDialog] = useState(false);
 
@@ -88,6 +91,7 @@ export default function CreateProperty() {
       setCitiesData(filteredFonts);
     }
   };
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; 
 
   // const fetchData = async () => {
   //   setLoading(true);
@@ -157,19 +161,21 @@ export default function CreateProperty() {
     clearErrors
   } = useForm();
   const handleUploadDoc = async (e) => {
+    setBrochureError(""); // reset
+    const file = e.target.files[0];
+    if (file?.size > MAX_FILE_SIZE) {
+      setBrochureError("File size must be less than 10MB.");
+      e.target.value = "";
+      return;
+    }
+  
     setBrochureLoading(true);
     const formData = new FormData();
-    const selectedFiles = Array.from(e.target.files);
-
-    selectedFiles.forEach((file) => {
-      formData.append("file", file);
-    });
-
+    formData.append("file", file);
+  
     try {
       const response = await FileServices.uploadDocument(formData);
-      console.log(response);
       setBrochureDocumment(response?.url);
-      // setDocPreview(response?.url);
       SuccessToaster(response?.message);
     } catch (error) {
       ErrorToaster(error);
@@ -177,20 +183,23 @@ export default function CreateProperty() {
       setBrochureLoading(false);
     }
   };
+  
   const handleUploadDoc2 = async (e) => {
+    setBuildingLayoutError(""); // reset
+    const file = e.target.files[0];
+    if (file?.size > MAX_FILE_SIZE) {
+      setBuildingLayoutError("File size must be less than 10MB.");
+      e.target.value = "";
+      return;
+    }
+  
     setBuildingLayoutLoading(true);
     const formData = new FormData();
-    const selectedFiles = Array.from(e.target.files);
-
-    selectedFiles.forEach((file) => {
-      formData.append("file", file);
-    });
-
+    formData.append("file", file);
+  
     try {
       const response = await FileServices.uploadDocument(formData);
-      console.log(response);
       setBuildingLayout(response?.url);
-      // setDocPreview(response?.url);
       SuccessToaster(response?.message);
     } catch (error) {
       ErrorToaster(error);
@@ -198,6 +207,7 @@ export default function CreateProperty() {
       setBuildingLayoutLoading(false);
     }
   };
+  
 
   const navigate = useNavigate();
 
@@ -213,7 +223,7 @@ export default function CreateProperty() {
       area: data.area,
       rental_price_per_sqft: data?.rental_price_per_sqft,
       address: data.address,
-      annual_rent: data?.annual_rent,
+      // annual_rent: data?.annual_rent,
       features: data.features,
       service_charges:data?.service_charges,
       rented_vacant:rentedVacant,
@@ -440,7 +450,7 @@ export default function CreateProperty() {
             </Grid>
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
-                Rental Price
+               Annual Rental Price
               </InputLabel>
               <TextField
                 fullWidth
@@ -499,7 +509,7 @@ export default function CreateProperty() {
                 helperText={errors?.address?.message}
               />
             </Grid>
-            <Grid item xs={12} md={5}>
+            {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Annual Rent
               </InputLabel>
@@ -513,7 +523,7 @@ export default function CreateProperty() {
                 error={!!errors.annual_rent}
                 helperText={errors?.annual_rent?.message}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Features
@@ -603,9 +613,11 @@ export default function CreateProperty() {
       </InputLabel>
       <TextField
         fullWidth
-        {...register("tenure_years", {
-          required: "Tenure is required",
-        })}
+        {...register("tenure_years"
+        //   , {
+        //   required: "Tenure is required",
+        // }
+      )}
         error={!!errors.tenure_years}
         helperText={errors?.tenure_years?.message}
       />
@@ -617,9 +629,11 @@ export default function CreateProperty() {
       </InputLabel>
       <TextField
         fullWidth
-        {...register("contract_value", {
-          required: "Contract value is required",
-        })}
+        {...register("contract_value"
+        //   , {
+        //   required: "Contract value is required",
+        // }
+      )}
         error={!!errors.contract_value}
         helperText={errors?.contract_value?.message}
       />
@@ -1032,97 +1046,128 @@ export default function CreateProperty() {
   </Box>
 </Grid>
 
-            <Grid item xs={12} md={5}>
-            <InputLabel
-                sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}
-              >
-               Upload Building Brochure 
+<Grid item xs={12} md={5}>
+  <InputLabel sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}>
+    Upload Building Brochure
+  </InputLabel>
 
-              </InputLabel>
-             
-                <Box
-                  component="label"
-                  sx={{
-                    border: "2px dashed #ccc",
-                    borderRadius: 2,
-                    padding: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    bgcolor: "#f9f9f9",
-                  background:'white',
-                    flexDirection: "column",
-                    textAlign: "center",
-                    height:"20px"
-                  }}
-                >
-                  {brochureLoading ? (
-                    <Loader width="30px" height="30px" color={Colors.primary} />
-                  ) : (
-                    <>
-                      <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
-                      <Typography variant="caption">
-                        {brochureDocumment
-                          ? `Brochure Documnet Uploaded`
-                          : "Upload Brochure Document"}
-                      </Typography>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    hidden
-                    onChange={handleUploadDoc}
-                  />
-                </Box>
-              </Grid>
-            <Grid item xs={12} md={5}>
-            <InputLabel
-                sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}
-              >
-           Upload Building Layout
+  <Box
+    component="label"
+    sx={{
+      border: "2px dashed #ccc",
+      borderRadius: 2,
+      padding: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      bgcolor: "white",
+      flexDirection: "column",
+      textAlign: "center",
+      height: "20px",
+    }}
+  >
+    {brochureLoading ? (
+      <Loader width="30px" height="30px" color={Colors.primary} />
+    ) : (
+      <>
+        <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+        <Typography variant="caption">
+          {brochureDocumment ? "Brochure Document Uploaded" : "Upload Brochure Document"}
+        </Typography>
+      </>
+    )}
+    <input
+      type="file"
+      accept=".pdf,.jpg,.jpeg,.png"
+      hidden
+      onChange={handleUploadDoc}
+    />
+  </Box>
+  {brochureError && (
+  <Typography variant="caption" color="error" mt={0.5}>
+    {brochureError}
+  </Typography>
+)}
 
+  {brochureDocumment && (
+    <Box mt={1} display="flex" alignItems="center" gap={1}>
+      <PictureAsPdfIcon sx={{ color: Colors.primary ,fontSize:"20px" }} />
+      <Typography variant="caption" sx={{ flexGrow: 1 }}>
+        Brochure Uploaded
+      </Typography>
+      <IconButton
+        size="small"
+        onClick={() => setBrochureDocumment(null)}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </Box>
+  )}
+</Grid>
 
-              </InputLabel>
-             
-                <Box
-                  component="label"
-                  sx={{
-                    border: "2px dashed #ccc",
-                    borderRadius: 2,
-                    padding: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    bgcolor: "#f9f9f9",
-                  background:'white',
-                    flexDirection: "column",
-                    textAlign: "center",
-                    height:"20px"
-                  }}
-                >
-                  {buildingLayoutLoading ? (
-                    <Loader width="30px" height="30px" color={Colors.primary} />
-                  ) : (
-                    <>
-                      <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
-                      <Typography variant="caption">
-                        {buildingLayout
-                          ? `Building Layout Uploaded`
-                          : "Upload Building Layout "}
-                      </Typography>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    hidden
-                    onChange={handleUploadDoc2}
-                  />
-                </Box>
-              </Grid>
+{/* --- Building Layout --- */}
+
+<Grid item xs={12} md={5}>
+  <InputLabel sx={{ fontWeight: "bold", color: Colors.black, mb: 1 }}>
+    Upload Building Layout
+  </InputLabel>
+
+  <Box
+    component="label"
+    sx={{
+      border: "2px dashed #ccc",
+      borderRadius: 2,
+      padding: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      bgcolor: "white",
+      flexDirection: "column",
+      textAlign: "center",
+      height: "20px",
+    }}
+  >
+    {buildingLayoutLoading ? (
+      <Loader width="30px" height="30px" color={Colors.primary} />
+    ) : (
+      <>
+        <CloudUploadIcon sx={{ fontSize: 28, color: "#999" }} />
+        <Typography variant="caption">
+          {buildingLayout ? "Building Layout Uploaded" : "Upload Building Layout"}
+        </Typography>
+      </>
+    )}
+    <input
+      type="file"
+      accept=".pdf,.jpg,.jpeg,.png"
+      hidden
+      onChange={handleUploadDoc2}
+    />
+  </Box>
+  {buildingLayoutError && (
+  <Typography variant="caption" color="error" mt={0.5}>
+    {buildingLayoutError}
+  </Typography>
+)}
+
+  {buildingLayout && (
+    <Box mt={1} display="flex" alignItems="center" gap={1}>
+      <PictureAsPdfIcon sx={{ color: Colors.primary,fontSize:"20px" }} />
+      <Typography variant="caption" sx={{ flexGrow: 1 }}>
+        Layout Uploaded
+      </Typography>
+      <IconButton
+        size="small"
+        onClick={() => setBuildingLayout(null)}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </Box>
+  )}
+</Grid>
+
           
             {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>

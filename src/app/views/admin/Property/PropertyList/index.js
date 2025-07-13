@@ -311,7 +311,7 @@ const PropertyList = () => {
                     {row?.area + " sqft"}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" ,textTransform:"capitalize" }}>
-                    {row?.purpose == "both" ? "Sale/Rent" :row?.purpose }
+                    {row?.purpose == "both" ? "Sale-Rent (Both)" :row?.purpose }
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
                     {formatPrice(row?.price)}

@@ -246,7 +246,7 @@ const ProfessionalPropertyListing = () => {
   const [filters, setFilters] = useState({
     location: "",
     propertyType: "",
-    priceRange: [maxMin?.min_price, maxMin?.max_price],
+    priceRange: [maxMin?.min_price, 250000000],
     bedrooms: "",
     bathrooms: "",
     area: [0, 10000],
@@ -419,7 +419,8 @@ const [selectedProperty , setSelectedProperty] = useState(null)
             setPropertyData(property);
             setOpenBookDialog(true);
           } else {
-            navigate("/agent/login");
+            const currentPath = window.location.pathname;
+            navigate(`/agent/login?redirect=${encodeURIComponent(currentPath)}`);
             ErrorToaster("Please login to book a property");
           }
         }}
@@ -436,6 +437,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
       >
         View Details
       </Button>
+     
     </Box>
   </Grid>
 
@@ -557,7 +559,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                         fontSize: "0.75rem",
                       }}
                     >
-                      Selling Price
+                    Total Selling Price
                     </Typography>
                     <Typography
                       variant="body1"
@@ -594,7 +596,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                     </Box>
                   </Box>
                 </Box>
-                <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
+                <Box sx={{ display: "flex", gap: 4, mb: 3 ,alignItems:"center"}}>
                   <Box>
                     <Typography
                       variant="caption"
@@ -605,7 +607,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                         fontSize: "0.75rem",
                       }}
                     >
-                      Rental Price
+                     Annual Rental Price  
                     </Typography>
                     <Typography
                       variant="body1"
@@ -641,43 +643,50 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                       </Typography>
                     </Box>
                   </Box>
-                  {property?.rented_vacant == "rented" && (
+                  {property?.rented_vacant === "rented" && (
+                    <>
+  <Box>
+    <Typography
+      variant="caption"
+      sx={{
+        color: "#666",
+        textTransform: "uppercase",
+        fontWeight: 600,
+        fontSize: "0.75rem",
+      }}
+    >
+      Status
+    </Typography>
 
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#666",
-                        textTransform: "uppercase",
-                        fontWeight: 600,
-                        fontSize: "0.75rem",
-                      }}
-                    >
-                      Status
-                    </Typography>
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <Chip
-                        label={property?.rented_vacant}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+      <Typography
+        variant="body2"
+        sx={{ textTransform: "capitalize", fontWeight: 600 }}
+      >
+        {property?.rented_vacant}
+      </Typography>
 
-                            setSelectedProperty(property)
-                            setOpenStatus(true)
-                          
-                        }}
-                        variant="outlined"
-                        sx={{
-                          textTransform: "capitalize",
-                          fontWeight: 600,
-                          fontSize: "14px",
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                  )}
+   
+    </Box>
+  </Box>
+
+  <Box>
+       <Button
+        size="small"
+        variant="outlined"
+        sx={{fontWeight:"bold",height:"44px"}}
+        onClick={(e) => {
+          e.stopPropagation();
+          setSelectedProperty(property);
+          setOpenStatus(true);
+        }}
+      >
+        View Rent Details
+      </Button>
+  </Box>
+                    </>
+)}
+
                 </Box>
               </Box>
             </Box>
@@ -711,7 +720,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                 sx={{
                   fontWeight: 700,
                   mb: 1,
-                  fontSize: { xs: "2rem", md: "2.5rem" },
+                  fontSize: { xs: "2rem", md: "3rem" },
                   color: "white",
                   textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
                 }}
@@ -732,149 +741,105 @@ const [selectedProperty , setSelectedProperty] = useState(null)
 
             {/* Filters Section */}
             <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                mb: 4,
-                borderRadius: 3,
-                border: "1px solid #e2e8f0",
-                backgroundColor: "white",
-              }}
-            >
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}
-              >
-                <FilterList sx={{ color: "#4a5568" }} />
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 600, color: "#2d3748" }}
-                >
-                  Search Filters
-                </Typography>
-              </Box>
+  elevation={0}
+  sx={{
+    p: 1.5, // tighter padding
+    mb: 2, // smaller margin
+    borderRadius: 2,
+    border: "1px solid #e2e8f0",
+    backgroundColor: "white",
+  }}
+>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+    <FilterList sx={{ color: "#4a5568", fontSize: 18 }} />
+    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#2d3748" }}>
+      Search Filters
+    </Typography>
+  </Box>
 
-              <Grid container spacing={3}>
-                {/* Search Location */}
-                <Grid item xs={12} md={3}>
-                  <TextField
-                    fullWidth
-                    placeholder="Search by Name"
-                    value={search}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                    // onChange={(e) =>
-                    //   setFilters({ ...filters, location: e.target.value })
-                    // }
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search sx={{ color: "#718096" }} />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
-                      },
-                    }}
-                  />
-                </Grid>
+  <Grid container spacing={1.5}>
+    <Grid item xs={12} md={3}>
+      <TextField
+        fullWidth
+        size="small"
+        placeholder="Search by Name"
+        value={search}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search sx={{ color: "#718096", fontSize: 18 }} />
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Grid>
 
-                {/* Property Type */}
-                <Grid item xs={12} md={3}>
-                  <FormControl fullWidth>
-                    <InputLabel>Property Type</InputLabel>
-                    <Select
-                      value={filters.propertyType}
-                      label="Property Type"
-                      onChange={(e) =>
-                        setFilters({ ...filters, propertyType: e.target.value })
-                      }
-                      sx={{ borderRadius: 2 }}
-                    >
-                      <MenuItem value="">All Types</MenuItem>
-                      <MenuItem value="commercialOffice">
-                        Commercial Office
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {/* Prupose*/}
-                <Grid item xs={12} md={3}>
-                  <FormControl fullWidth>
-                    <InputLabel>Select Purpse</InputLabel>
-                    <Select
-                      value={filters.purpose}
-                      label="Property Type"
-                      onChange={(e) =>
-                        setFilters({ ...filters, purpose: e.target.value })
-                      }
-                      sx={{ borderRadius: 2 }}
-                    >
-                      <MenuItem value="">Both</MenuItem>
-                      <MenuItem value="sell">Sell</MenuItem>
-                      <MenuItem value="rent">Rent</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
+    <Grid item xs={12} md={3}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Property Type</InputLabel>
+        <Select
+          value={filters.propertyType}
+          label="Property Type"
+          onChange={(e) =>
+            setFilters({ ...filters, propertyType: e.target.value })
+          }
+        >
+          <MenuItem value="">All Types</MenuItem>
+          <MenuItem value="commercialOffice">Commercial Office</MenuItem>
+        </Select>
+      </FormControl>
+    </Grid>
 
-                {/* Advanced Filters */}
-                <Grid item xs={12} md={3}>
-                  {/* <Accordion
-                    elevation={0}
-                    sx={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 2,
-                      "& .MuiAccordionSummary-root": {
-                        minHeight: "54px !important",
-                      },
-                    }}
-                  >
-                    <AccordionSummary expandIcon={<ExpandMore />}>
-                      <Typography variant="body2">Advanced Filters</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails> */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      Price Range (AED)
-                    </Typography>
-                    <Slider
-                      value={filters.priceRange}
-                      onChange={(e, newValue) =>
-                        setFilters({ ...filters, priceRange: newValue })
-                      }
-                      valueLabelDisplay="auto"
-                      min={maxMin?.min_price || 0}
-                      max={maxMin?.max_price || 10000000}
-                      step={100000}
-                      valueLabelFormat={(value) => `${value}AED`}
-                      sx={{
-                        color: Colors.primary,
-                      }}
-                    />
-                  </Box>
-                  {/* <Box>
-                        <Typography
-                          variant="body2"
-                          sx={{ mb: 2, fontWeight: 600 }}
-                        >
-                          Area (sqft)
-                        </Typography>
-                        <Slider
-                          value={filters.area}
-                          onChange={(e, newValue) =>
-                            setFilters({ ...filters, area: newValue })
-                          }
-                          valueLabelDisplay="auto"
-                          min={0}
-                          max={10000}
-                          step={100}
-                        />
-                      </Box> */}
-                  {/* </AccordionDetails>
-                  </Accordion> */}
-                </Grid>
-              </Grid>
-            </Paper>
+    <Grid item xs={12} md={3}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Select Purpose</InputLabel>
+        <Select
+          value={filters.purpose}
+          label="Purpose"
+          onChange={(e) =>
+            setFilters({ ...filters, purpose: e.target.value })
+          }
+        >
+          <MenuItem value="">Both</MenuItem>
+          <MenuItem value="sell">Sell</MenuItem>
+          <MenuItem value="rent">Rent</MenuItem>
+        </Select>
+      </FormControl>
+    </Grid>
+
+    <Grid item xs={12} md={3}>
+  <Typography
+    variant="caption"
+    sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
+  >
+    Price Range (AED)
+  </Typography>
+  <Box sx={{ width: {md:"90%",sm:"98%",xs:"95%" },marginTop:"-10px" ,marginLeft:"10px"}}>
+    <Slider
+      value={filters.priceRange}
+      onChange={(e, newValue) =>
+        setFilters({ ...filters, priceRange: newValue })
+      }
+      valueLabelDisplay="auto"
+      min={maxMin?.min_price || 0}
+      max={maxMin?.max_price || 10000000}
+      step={100000}
+      valueLabelFormat={(value) => `${value} AED`}
+      sx={{
+        color: Colors.primary,
+        height: 4,
+        padding: '0 !important',
+      }}
+    />
+  </Box>
+</Grid>
+
+  </Grid>
+</Paper>
+
+
+
           </Container>
         </Box>
         <Container sx={{ py: 4, maxWidth: "1300px !important" }}>
@@ -935,19 +900,19 @@ const [selectedProperty , setSelectedProperty] = useState(null)
 >
 <Grid container spacing={4} mt={1}>
   <Grid item xs={12} md={6}>
-    <Typography variant="subtitle2" fontWeight={600}>
+    <Typography variant="subtitle2" fontWeight={600} sx={{textAlign:"center"}}>
       Tenure (Years):
     </Typography>
-    <Typography variant="body2">
+    <Typography variant="body2" sx={{textAlign:"center"}}>
       {selectedProperty?.tenure_years || "—"}
     </Typography>
   </Grid>
 
   <Grid item xs={12} md={6}>
-    <Typography variant="subtitle2" fontWeight={600}>
+    <Typography variant="subtitle2" fontWeight={600} sx={{textAlign:"center"}}>
       Contract Value:
     </Typography>
-    <Typography variant="body2">
+    <Typography variant="body2" sx={{textAlign:"center"}}>
       {selectedProperty?.contract_value
         ? formatPrice(selectedProperty.contract_value)
         : "—"}
@@ -955,10 +920,10 @@ const [selectedProperty , setSelectedProperty] = useState(null)
   </Grid>
 
   <Grid item xs={12} md={6}>
-    <Typography variant="subtitle2" fontWeight={600}>
+    <Typography variant="subtitle2" fontWeight={600} sx={{textAlign:"center"}}>
       Lease Start Date:
     </Typography>
-    <Typography variant="body2">
+    <Typography variant="body2" sx={{textAlign:"center"}}>
       {selectedProperty?.lease_start_date
         ? moment(selectedProperty.lease_start_date).format("DD-MM-YYYY")
         : "—"}
@@ -966,10 +931,10 @@ const [selectedProperty , setSelectedProperty] = useState(null)
   </Grid>
 
   <Grid item xs={12} md={6}>
-    <Typography variant="subtitle2" fontWeight={600}>
+    <Typography variant="subtitle2" fontWeight={600} sx={{textAlign:"center"}}>
       Lease End Date:
     </Typography>
-    <Typography variant="body2">
+    <Typography variant="body2" sx={{textAlign:"center"}}>
       {selectedProperty?.lease_end_date
         ? moment(selectedProperty.lease_end_date).format("DD-MM-YYYY")
         : "—"}

@@ -24,6 +24,7 @@ import {
   FormLabel,
   FormGroup,
 } from "@mui/material";
+import PaymentsTwoToneIcon from '@mui/icons-material/PaymentsTwoTone';
 import {
   Search,
   LocationOn,
@@ -299,7 +300,7 @@ export default function MyBooking() {
                         </Box>
 
                         <Box display="flex" alignItems="center" gap={1}>
-                          <AttachMoney fontSize="small" color="action" />
+                          < PaymentsTwoToneIcon fontSize="small" color="action" />
                           <Typography
                             variant="h6"
                             color="primary"

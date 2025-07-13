@@ -176,10 +176,11 @@ const theme = useTheme();
         {[
           ["Unit Number", propertyData?.unit_number],
           ["Selling Price/sqft", formatPrice(propertyData?.selling_price_sqft)],
-          ["Rental Price", formatPrice(propertyData?.rental_price)],
+          ["Annual Rental Price", formatPrice(propertyData?.rental_price)],
           ["Rental Price/sqft", formatPrice(propertyData?.rental_price_per_sqft)],
-          ["Annual Rent", formatPrice(propertyData?.annual_rent)],
-          ["Purpose", propertyData?.purpose  == "both" ? "Sale/Rent" :propertyData?.purpose],
+          ["Service Charges", formatPrice(propertyData?.service_charges)],
+          ["Status", propertyData?.rented_vacant],
+          ["Purpose", propertyData?.purpose  == "both" ? "Sale-Rent (Both)" :propertyData?.purpose],
          
           
           ["Description", propertyData?.description],
@@ -231,11 +232,10 @@ const theme = useTheme();
         
           ["Area", `${propertyData?.area} sq ft`],
         
-          ["Category", propertyData?.category],
-          ["Comments", propertyData?.comments],
-          ["Service Charges", formatPrice(propertyData?.service_charges)],
+          ["Category", propertyData?.category == "furnished" ? "Fully Furnished" : propertyData?.category],
+          ["Availability ?", propertyData?.comments],
           ["Parking Spaces", propertyData?.parking_space],
-          ["Status", propertyData?.rented_vacant],
+          
           // Inside Property Details Card
 
 
