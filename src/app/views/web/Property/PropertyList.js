@@ -596,7 +596,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                     </Box>
                   </Box>
                 </Box>
-                <Box sx={{ display: "flex", gap: 4, mb: 3 ,alignItems:"center"}}>
+                <Box sx={{ display: "flex", gap: 4, mb: 3 ,alignItems:"center" ,flexWrap:"wrap"}}>
                   <Box>
                     <Typography
                       variant="caption"
