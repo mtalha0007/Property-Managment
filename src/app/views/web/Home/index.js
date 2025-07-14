@@ -415,9 +415,10 @@ const Home = () => {
             </Typography>
 
             {/* Top Tabs (Buy, Rent, Off Plan) */}
+
             <Box
               sx={{
-                display: "flex",
+                display: {md:"flex",sm:"none",xs:"none"},
                 gap: 1.5,
                 mb: 2,
               }}
@@ -1676,11 +1677,45 @@ const Home = () => {
         open={openFilterModal}
         onClose={() => setOpenFilterModal(false)}
         fullWidth
+        sx={{borderRadius:2}}
       >
-        <DialogTitle>Filter Properties</DialogTitle>
+        <DialogTitle sx={{fontWeight:"bold" , fontSize:"18px"}}>Filter Properties</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
         >
+          <Box
+              sx={{
+                display: "flex",
+                gap: 1.5,
+                mb: 2,
+              }}
+            >
+              {["Sell", "Rent", "Both"].map((label) => (
+                <Button
+                  key={label}
+                  variant="outlined"
+                  onClick={() => setSelectedType(label)}
+                  sx={{
+                    color: selectedType === label ? Colors.white : Colors.primary,
+                    borderColor:Colors.primary,
+                    borderRadius: "8px",
+                    px: 3,
+                    textTransform: "none",
+                    backgroundColor:
+                      selectedType === label ? Colors.primary : "transparent",
+                    "&:hover": {
+                      backgroundColor:
+                        selectedType === label
+                          ? Colors.primary
+                          : "rgba(255,255,255,0.1)",
+                          opacity:0.9
+                    },
+                  }}
+                >
+                  {label}
+                </Button>
+              ))}
+            </Box>
           {/* Location Input */}
           <InputBase
             fullWidth
@@ -1751,7 +1786,7 @@ const Home = () => {
           </Accordion>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenFilterModal(false)}>Close</Button>
+          <Button variant="contained" onClick={() => setOpenFilterModal(false)}>Close</Button>
           <Button
             variant="contained"
             onClick={() => {
