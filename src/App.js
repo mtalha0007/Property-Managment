@@ -54,8 +54,13 @@ function AppContent() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location]);
-
+  }, [location.pathname])
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+  
   return (
     <Routes>
       <Route path="/" element={<Home />} />
