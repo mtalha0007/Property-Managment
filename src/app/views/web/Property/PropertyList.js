@@ -81,6 +81,7 @@ const ProfessionalPropertyListing = () => {
   const [openBookDialog, setOpenBookDialog] = useState(false);
   const [propertyData, setPropertyData] = useState([]);
   const [bookingLoading, setBookingLoading] = useState(false);
+ 
 
   const {
     register,
@@ -853,7 +854,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
             }}
           >
             <Typography variant="h6" sx={{ color: "#4a5568" }}>
-              {properties.length} Properties Found
+             Total Properties : {count}
             </Typography>
           </Box>
           {console.log(properties)}

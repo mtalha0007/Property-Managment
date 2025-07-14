@@ -1038,13 +1038,34 @@ const Home = () => {
             ))}
           </Grid>
 
-          <Divider
-            sx={{
-              mt: 13,
-              borderColor: "grey",
-              borderBottomWidth: "2px",
-            }}
-          />
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate("/property-list")}
+                sx={{
+                  backgroundColor: Colors.primary,
+                  color: "white",
+                  px:{md:6 ,sm:5,xs:4},
+                  py:2,
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
+                  "&:hover": {
+                    backgroundColor: Colors.primary,
+                    boxShadow: "0 6px 20px rgba(34, 197, 94, 0.4)",
+                    transform: "translateY(-2px)",
+                    opacity: 0.8,
+                  },
+                  transition: "all 0.3s ease-in-out",
+                }}
+              >
+                Browse All Properties
+              </Button>
+            </Box>
+        
         </Container>
       </Box>
 
