@@ -138,7 +138,7 @@ function AgentSignup() {
         onClick={() => navigate("/")}
         alt="Talha's Estate"
         sx={{
-          width: 170,
+          width: 300,
           position: "absolute",
           top: 6,
           left: 10,

@@ -1,5 +1,5 @@
 const Images = {
-  logo: require("./logo.png"),
+  logo: require("./logo2.png"),
   bgLogin: require("./]loginbg.jpg"),
   sideImage: require("./agentlogin.png"),
   trendingUp: require("./trending-up.png"),
@@ -27,7 +27,7 @@ const Images = {
   default: require("./default.webp"),
 
   section2: require("./Section2.webp"),
-  section3: require("./Section3.webp"),
+  section3: require("./Section3.jpg"),
   section4: require("./Section4.webp"),
   agentLogin: require("./agentlogin.png"),
 

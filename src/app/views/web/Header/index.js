@@ -243,7 +243,7 @@ export default function Header() {
                   src={Images.logo}
                   alt="Talha's Estate"
                   sx={{
-                    width:{md :"150px" ,xs:"100px"},
+                    width:{md :"100%" ,xs:"100%"},
                     height:{md :"88px" ,xs:"60px"},
                   
                   }}
@@ -348,7 +348,8 @@ export default function Header() {
           textTransform: "none",
           fontSize: "0.875rem",
           backgroundColor: Colors.primary,
-          px: 2,
+                    px:{md: 2 ,sm:2,xs:"4px"},
+
           borderRadius: 1,
           color: Colors.white,
           ":hover": {
@@ -367,7 +368,8 @@ export default function Header() {
           textTransform: "none",
           fontSize: "0.875rem",
           backgroundColor: Colors.primary,
-          px: 2,
+                    px:{md: 2 ,sm:2,xs:"4px"},
+
           borderRadius: 1,
           color: Colors.white,
           ":hover": {

@@ -68,7 +68,7 @@ function App() {
     }
   };
   return (
-    <Grid container alignItems={"center"}>
+    <Grid container alignItems={"center"} >
       <Grid
         item
         xs={12}
@@ -79,7 +79,7 @@ function App() {
           alignItems: "center",
           // paddingTop: "90px",
           backgroundColor: "#fefefe",
-          
+          justifyContent:"center",
           height: { xs: "100vh", md: "auto" },
         }}
       >
@@ -87,7 +87,7 @@ function App() {
           <img
             src={Images.logo}
             alt="Bella Staffing Solutions Logo"
-            style={{ width: "150px" }}
+            style={{ width: "300px" }}
           />
         </Box>
         <Typography

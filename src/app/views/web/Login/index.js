@@ -87,7 +87,7 @@ function AgentLogin() {
         src={Images.logo}
         alt="Talha's Estate"
         sx={{
-          width: 170,
+          width: 300,
           position: "absolute",
           top: 20,
           left: 10,

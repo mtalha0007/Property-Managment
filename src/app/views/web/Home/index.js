@@ -418,7 +418,7 @@ const Home = () => {
 
             <Box
               sx={{
-                display: {md:"flex",sm:"none",xs:"none"},
+                display: { md: "flex", sm: "none", xs: "none" },
                 gap: 1.5,
                 mb: 2,
               }}
@@ -508,8 +508,9 @@ const Home = () => {
                   }}
                 >
                   <MenuItem value="">Select Type</MenuItem>
-                  <MenuItem value="commercialOffice">Commercial Office</MenuItem>
-
+                  <MenuItem value="commercialOffice">
+                    Commercial Office
+                  </MenuItem>
                 </Select>
               </FormControl>
 
@@ -962,14 +963,14 @@ const Home = () => {
                         color: "#4a5568",
                       }}
                     >
-                      <Box display="flex" alignItems="center" >
+                      <Box display="flex" alignItems="center">
                         <LocalParkingIcon fontSize="small" />
                         <Typography variant="body2">
                           {property.parking_space}
                         </Typography>
                       </Box>
 
-                      <Box display="flex" alignItems="center" >
+                      <Box display="flex" alignItems="center">
                         <SquareFoot fontSize="small" />
                         <Typography variant="body2">
                           {property.area} sqft
@@ -1039,37 +1040,125 @@ const Home = () => {
           </Grid>
 
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate("/property-list")}
-                sx={{
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate("/property-list")}
+              sx={{
+                backgroundColor: Colors.primary,
+                color: "white",
+                px: { md: 6, sm: 5, xs: 4 },
+                py: 2,
+                fontSize: "15px",
+                fontWeight: 600,
+                textTransform: "none",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
+                "&:hover": {
                   backgroundColor: Colors.primary,
-                  color: "white",
-                  px:{md:6 ,sm:5,xs:4},
-                  py:2,
-                  fontSize: "15px",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  borderRadius: 2,
-                  boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
-                  "&:hover": {
-                    backgroundColor: Colors.primary,
-                    boxShadow: "0 6px 20px rgba(34, 197, 94, 0.4)",
-                    transform: "translateY(-2px)",
-                    opacity: 0.8,
-                  },
-                  transition: "all 0.3s ease-in-out",
-                }}
-              >
-                Browse All Properties
-              </Button>
-            </Box>
-        
+                  boxShadow: "0 6px 20px rgba(34, 197, 94, 0.4)",
+                  transform: "translateY(-2px)",
+                  opacity: 0.8,
+                },
+                transition: "all 0.3s ease-in-out",
+              }}
+            >
+              Browse All Properties
+            </Button>
+          </Box>
         </Container>
       </Box>
 
       {/* //rental listing  */}
+      <Box sx={{ py: { xs: 4, md: 6 }, backgroundColor: "#f8f9fa" }}>
+        <Container sx={{ maxWidth: "1300px !important" }}>
+          <Box sx={{ textAlign: "center", mb: { xs: 4, md: 8 } }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+                fontWeight: 600,
+                color: "#2d3748",
+                mb: 2,
+              }}
+            >
+              Welcome to RR Properties LLC
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
+                color: "#718096",
+                fontWeight: 400,
+                maxWidth: "600px",
+                mx: "auto",
+              }}
+            >
+              Your Trusted Partner in Dubai Real Estate Investment
+            </Typography>
+          </Box>
+          <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
+            {/* Image on Left */}
+            <Grid item xs={12} md={6}>
+              <Box
+                component="img"
+                src={Images.section3} // replace with your image
+                alt="Dubai Real Estate Investment"
+                sx={{
+                  width: "100%",
+                  height: { xs: "250px", md: "400px" },
+                  objectFit: "cover",
+                  borderRadius: 2,
+                }}
+              />
+            </Grid>
+
+            {/* Text on Right */}
+            <Grid item xs={12} md={6}>
+              <Typography
+                variant="body1"
+                sx={{ color: "#718096", lineHeight: 1.7, mb: 1 }}
+              >
+                At RR Properties , we specialize in creating strategic,
+                high-yield investment opportunities in one of the world’s most
+                dynamic real estate markets — Dubai. With a deep understanding
+                of the local property landscape, our company connects investors
+                with premium commercials and off-plan developments that deliver
+                strong returns and long-term value.
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: "#718096", lineHeight: 1.7, mb: 1 }}
+              >
+                Headquartered in the heart of JLT, Dubai, we bring together a
+                team of industry experts, market analysts, and property
+                professionals dedicated to guiding you through every stage of
+                your investment journey. Whether you are a first-time investor
+                or an experienced portfolio holder, we offer tailored solutions
+                designed to meet your goals and maximize your ROI.
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{ color: "#718096", lineHeight: 1.7, mb: 1 }}
+              >
+                Driven by transparency, innovation, and integrity, RR Properties
+                LLC is committed to helping clients capitalize on Dubai’s
+                ever-growing real estate potential — a global hub of economic
+                growth, stability, and opportunity.
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{ color: "#2d3748", fontWeight: 600 }}
+              >
+                Invest smart. Invest in Dubai. Invest with RR Properties.
+              </Typography>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
       <Box sx={{ py: { xs: 2, md: 2 }, backgroundColor: "#f8f9fa" }}>
         <Container sx={{ maxWidth: "1300px !important" }}>
           {/* Header Section */}
@@ -1698,45 +1787,47 @@ const Home = () => {
         open={openFilterModal}
         onClose={() => setOpenFilterModal(false)}
         fullWidth
-        sx={{borderRadius:2}}
+        sx={{ borderRadius: 2 }}
       >
-        <DialogTitle sx={{fontWeight:"bold" , fontSize:"18px"}}>Filter Properties</DialogTitle>
+        <DialogTitle sx={{ fontWeight: "bold", fontSize: "18px" }}>
+          Filter Properties
+        </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
         >
           <Box
-              sx={{
-                display: "flex",
-                gap: 1.5,
-                mb: 2,
-              }}
-            >
-              {["Sell", "Rent", "Both"].map((label) => (
-                <Button
-                  key={label}
-                  variant="outlined"
-                  onClick={() => setSelectedType(label)}
-                  sx={{
-                    color: selectedType === label ? Colors.white : Colors.primary,
-                    borderColor:Colors.primary,
-                    borderRadius: "8px",
-                    px: 3,
-                    textTransform: "none",
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              mb: 2,
+            }}
+          >
+            {["Sell", "Rent", "Both"].map((label) => (
+              <Button
+                key={label}
+                variant="outlined"
+                onClick={() => setSelectedType(label)}
+                sx={{
+                  color: selectedType === label ? Colors.white : Colors.primary,
+                  borderColor: Colors.primary,
+                  borderRadius: "8px",
+                  px: 3,
+                  textTransform: "none",
+                  backgroundColor:
+                    selectedType === label ? Colors.primary : "transparent",
+                  "&:hover": {
                     backgroundColor:
-                      selectedType === label ? Colors.primary : "transparent",
-                    "&:hover": {
-                      backgroundColor:
-                        selectedType === label
-                          ? Colors.primary
-                          : "rgba(255,255,255,0.1)",
-                          opacity:0.9
-                    },
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
-            </Box>
+                      selectedType === label
+                        ? Colors.primary
+                        : "rgba(255,255,255,0.1)",
+                    opacity: 0.9,
+                  },
+                }}
+              >
+                {label}
+              </Button>
+            ))}
+          </Box>
           {/* Location Input */}
           <InputBase
             fullWidth
@@ -1766,7 +1857,6 @@ const Home = () => {
             >
               <MenuItem value="">Select Type</MenuItem>
               <MenuItem value="commercialOffice">Commercial Office</MenuItem>
-
             </Select>
           </FormControl>
 
@@ -1807,7 +1897,9 @@ const Home = () => {
           </Accordion>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" onClick={() => setOpenFilterModal(false)}>Close</Button>
+          <Button variant="contained" onClick={() => setOpenFilterModal(false)}>
+            Close
+          </Button>
           <Button
             variant="contained"
             onClick={() => {
