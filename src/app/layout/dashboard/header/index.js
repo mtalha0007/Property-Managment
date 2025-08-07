@@ -145,7 +145,7 @@ function Header({ status, toggleStatus }) {
                     },
                   }}
                 >
-                  <MenuItem
+                  {/* <MenuItem
                     onClick={() => {
                       navigate("/account/setting");
                       handleMenuClose()
@@ -158,7 +158,7 @@ function Header({ status, toggleStatus }) {
                     >
                       Account Setting
                     </Box>
-                  </MenuItem>
+                  </MenuItem> */}
                   <MenuItem
                     sx={{ my: 1 }}
                     onClick={() => {

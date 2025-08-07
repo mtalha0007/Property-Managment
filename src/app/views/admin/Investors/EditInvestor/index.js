@@ -226,7 +226,7 @@ import {
               <Autocomplete
     multiple
     options={propertyData || []}
-    getOptionLabel={(option) => option.name || ""}
+    getOptionLabel={(option) => option.name +" " +  option.unit_number || ""}
     filterSelectedOptions
     inputValue={search}
     value={selectedProperties}
