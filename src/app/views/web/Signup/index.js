@@ -30,8 +30,8 @@ function AgentSignup() {
   const [imgLoading, setImgLoading] = useState(false);
   const [loader, setLoader] = useState(false);
   const [preview, setPreview] = useState(null);
-  const [docPreview, setDocPreview] = useState(null);
   const [images, setImages] = useState(null);
+  const [docPreview, setDocPreview] = useState(null);
   const [document, setDocument] = useState(null);
 
   const { WebUserLogin } = useAuth();
@@ -105,7 +105,7 @@ function AgentSignup() {
       const response = await AuthServices.agentSignup(obj);
       console.log(response);
 
-      WebUserLogin(response?.data?.user);
+      // WebUserLogin(response?.data?.user);
 
       SuccessToaster(response?.message);
       navigate("/agent/login");
@@ -290,23 +290,13 @@ function AgentSignup() {
                     accept="image/*"
                     hidden
                     {...register("profilePic", {
-                      required: "Profile picture is required",
+                     
                       onChange: (e) => handleUpload(e),
                     })}
                   />
                 </Box>
 
-                {errors.profilePic && (
-                  <Typography
-                    variant="caption"
-                    color="error"
-                    align="center"
-                    display="block"
-                    mt={1}
-                  >
-                    {errors.profilePic.message}
-                  </Typography>
-                )}
+               
               </Grid>
 
               <Grid item xs={12} md={6}>

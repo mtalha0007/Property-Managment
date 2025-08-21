@@ -299,7 +299,7 @@ export default function MyBooking() {
                           </Typography>
                         </Box>
 
-                        <Box display="flex" alignItems="center" gap={1}>
+                        {/* <Box display="flex" alignItems="center" gap={1}>
                           < PaymentsTwoToneIcon fontSize="small" color="action" />
                           <Typography
                             variant="h6"
@@ -316,7 +316,7 @@ export default function MyBooking() {
                              
                             </Typography>
                           </Typography>
-                        </Box>
+                        </Box> */}
 
                         <Box display="flex" alignItems="center" flexWrap="wrap" gap={2}>
                           <Box display="flex" alignItems="center" gap={0.5}>

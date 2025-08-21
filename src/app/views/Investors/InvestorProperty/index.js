@@ -39,7 +39,7 @@ const tableHead = [
   "Type",
   "Area",
   "Purpose",
-  "Price",
+  // "Price",
 //   "Action",
 ];
 
@@ -309,9 +309,9 @@ const PropertyList = () => {
                   <TableCell sx={{ textAlign: "center" }}>
                     {row?.purpose}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  {/* <TableCell sx={{ textAlign: "center" }}>
                     {formatPrice(row?.price)}
-                  </TableCell>
+                  </TableCell> */}
                   {/* <TableCell sx={{ textAlign: "center" }}>
                     <Typography
                       sx={{

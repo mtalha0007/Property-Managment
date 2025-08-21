@@ -174,16 +174,17 @@ const ProfessionalPropertyListing = () => {
         idParam,
         pageParam,
         limitParam,
-        filters?.priceRange[0]
-          ? filters?.priceRange[0]
-          : priceMin
-          ? priceMin
-          : 0,
-        filters?.priceRange[1]
-          ? filters?.priceRange[1]
-          : priceMax
-          ? priceMax
-          : "",
+        // filters?.priceRange[0]
+        //   ? filters?.priceRange[0]
+        //   : priceMin
+        //   ? priceMin
+        //   : 0,
+        // filters?.priceRange[1]
+        //   ? filters?.priceRange[1]
+        //   : priceMax
+        //   ? priceMax
+        //   : "",
+        "","",
         filters?.propertyType === ""
           ? ""
           : filters?.propertyType
@@ -433,7 +434,12 @@ const [selectedProperty , setSelectedProperty] = useState(null)
         color="primary"
         sx={{ textTransform: "none", fontWeight: 600 }}
         onClick={() => {
-          navigate(`/property-detail/${property._id}`);
+          if (webUser?.token) {
+            navigate(`/property-detail/${property._id}`)
+          } else {
+            navigate("/agent/login");
+            ErrorToaster("Please login to View Detail");
+          }
         }}
       >
         View Details
@@ -549,7 +555,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                 </Box>
 
                 {/* Handover and Payment Plan */}
-                <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
+                {/* <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
                   <Box>
                     <Typography
                       variant="caption"
@@ -596,7 +602,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
                       </Typography>
                     </Box>
                   </Box>
-                </Box>
+                </Box> */}
                 <Box sx={{ display: "flex", gap: 4, mb: 3 ,alignItems:"center" ,flexWrap:"wrap"}}>
                   <Box>
                     <Typography
@@ -744,7 +750,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
             <Paper
   elevation={0}
   sx={{
-    p: 1.5, // tighter padding
+    p: 3, // tighter padding
     mb: 2, // smaller margin
     borderRadius: 2,
     border: "1px solid #e2e8f0",
@@ -759,7 +765,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
   </Box>
 
   <Grid container spacing={1.5}>
-    <Grid item xs={12} md={3}>
+    <Grid item xs={12} md={6}>
       <TextField
         fullWidth
         size="small"
@@ -776,7 +782,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
       />
     </Grid>
 
-    <Grid item xs={12} md={3}>
+    {/* <Grid item xs={12} md={3}>
       <FormControl fullWidth size="small">
         <InputLabel>Property Type</InputLabel>
         <Select
@@ -790,9 +796,9 @@ const [selectedProperty , setSelectedProperty] = useState(null)
           <MenuItem value="commercialOffice">Commercial Office</MenuItem>
         </Select>
       </FormControl>
-    </Grid>
+    </Grid> */}
 
-    <Grid item xs={12} md={3}>
+    <Grid item xs={12} md={6}>
       <FormControl fullWidth size="small">
         <InputLabel>Select Purpose</InputLabel>
         <Select
@@ -803,13 +809,13 @@ const [selectedProperty , setSelectedProperty] = useState(null)
           }
         >
           <MenuItem value="">Both</MenuItem>
-          <MenuItem value="sell">Sell</MenuItem>
+          <MenuItem value="sale">Sale</MenuItem>
           <MenuItem value="rent">Rent</MenuItem>
         </Select>
       </FormControl>
     </Grid>
 
-    <Grid item xs={12} md={3}>
+    {/* <Grid item xs={12} md={3}>
   <Typography
     variant="caption"
     sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
@@ -834,7 +840,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
       }}
     />
   </Box>
-</Grid>
+</Grid> */}
 
   </Grid>
 </Paper>
@@ -954,7 +960,7 @@ const [selectedProperty , setSelectedProperty] = useState(null)
           setValue("timeSlot", "");
         }}
         border={`4px solid ${Colors.primary}`}
-        title={`Book This ${propertyData?.type}`}
+        title={`Book This Property`}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>

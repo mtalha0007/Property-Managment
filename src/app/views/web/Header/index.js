@@ -154,7 +154,7 @@ export default function Header() {
   };
   const mobileMenu = (
     <Drawer
-      anchor="left"
+      anchor="right"
       open={mobileMenuOpen}
       onClose={handleMobileMenuToggle}
       sx={{
@@ -180,11 +180,43 @@ export default function Header() {
         </IconButton>
       </Box>
       <Divider />
-      <List onClick={() => setOpen(true)}>
-        <ListItem button>
-          <ListItemText primary="Sign Up / Sign In" />
-        </ListItem>
-      </List>
+      {webUser?.token ? (
+        <>
+        <List onClick={() => navigate("/my-booking")}>
+          <ListItem button>
+            <ListItemText primary="My Bookings" />
+          </ListItem>
+        </List>
+        
+        <List onClick={logout}>
+          <ListItem button>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
+       
+        </>
+      ):(
+<>
+        <List onClick={() => navigate("/login")}>
+          <ListItem button>
+            <ListItemText primary="Investor Login" />
+          </ListItem>
+        </List>
+        
+        <List  onClick={() => navigate("/agent/signup")}>
+          <ListItem button>
+            <ListItemText primary="Sign Up" />
+          </ListItem>
+        </List>
+        
+        <List  onClick={() => navigate("/agent/login")}>
+          <ListItem button>
+            <ListItemText primary="Sign In" />
+          </ListItem>
+        </List>
+        </>
+      )}
+
     </Drawer>
   );
   return (
@@ -207,7 +239,7 @@ export default function Header() {
                : "none"
              : "0 1px 2px rgba(0,0,0,0.05)",
          transition: "background-color 0.3s ease, box-shadow 0.3s ease",
-         zIndex: 1201,
+         zIndex: mobileMenuOpen ? 100: 1201,
        }}
     >
         <Container maxWidth="xl" sx={{ padding: "0px !important" }}>
@@ -219,15 +251,7 @@ export default function Header() {
                 //  gap: 1
               }}
             >
-              {/* <Box sx={{ display: { xs: "block", md: "none" } }}>
-                <IconButton
-                  edge="start"
-                  onClick={handleMobileMenuToggle}
-                  sx={{ color: "#4a5568" }}
-                >
-                  <MenuIcon />
-                </IconButton>
-              </Box> */}
+             
 
               <Box
                 onClick={() => navigate("/")}
@@ -251,7 +275,20 @@ export default function Header() {
                
               </Box>
             </Box>
+        {!mobileMenuOpen && (
 
+<Box sx={{ display: { xs: "block", md: "none" } }}>
+  <IconButton
+    edge="start"
+    onClick={handleMobileMenuToggle}
+    sx={{ color: Colors.primary }}
+  >
+    <MenuIcon />
+  </IconButton>
+</Box>
+        )}
+  
+<Box sx={{ display: { xs: "none", md: "flex" } }}>
             {webUser?.token ? (
   <>
     <Box
@@ -357,6 +394,26 @@ export default function Header() {
             opacity: 0.9,
           },
         }}
+        onClick={() => navigate("/login")}
+      >
+        Investor Login
+      </Button>
+      <Button
+        variant="text"
+        sx={{
+          color: "#4a5568",
+          textTransform: "none",
+          fontSize: "0.875rem",
+          backgroundColor: Colors.primary,
+                    px:{md: 2 ,sm:2,xs:"4px"},
+
+          borderRadius: 1,
+          color: Colors.white,
+          ":hover": {
+            backgroundColor: Colors.primary,
+            opacity: 0.9,
+          },
+        }}
         onClick={() => navigate("/agent/signup")}
       >
         Sign Up
@@ -384,6 +441,7 @@ export default function Header() {
     </Box>
   </Box>
 )}
+  </Box>
 
           </Toolbar>
         </Container>

@@ -26,5 +26,8 @@ export const  AuthRoutes = {
     updateBooking:"/bookings/updatebooking",
 
     createFeedBack:'/bookings/create/feedback',
+    updateAgentStatus:"/auth/update/agent",
+    registerBooking:"/bookings/booking/register/visit",
+    getAgentDetail:"/auth/agent/detail"
   };
     

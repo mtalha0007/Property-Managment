@@ -35,6 +35,11 @@ const AdminNavigation = [
     path:"/agent/list",    
   },
   {
+    name: "Agents Approval",
+    icon: Svgs.employees,
+    path:"/approved-agent/list",    
+  },
+  {
     name: "Investors",
     icon: Svgs.employees,
     path:"/investor/list",    

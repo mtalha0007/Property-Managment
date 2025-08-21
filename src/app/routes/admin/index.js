@@ -18,6 +18,8 @@ import InvestorCreate from "../../views/admin/Investors/InvestorCreate";
 import EditInvestor from "../../views/admin/Investors/EditInvestor";
 import BookingList from "../../views/admin/Booking/BookingList";
 import BookingApproved from "../../views/admin/Booking/ApprovedBooking/index";
+import ApprovedAgent from "../../views/admin/Agent/ApprovedAgent";
+import AgentDetail from "../../views/admin/Agent/AgentDetail";
 
 const AdminRoutes = [
   {
@@ -58,6 +60,16 @@ const AdminRoutes = [
 
   path: "/agent/list",
   component: <AgentListing />
+ },
+ {
+
+  path: "/agent/detail/:id",
+  component: <AgentDetail />
+ },
+ {
+
+  path: "/approved-agent/list",
+  component: <ApprovedAgent />
  },
  {
 

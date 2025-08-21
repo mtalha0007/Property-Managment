@@ -31,12 +31,16 @@ const AuthServices = {
     let result = patch(AuthRoutes.updateBooking ,obj );
     return result;
   },
+  updateAgentStatus: async (obj) => {
+    let result = patch(AuthRoutes.updateAgentStatus ,obj );
+    return result;
+  },
   deleteBooking: async (id) => {
     let result = deleted(AuthRoutes.deleteBooking + `/${id}` );
     return result;
   },
-  agentList: async (search , page ,limit) => {
-    let result = get(AuthRoutes.agentList + `?search=${search}&page=${page}&limit=${limit}` );
+  agentList: async (search , page ,limit,status) => {
+    let result = get(AuthRoutes.agentList + `?search=${search}&page=${page}&limit=${limit}&status=${status}` );
     return result;
   },
   getInvestors: async (search , page ,limit) => {
@@ -89,6 +93,14 @@ const AuthServices = {
   },
   investorStats: async (obj) => {
     let result = get(AuthRoutes.investorStats ,obj);
+    return result;
+  },
+  getAgentDetail: async (obj) => {
+    let result = get(AuthRoutes.getAgentDetail +`/${obj}`);
+    return result;
+  },
+  registerBooking: async (obj) => {
+    let result = post(AuthRoutes.registerBooking ,obj);
     return result;
   },
 

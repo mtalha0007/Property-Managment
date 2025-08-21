@@ -68,10 +68,12 @@ function AppContent() {
       <Route path="/agent/login" element={<AgentLogin />} />
       <Route path="/agent/signup" element={<AgentSignup />} />
       <Route path="/property-list" element={<PropertyList />} />
-      <Route path="/property-detail/:id" element={<PropertyDetail />} />
 
       {webUser?.token && (
+        <>
         <Route path="/my-booking" element={<MyBooking />} />
+        <Route path="/property-detail/:id" element={<PropertyDetail />} />
+        </>
       )}
 
       {user?.role === "admin" ? (

@@ -93,6 +93,7 @@ const App = () => {
         
         pageParam,
         limitParam,
+        "approved"
         
       );
       setData(data?.agents);
@@ -106,7 +107,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    getAgentList(search, page + 1, limit);
+    getAgentList(search, page + 1, limit,"approved");
   }, [page, limit, search]);
 
   const deleteProperty = async () => {
@@ -117,7 +118,7 @@ const App = () => {
       );
 
       setOpenDialog(false);
-      getAgentList(search, page + 1, limit);
+      getAgentList(search, page + 1, limit,"approved");
     } catch (error) {
       ErrorHandler(error);
       console.log(error?.message);
@@ -127,7 +128,7 @@ const App = () => {
   };
 
   const handleSearch = () => {
-    getAgentList(search, 1, limit);
+    getAgentList(search, 1, limit,"approved");
   };
 
   const handlePageChange = (event, newPage) => {
@@ -137,7 +138,7 @@ const App = () => {
   const handleReset = () => {
     setId("");
     setSearch("");
-    getAgentList("", 1, limit);
+    getAgentList("", 1, limit,"approved");
   };
 
   const filteredData = data.filter((item) =>
@@ -284,7 +285,10 @@ const App = () => {
             filteredData.map((row, index) => (
               <TableBody key={row._id}>
                 <TableRow
-                 
+                 onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/agent/detail/${row._id}`);
+                }}
                 >
                   <TableCell sx={{ textAlign: "center" }}>
                     {index + 1}

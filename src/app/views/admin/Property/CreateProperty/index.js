@@ -218,7 +218,7 @@ export default function CreateProperty() {
       unit_number: data.unit_number,
       selling_price_sqft: data?.selling_price_sqft,
 
-      type: type,
+      type: "commercialOffice",
       rental_price: data?.rental_price,
       area: data.area,
       rental_price_per_sqft: data?.rental_price_per_sqft,
@@ -380,7 +380,7 @@ export default function CreateProperty() {
               />
             </Grid>
 
-            <Grid item xs={12} md={5}>
+            {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Total Selling Price
               </InputLabel>
@@ -394,7 +394,7 @@ export default function CreateProperty() {
                 error={!!errors.price}
                 helperText={errors?.price?.message}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Unit Number
@@ -410,7 +410,7 @@ export default function CreateProperty() {
                 helperText={errors?.unit_number?.message}
               />
             </Grid>
-            <Grid item xs={12} md={5}>
+            {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Selling price per (sqft)
               </InputLabel>
@@ -425,8 +425,8 @@ export default function CreateProperty() {
                 error={!!errors.selling_price_sqft}
                 helperText={errors?.selling_price_sqft?.message}
               />
-            </Grid>
-            <Grid item xs={12} md={5}>
+            </Grid> */}
+            {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Type
               </InputLabel>
@@ -447,8 +447,8 @@ export default function CreateProperty() {
               >
                 <MenuItem value="commercialOffice">Commercial Ofice</MenuItem>
               </TextField>
-            </Grid>
-            <Grid item xs={12} md={5}>
+            </Grid> */}
+            {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                Annual Rental Price
               </InputLabel>
@@ -462,7 +462,7 @@ export default function CreateProperty() {
                 error={!!errors.rental_price}
                 helperText={errors?.rental_price?.message}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Size (sqft)
@@ -478,7 +478,7 @@ export default function CreateProperty() {
                 helperText={errors?.area?.message}
               />
             </Grid>
-            <Grid item xs={12} md={5}>
+            {/* <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Rental Price per (sqft)
               </InputLabel>
@@ -493,7 +493,7 @@ export default function CreateProperty() {
                 error={!!errors.rental_price_per_sqft}
                 helperText={errors?.rental_price_per_sqft?.message}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={5}>
               <InputLabel sx={{ fontWeight: "bold", color: Colors.black }}>
                 Address
@@ -707,8 +707,8 @@ export default function CreateProperty() {
                 value={category}
                 // onChange={(e) => setBillingPreference(e.target.value)}
               >
-                <MenuItem value="furnished">Fully Furnished</MenuItem>
-                <MenuItem value="unfurnished">Unfurnished</MenuItem>
+                <MenuItem value="fitted">Fitted</MenuItem>
+                <MenuItem value="not_fitted">Not Fitted</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} md={5}>

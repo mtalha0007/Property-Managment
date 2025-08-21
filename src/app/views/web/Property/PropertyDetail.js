@@ -442,7 +442,7 @@ function PropertyDetail() {
                       </Button>
                     </Box>
 
-                    <Typography
+                    {/* <Typography
                       variant="h5"
                       sx={{
                         fontWeight: "bold",
@@ -452,7 +452,7 @@ function PropertyDetail() {
                       }}
                     >
                        {formatPrice(propertyData?.price)}
-                    </Typography>
+                    </Typography> */}
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Typography variant="h6" sx={{ color: "#34495e", mb: 2 }}>
                         {propertyData?.address}
@@ -569,8 +569,8 @@ sx={{fontSize:"13px"}}
    
   </CardContent>
 </Card>
-<Grid container spacing={2} mb={3}>
-  {/* Selling Information */}
+{/* <Grid container spacing={2} mb={3}>
+ 
   <Grid item xs={12} md={6}>
     <Card elevation={2} sx={{ borderRadius: 2 }}>
       <CardContent>
@@ -597,7 +597,7 @@ sx={{fontSize:"13px"}}
     </Card>
   </Grid>
 
-  {/* Rental Information */}
+ 
   <Grid item xs={12} md={6}>
     <Card elevation={2} sx={{ borderRadius: 2 }}>
       <CardContent>
@@ -623,7 +623,7 @@ sx={{fontSize:"13px"}}
       </CardContent>
     </Card>
   </Grid>
-</Grid>
+</Grid> */}
               {/* Property Information Table */}
             
 <Card sx={{ mb: 3 }}>
@@ -671,7 +671,7 @@ sx={{fontSize:"13px"}}
         <Typography variant="subtitle2" fontWeight={600}>
           Category:
         </Typography>
-        <Typography variant="body2">{propertyData?.category == "furnished" ? "Fully Furnished" : propertyData?.category}</Typography>
+        <Typography variant="body2">{propertyData?.category == "fitted" ? "Fitted" : "Not Fitted"}</Typography>
       </Grid>
      
       
@@ -982,9 +982,9 @@ sx={{fontSize:"13px"}}
                         >
                           {property?.description}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "green" }}>
+                        {/* <Typography variant="body2" sx={{ color: "green" }}>
                           Price:  {formatPrice(property?.price)}
-                        </Typography>
+                        </Typography> */}
                       </Box>
                     </Box>
                   </CardContent>
@@ -1108,7 +1108,7 @@ sx={{fontSize:"13px"}}
           setDocument(null);
         }}
         border={`4px solid ${Colors.primary}`}
-        title={`Book This ${propertyData?.type}`}
+        title={`Book This Property`}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>

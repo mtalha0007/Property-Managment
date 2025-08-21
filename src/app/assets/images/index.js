@@ -1,5 +1,5 @@
 const Images = {
-  logo: require("./logo2.png"),
+  logo: require("./logooo.png"),
   bgLogin: require("./]loginbg.jpg"),
   sideImage: require("./agentlogin.png"),
   trendingUp: require("./trending-up.png"),
@@ -19,6 +19,7 @@ const Images = {
   banner: require("./banner.jpeg"),
   banner2: require("./banner2.jpg"),
   banner3: require("./banner3.jpeg"),
+  banner4: require("./banner5.jpg"),
   propertyCard: require("./propertycard.jpg"),
   card2: require("./card2.jpg"),
   card3: require("./card3.jpg"),
@@ -41,6 +42,17 @@ const Images = {
   hero8: require("./hero8.webp"),
 
   video: require("./video.mp4"),
+  card11: require("./card1.webp"),
+  card22: require("./card22.webp"),
+  card33: require("./card33.webp"),
+  card44: require("./card44.webp"),
+
+  itemData1:require("./itemData1.webp"),
+  itemData2:require("./itemData2.webp"),
+  itemData3:require("./itemData3.webp"),
+  itemData4:require("./itemData4.webp"),
+  itemData5:require("./itemData5.webp"),
+  itemData6:require("./itemData6.webp"),
 };
 
 const Svgs = {

@@ -204,7 +204,9 @@ export default function CreateInvestor() {
             <Autocomplete
   multiple
   options={propertyData || []}
-  getOptionLabel={(option) => option.name +" " +  option.unit_number || ""}
+  // getOptionLabel={(option) => option.name +" " +  option.unit_number || ""}
+  getOptionLabel={(option) => `${option.name} (${option.unit_number || ""})`}
+
   filterSelectedOptions
   inputValue={search}
   value={selectedProperties}

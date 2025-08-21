@@ -38,7 +38,7 @@ const tableHead = [
   "Type",
   "Area",
   "Purpose",
-  "Price",
+  // "Total Selling Price",
   "Action",
 ];
 
@@ -313,9 +313,9 @@ const PropertyList = () => {
                   <TableCell sx={{ textAlign: "center" ,textTransform:"capitalize" }}>
                     {row?.purpose == "both" ? "Sale-Rent (Both)" :row?.purpose }
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  {/* <TableCell sx={{ textAlign: "center" }}>
                     {formatPrice(row?.price)}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell sx={{ textAlign: "center" }}>
                     <Typography
                       sx={{
@@ -355,6 +355,9 @@ const PropertyList = () => {
         border={`4px solid ${Colors.primary}`}
         title="Are You Sure you want to Delete?"
       >
+        <Typography sx={{textAlign:"center"}}>
+        Deleting this property will remove all associated bookings.
+        </Typography>
         <Box
           sx={{ display: "flex", justifyContent: "center", gap: "16px", mt: 5 }}
         >
